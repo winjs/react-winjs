@@ -1,0 +1,22 @@
+{
+  "name": "react-winjs",
+  "version": "0.2.0",
+  "description": "React wrapper around WinJS's controls",
+  "main": "react-winjs.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "winjs",
+    "react"
+  ],
+  "author": "Microsoft Corporation and other contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/winjs/react-winjs"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^0.12.2"
+  }
+}
