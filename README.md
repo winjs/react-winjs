@@ -6,6 +6,8 @@ A work in progress.
 
 [Documentation and examples](https://github.com/winjs/react-winjs/wiki/Documentation).
 
+[Live demo](http://winjs.github.io/react-winjs/examples/showcase/index.html) showing an example usage of each component.
+
 ## Installation
 
 ```
@@ -36,7 +38,7 @@ var App = React.createClass({
 React.render(<App />, document.getElementById("app"));
 ```
 
-See the [documentation](https://github.com/winjs/react-winjs/wiki/Documentation) for more details and examples.
+See the [documentation](https://github.com/winjs/react-winjs/wiki/Documentation) and [showcase demo](http://winjs.github.io/react-winjs/examples/showcase/index.html) for more details and examples.
 
 ## License
 
