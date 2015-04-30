@@ -32,7 +32,7 @@ var examples = [
     { title: "Tooltip", componenent: require('./examples/Tooltip.jsx') }
 ];
 
-var baseSourceUrl = "https://github.com/rigdern/react-winjs/tree/master/examples/" +
+var baseSourceUrl = "https://github.com/winjs/react-winjs/tree/master/examples/" +
     "showcase/examples/";
 var styles = {
     viewport: { height: "100%", overflow: "auto" },
