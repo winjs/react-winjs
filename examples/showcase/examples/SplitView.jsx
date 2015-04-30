@@ -52,13 +52,13 @@ module.exports = React.createClass({
             </div>
         );
         var contentComponent = (
-            <h2 style={{marginLeft: 10}}>{this.state.content}</h2>
+            <h2 style={{marginLeft: "10px"}}>{this.state.content}</h2>
         );
 
         return (
             <ReactWinJS.SplitView
                 ref="splitView"
-                style={{height: 300}}
+                style={{height: "300px"}}
                 paneComponent={paneComponent}
                 contentComponent={contentComponent} />
         );

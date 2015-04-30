@@ -17,7 +17,7 @@ module.exports = React.createClass({
     render: function () {
         return (
             <ReactWinJS.Hub
-                style={{height: 500}}
+                style={{height: "500px"}}
                 onHeaderInvoked={this.handleHeaderInvoked}>
                 <ReactWinJS.Hub.Section
                     key="sectionA"

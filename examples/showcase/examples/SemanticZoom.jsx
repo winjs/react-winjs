@@ -83,7 +83,7 @@ module.exports = React.createClass({
                     Zoom {this.state.zoomedOut ? "In" : "Out"}
                 </button>
                 <ReactWinJS.SemanticZoom
-                    style={{height:400}}
+                    style={{height: "400px"}}
                     zoomedInComponent={zoomedInView}
                     zoomedOutComponent={zoomedOutView}
                     zoomedOut={this.state.zoomedOut}

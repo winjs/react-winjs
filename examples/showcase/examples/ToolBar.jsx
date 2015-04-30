@@ -21,6 +21,12 @@ module.exports = React.createClass({
             toggleSelected: true
         };
     },
+    componentDidUpdate: function (prevProps, prevState) {
+        if (this.state.toolBarIsSmall !== prevState.toolBarIsSmall) {
+            // Notify the ToolBar that is has been resized.
+            this.refs.toolBar.winControl.forceLayout();
+        }
+    },
     render: function () {
         var subMenu = (
             <ReactWinJS.Menu>
@@ -37,13 +43,18 @@ module.exports = React.createClass({
 
         return (
             <div>
+                <p>Notice how the ToolBar puts commands into an overflow menu when it can't fit
+                them in the primary area. You can control what gets overflowed first using
+                the <code>priority</code> prop</p>
                 <button onClick={this.handleToggleToolBarSize}>
                     Make ToolBar {this.state.toolBarIsSmall ? "Bigger" : "Smaller"}
                 </button>
                 <p>Clicked command: {this.state.result || "<null>"}</p>
                 <p>Toggle selected: {this.state.toggleSelected.toString()}</p>
                 
-                <ReactWinJS.ToolBar ref="toolBar" style={{width: 640}}>
+                <ReactWinJS.ToolBar ref="toolBar" style={{
+                    width: this.state.toolBarIsSmall ? "400px" : "640px"
+                }}>
 
                     <ReactWinJS.ToolBar.ContentCommand
                         key="content"

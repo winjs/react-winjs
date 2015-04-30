@@ -85,7 +85,7 @@ var App = React.createClass({
         return (
             <div className="viewport" style={styles.viewport}>
                 <div className="surface" style={styles.surface}>
-                    <h1>react-winjs Control Showcase</h1>
+                    <h1><a href="https://github.com/winjs/react-winjs">react-winjs</a> Control Showcase</h1>
 
                     <h3>Table of Contents</h3>
                     <ul>{tableOfContents}</ul>

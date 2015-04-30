@@ -28,7 +28,7 @@ module.exports = React.createClass({
         return (
             <ReactWinJS.ListView
                 className="listViewExample win-selectionstylefilled"
-                style={{height: 200}}
+                style={{height: "200px"}}
                 itemDataSource={this.state.list.dataSource}
                 itemTemplate={this.itemRenderer}
                 layout={this.state.layout}

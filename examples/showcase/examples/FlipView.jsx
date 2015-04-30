@@ -6,7 +6,7 @@ var ReactWinJS = require('react-winjs');
 module.exports = React.createClass({
     flipViewItemRenderer: ReactWinJS.reactRenderer(function (item) {
         return (
-            <div style={{height: 200}}>
+            <div style={{height: "200px"}}>
                 The rating of this flip view item is: {item.data.rating}
             </div>
         );
@@ -22,7 +22,7 @@ module.exports = React.createClass({
     render: function () {
         return (
             <ReactWinJS.FlipView
-                style={{height: 200, width: 200}}
+                style={{height: "200px", width: "200px"}}
                 itemDataSource={this.state.ratingsList.dataSource}
                 itemTemplate={this.flipViewItemRenderer} />
         );

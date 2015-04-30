@@ -6,7 +6,7 @@ var ReactWinJS = require('react-winjs');
 module.exports = React.createClass({
     render: function () {
         return (
-            <ReactWinJS.Pivot style={{height: 100}}>
+            <ReactWinJS.Pivot style={{height: "100px"}}>
                 <ReactWinJS.Pivot.Item key="itemA" header="First">
                     <div>Pivots are useful for varied content.</div>
                 </ReactWinJS.Pivot.Item>

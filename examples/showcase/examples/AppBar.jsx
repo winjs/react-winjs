@@ -81,6 +81,9 @@ module.exports = React.createClass({
         return (
             <div>
                 <p>This AppBar renders at the bottom of the screen.</p>
+                <p>Resize your window. Notice how the AppBar puts commands into an
+                overflow menu when it can't fit them in the primary area. You can
+                control what gets overflowed first using the <code>priority</code> prop</p>
                 <button onClick={this.props.onToggleAppBar}>
                     {this.props.appBarShown ? "Hide" : "Show"} AppBar
                 </button>
