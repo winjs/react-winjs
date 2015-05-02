@@ -39,6 +39,9 @@
 //       itemTemplate={this.itemTemplate} />
 // - Provide SplitViewButton & SplitViewCommand components or wait for WinJS to provide
 //   the corresponding controls?
+// - Think more about React bug: https://github.com/facebook/react/issues/3790
+//   BackButton has to work around it. I wonder if other controls which often cause
+//   navigation on "click" will also have to workaround it (e.g. NavBarCommand).
 
 var React = require('react/addons');
 
@@ -794,6 +797,7 @@ var PropHandlers = {
 function defineControl(controlName, options) {
     options = options || {};
     var winControlOptions = options.winControlOptions || {};
+    var preCtorInit = options.preCtorInit || function () { };
     var propHandlers = options.propHandlers || {};
     var render = options.render || function (component) {
         return React.DOM.div();
@@ -809,6 +813,7 @@ function defineControl(controlName, options) {
         // Give propHandlers that implement preCtorInit the opportunity to run before
         // instantiating the winControl.
         var options = cloneObject(winControlOptions);
+        preCtorInit(element, options, winjsComponent.data, displayName);
         Object.keys(props).forEach(function (propName) {
             var preCtorInit = propHandlers[propName] && propHandlers[propName].preCtorInit;
             if (preCtorInit) {
@@ -1094,6 +1099,13 @@ var ControlApis = updateWithDefaults({
     "AppBar.FlyoutCommand": CommandSpecs.FlyoutCommand,
     AutoSuggestBox: {},
     BackButton: {
+        preCtorInit: function (element, options, data, displayName) {
+            element.addEventListener("click", function (eventObject) {
+                // Prevent React from seeing the "click" event to workaround this React
+                // bug: https://github.com/facebook/react/issues/3790
+                eventObject.stopPropagation();
+            });
+        },
         render: function (component) {
             return React.DOM.button();
         }
