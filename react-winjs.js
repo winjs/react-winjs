@@ -632,6 +632,7 @@ function processChildren(componentDisplayName, children, childComponentsMap) {
 }
 
 var PropHandlers = {
+    // Maps to a property on the winControl.
     property: {
         preCtorInit: function property_preCtorInit(element, options, data, displayName, propName, value) {
             options[propName] = value;
@@ -642,6 +643,8 @@ var PropHandlers = {
             }
         }
     },
+
+    // Maps to a property on the winControl's element.
     domProperty: {
         preCtorInit: function domProperty_preCtorInit(element, options, data, displayName, propName, value) {
             element[propName] = value;
@@ -652,6 +655,8 @@ var PropHandlers = {
             }
         }
     },
+
+    // Maps to an event on the winControl.
     event: {
         // Can't set options in preCtorInit for events. The problem is WinJS control options
         // use a different code path to hook up events than the event property setters.
@@ -664,6 +669,8 @@ var PropHandlers = {
             }
         }
     },
+
+    // Maps to an event on the winControl's element.
     domEvent: {
         preCtorInit: function domEvent_preCtorInit(element, options, data, displayName, propName, value) {
             element[propName.toLowerCase()] = value;
@@ -674,6 +681,7 @@ var PropHandlers = {
             }
         }
     },
+
     //  Enable the addition and removal of CSS classes on the root of the winControl
     //  but don't clobber whatever CSS classes the underlying control may have added
     //  (e.g. don't clobber win-listview).
@@ -703,6 +711,7 @@ var PropHandlers = {
             }
         }
     },
+
     //  Enable the addition and removal of inline styles on the root of the winControl
     //  but don't clobber whatever inline styles the underlying control may have added.
     winControlStyle: {
@@ -731,20 +740,85 @@ var PropHandlers = {
             }
         }
     },
+
+    // Emits a warning to the console whenever prop gets used.
     warn: function PropHandlers_warn(warnMessage) {
         return {
+            // Don't need preCtorInit because this prop handler doesn't have any side
+            // effects on the WinJS control. update also runs during initialization so
+            // update is just as good as preCtorInit for our use case.
             update: function warn_update(winjsComponent, propName, oldValue, newValue) {
                 console.warn(winjsComponent.displayName + ": " + warnMessage);
             }
         };
     },
-    mountTo: function PropHandlers_mountTo(getMountPoint) {
+
+    // Creates a DOM element and mounts a React component on it. Gives this DOM
+    // element to the *winControlProperty* property of the winControl.
+    propertyWithMount: function PropHandlers_propertyWithMount(winControlProperty) {
         return {
-            update: function mountTo_update(winjsComponent, propName, oldValue, newValue) {
-                React.render(newValue, getMountPoint(winjsComponent));
+            preCtorInit: function propertyWithMount_preCtorInit(element, options, data, displayName, propName, value) {
+                if (value) {
+                    data[propName] = document.createElement("div");
+                    React.render(value, data[propName]);
+                    options[winControlProperty] = data[propName];
+                }
+            },
+            update: function propertyWithMount_update(winjsComponent, propName, oldValue, newValue) {
+                var winControl = winjsComponent.winControl;
+                var element = winjsComponent.data[propName];
+                if (newValue) {
+                    if (!element) {
+                        element = document.createElement("div");
+                        winjsComponent.data[propName] = element;
+                    }
+                    React.render(newValue, element);
+                    if (winControl[winControlProperty] !== element) {
+                        winControl[winControlProperty] = element;
+                    }
+                } else if (oldValue) {
+                    element && React.unmountComponentAtNode(element);
+                    winControl[winControlProperty] = null;
+                }
+            },
+            dispose: function propertyWithMount_dispose(winjsComponent, propName) {
+                var element = winjsComponent.data[propName];
+                element && React.unmountComponentAtNode(element);
             }
         };
     },
+
+
+    // Mounts a React component on whatever element gets returned by getMountPoint.
+    mountTo: function PropHandlers_mountTo(getMountPoint) {
+        return {
+            // Can't use preCtorInit because the mount point may not exist until the
+            // constructor has run.
+            update: function mountTo_update(winjsComponent, propName, oldValue, newValue) {
+                var oldElement = winjsComponent.data[propName];
+
+                if (newValue) {
+                    var newElement = getMountPoint(winjsComponent);
+                    if (oldElement && oldElement !== newElement) {
+                        React.unmountComponentAtNode(oldElement);
+                    }
+
+                    React.render(newValue, newElement);
+                    winjsComponent.data[propName] = newElement;
+                } else if (oldValue) {
+                    oldElement && React.unmountComponentAtNode(oldElement);
+                    winjsComponent.data[propName] = null;
+                }
+            },
+            dispose: function mountTo_dispose(winjsComponent, propName) {
+                var element = winjsComponent.data[propName];
+                element && React.unmountComponentAtNode(element);
+            }
+        };
+    },
+
+    // Uses the Binding.List's editing APIs to make it match the children prop. Does this to
+    // the Binding.List stored in the winControl's property called bindingListName.
     syncChildrenWithBindingList: function PropHandlers_syncChildrenWithBindingList(bindingListName) {
         return {
             preCtorInit: function syncChildrenWithBindingList_preCtorInit(element, options, data, displayName, propName, value) {
@@ -815,9 +889,9 @@ function defineControl(controlName, options) {
         var options = cloneObject(winControlOptions);
         preCtorInit(element, options, winjsComponent.data, displayName);
         Object.keys(props).forEach(function (propName) {
-            var preCtorInit = propHandlers[propName] && propHandlers[propName].preCtorInit;
-            if (preCtorInit) {
-                preCtorInit(element, options, winjsComponent.data, displayName, propName, props[propName]);
+            var handler = propHandlers[propName];
+            if (handler && handler.preCtorInit) {
+                handler.preCtorInit(element, options, winjsComponent.data, displayName, propName, props[propName]);
             }
         });
         winjsComponent.winControl = new WinJS.UI[winjsControlName](element, options);        
@@ -1159,7 +1233,16 @@ var ControlApis = updateWithDefaults({
         }
     },
     // ListLayout: Not a component so just use off of WinJS.UI?
-    ListView: {},
+    ListView: {
+        propHandlers: {
+            headerComponent: PropHandlers.propertyWithMount("header"),
+            footerComponent: PropHandlers.propertyWithMount("footer"),
+
+            // TODO: Remove these visibility events after fixing https://github.com/winjs/winjs/issues/1105
+            onHeaderVisibilityChanged: PropHandlers.event,
+            onFooterVisibilityChanged: PropHandlers.event
+        }
+    },
     // TODO: Keyboarding doesn't work in Menu probably because MenuCommands are not direct
     // children of the Menu.
     Menu: {
@@ -1169,6 +1252,7 @@ var ControlApis = updateWithDefaults({
                 // winControl.element because this enables props.children to have
                 // multiple components whereas the other technique restricts it to one.
                 update: function (winjsComponent, propName, oldValue, newValue) {
+                    // TODO: dispose
                     React.render(React.DOM.div(null, newValue), winjsComponent.winControl.element);
                 }
             }
@@ -1301,14 +1385,7 @@ var ControlApis = updateWithDefaults({
             children: PropHandlers.mountTo(function (winjsComponent) {
                 return winjsComponent.winControl.element;
             }),
-            contentComponent: {
-                update: function (winjsComponent, propName, oldValue, newValue) {
-                    if (!winjsComponent.winControl.contentElement) {
-                        winjsComponent.winControl.contentElement = document.createElement("div");
-                    }
-                    React.render(newValue, winjsComponent.winControl.contentElement);
-                }
-            }
+            contentComponent: PropHandlers.propertyWithMount("contentElement")
         }
     }
 });
@@ -1328,6 +1405,9 @@ ReactWinJS.reactRenderer = function reactRenderer(componentFunction) {
         return itemPromise.then(function (item) {
             var element = document.createElement("div");
             React.render(componentFunction(item), element);
+            WinJS.Utilities.markDisposable(element, function () {
+                React.unmountComponentAtNode(element);
+            });
             return element;
         });
     }
