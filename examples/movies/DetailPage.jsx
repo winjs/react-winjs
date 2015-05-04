@@ -17,10 +17,12 @@ var styles = {
             flexDirection: "row"
         },
         backButton: {
-            marginRight: "10px"
+            marginRight: "10px",
+            flex: "none"
         },
         title: {
-            marginBottom: "10px"
+            marginBottom: "10px",
+            flex: "1 1"
         }
     },
     detail: {
