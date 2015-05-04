@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+    <head>
+        <title>react-winjs Movies</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="msapplication-tap-highlight" content="no">
+
+        <script src="http://fb.me/react-with-addons-0.12.2.js"></script>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.0.0-preview/css/ui-light.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.0.0-preview/js/WinJS.min.js"></script>
+
+        <style>
+            #app {
+                height: 100%;
+            }
+
+            /*
+             * Search page
+             *  For performance reasons, the .win-container styles should be
+             *  specified in CSS.
+            */
+            #app .searchPage .moviesListView .win-container {
+                height: 81px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script src="browser-bundle.js"></script>
+    </body>
+</html>

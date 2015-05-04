@@ -47,99 +47,165 @@
 	/** @jsx React.DOM */
 
 	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
+	var ReactWinJS = __webpack_require__(5);
+	var FakeData = __webpack_require__(2);
+	var Data = FakeData;
+	var SearchPage = __webpack_require__(3);
+	var DetailPage = __webpack_require__(4);
 
-	// title is:
-	//   - Displayed as the title of the sample
-	//   - Used as the anchor ID of the sample
-	//   - Used to find the path to the source code of the sample. Specifically:
-	//     './examples/<title>.jsx'
-	var examples = [
-	    { title: "AppBar", componenent: __webpack_require__(2) },
-	    { title: "AutoSuggestBox", componenent: __webpack_require__(3) },
-	    { title: "BackButton", componenent: __webpack_require__(4) },
-	    { title: "ContentDialog", componenent: __webpack_require__(5) },
-	    { title: "DatePicker", componenent: __webpack_require__(6) },
-	    { title: "FlipView", componenent: __webpack_require__(7) },
-	    { title: "Flyout", componenent: __webpack_require__(8) },
-	    { title: "Hub", componenent: __webpack_require__(9) },
-	    { title: "ItemContainer", componenent: __webpack_require__(10) },
-	    { title: "ListView", componenent: __webpack_require__(11) },
-	    { title: "Menu", componenent: __webpack_require__(12) },
-	    { title: "NavBar", componenent: __webpack_require__(13) },
-	    { title: "Pivot", componenent: __webpack_require__(14) },
-	    { title: "Rating", componenent: __webpack_require__(15) },
-	    { title: "SearchBox", componenent: __webpack_require__(16) },
-	    { title: "SemanticZoom", componenent: __webpack_require__(17) },
-	    { title: "SplitView", componenent: __webpack_require__(18) },
-	    { title: "TimePicker", componenent: __webpack_require__(19) },
-	    { title: "ToggleSwitch", componenent: __webpack_require__(20) },
-	    { title: "ToolBar", componenent: __webpack_require__(21) },
-	    { title: "Tooltip", componenent: __webpack_require__(22) }
-	];
+	// TODO: Preserve the scroll position when navigating back to search page.
+	// TODO: Use a loading spinner instead of the text "Loading..."
 
-	var baseSourceUrl = "https://github.com/winjs/react-winjs/tree/master/examples/" +
-	    "showcase/examples/";
-	var styles = {
-	    viewport: { height: "100%", overflow: "auto" },
-	    surface: { paddingBottom: 96 + 10 }, // Leave room for bottom AppBar/NavBar
-	    example: { paddingBottom: 30 },
-	    exampleTitle: { paddingBottom: 10 },
-	    sourceLink: { paddingLeft: 5 }
+	// Manages fetching of movie data. *fetchFirst* and *fetchNext* start fetches and the when the
+	// resuts are ready, *dataHandler* is called.
+	var MovieFetcher = function (dataHandler) {
+	    this._dataHandler = dataHandler;
+	    this._outstandingFetch = null;
+
+	    this.queryText = "";
+	    this.nextPage = 1;
+	    this.receivedCount = 0;
+	    this.totalCount = 0;
+
+	};
+	// Fetches the first page of results of *queryText*. If that fetch is already in
+	// progress, this function is a no op.
+	MovieFetcher.prototype.fetchFirst = function (queryText) {
+	    this.queryText = queryText;
+	    this.nextPage = 1;
+	    this.receivedCount = 0;
+	    this.totalCount = 0;
+
+	    this._doFetch();
+	};
+	// Fetches the next page of results for whatever *queryText* was passed to the most
+	// recent call to *fetchFirst*. If a fetch is already in progress, this function is a no op.
+	MovieFetcher.prototype.fetchNext = function () {
+	    this._doFetch();
+	};
+	// Cancels whatever fetch is currently in progress.
+	MovieFetcher.prototype.stop = function () {
+	    var currFetch = this._outstandingFetch;
+	    this._outstandingFetch = null;
+	    currFetch && currFetch.promise.cancel();
+	};
+	MovieFetcher.prototype._doFetch = function () {
+	    var handleResults = function (response) {
+	        this._outstandingFetch = null;
+
+	        this.nextPage++;
+	        this.receivedCount += response.movies.length;
+	        this.totalCount = response.total;
+
+	        this._dataHandler({
+	            queryText: queryText,
+	            page: page,
+	            movies: response.movies,
+	            hasMore: this.receivedCount < this.totalCount
+
+	        });
+	    }.bind(this);
+
+	    var queryText = this.queryText;
+	    var page = this.nextPage;
+
+	    var hasMore = page === 1 || this.receivedCount < this.totalCount;
+	    var currFetch = this._outstandingFetch;
+	    if (!hasMore || currFetch && currFetch.queryText === queryText && currFetch.page === page) {
+	        // No more data or the fetch is already in progress.
+	        return;
+	    }
+
+	    this._outstandingFetch = null;
+	    currFetch && currFetch.promise.cancel();
+
+	    var fetchPromise = queryText ? Data.getSearchResults(queryText, page) : Data.getInTheaters(page);
+	    fetchPromise = fetchPromise.then(
+	        handleResults,
+	        function (error) {
+	            console.log("Query error: ");
+	            console.log("  Query: '" + queryText + "'");
+	            console.log("  Page: " + page);
+	            console.log("  Error: " + JSON.stringify(error));
+	        }
+	    );
+
+	    this._outstandingFetch = {
+	        promise: fetchPromise,
+	        queryText: queryText,
+	        page: page
+	    };
 	};
 
 	var App = React.createClass({displayName: "App",
-	    handleToggleAppBar: function (exampleTitle) {
+	    handleFetchResults: function (results) {
+	        var newMovies = results.movies;
+	        var currentMovies;
+	        if (results.page === 1) {
+	            currentMovies = new WinJS.Binding.List(newMovies);
+	        } else {
+	            currentMovies = this.state.movies;
+	            currentMovies.push.apply(currentMovies, newMovies);
+	        }
+
 	        this.setState({
-	            exampleWithAppBar: this.state.exampleWithAppBar === exampleTitle ? null : exampleTitle
+	            movies: currentMovies,
+	            queryText: results.queryText,
+	            hasMore: results.hasMore
+	        });
+	    },
+	    handleFetchFirstPage: function (queryText) {
+	        this.fetcher.fetchFirst(queryText);
+	    },
+	    handleFetchNextPage: function () {
+	        this.fetcher.fetchNext();
+	    },
+	    handleNavigated: function (eventObject) {
+	        this.setState({ 
+	            nav: {
+	                location: eventObject.detail.location,
+	                state: eventObject.detail.state
+	            }
 	        });
 	    },
 	    getInitialState: function () {
 	        return {
-	            // To prevent AppBars from occluding each other, only one example
-	            // should show an AppBar at a time.
-	            exampleWithAppBar: null
+	            movies: null,
+	            queryText: "",
+	            hasMore: true,
+	            nav: {
+	                location: WinJS.Navigation.location,
+	                state: WinJS.Navigation.state
+	            }
 	        };
 	    },
-	    render: function() {
-	        var tableOfContents = examples.map(function (example) {
-	            return React.createElement("li", null, React.createElement("a", {href: "#" + example.title}, example.title));
-	        });
-
-	        var exampleMarkup = examples.map(function (example) {
-	            var sourceUrl = baseSourceUrl + example.title + ".jsx";
-
+	    componentWillMount: function () {
+	        this.fetcher = new MovieFetcher(this.handleFetchResults);
+	        WinJS.Navigation.addEventListener("navigated", this.handleNavigated);
+	        WinJS.Navigation.navigate("/");
+	        this.handleFetchNextPage();
+	    },
+	    componentWillUnmount: function () {
+	        WinJS.Navigation.removeEventListener("navigated", this.handleNavigated);
+	        this.fetcher.stop();
+	    },
+	    render: function () {
+	        var nav = this.state.nav;
+	        if (nav.location === "/movie") {
 	            return (
-	                React.createElement("div", {style: styles.example, id: example.title, className: "example"}, 
-	                    React.createElement("h3", {style: styles.exampleTitle}, 
-	                        example.title, 
-	                        React.createElement("a", {
-	                            style: styles.sourceLink, 
-	                            href: sourceUrl, 
-	                            target: "_blank", 
-	                            className: "win-type-x-small"}, 
-	                            "(view source)"
-	                        )
-	                    ), 
-	                    React.createElement(example.componenent, {
-	                        appBarShown: this.state.exampleWithAppBar === example.title, 
-	                        onToggleAppBar: this.handleToggleAppBar.bind(null, example.title)})
-	                )
+	                React.createElement(DetailPage, {
+	                    movie: nav.state.movie})
 	            );
-	        }, this);
-
-	        return (
-	            React.createElement("div", {className: "viewport", style: styles.viewport}, 
-	                React.createElement("div", {className: "surface", style: styles.surface}, 
-	                    React.createElement("h1", null, React.createElement("a", {href: "https://github.com/winjs/react-winjs"}, "react-winjs"), " Control Showcase"), 
-
-	                    React.createElement("h3", null, "Table of Contents"), 
-	                    React.createElement("ul", null, tableOfContents), 
-
-	                    exampleMarkup
-	                )
-	            )
-	        );
+	        } else {
+	            return (
+	                React.createElement(SearchPage, {
+	                    movies: this.state.movies, 
+	                    queryText: this.state.queryText, 
+	                    hasMore: this.state.hasMore, 
+	                    onFetchFirstPage: this.handleFetchFirstPage, 
+	                    onFetchNextPage: this.handleFetchNextPage})
+	            );
+	        }
 	    }
 	});
 
@@ -156,102 +222,119 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/** @jsx React.DOM */
+	var nextMovieId = 0;
+	var ratings = ["Unrated", "G", "PG", "PG-13", "R"];
+	var firstNames = ["Charlsie", "Ofelia", "Jerome", "Leana", "Harlan", "Annalisa", "Leida", "Dessie", "Valrie", "Sharen", "Sergio", "Mitzie", "Celia", "Debbra", "Florida", "Kara", "Jacquie", "Sherley", "Carson", "Staci", "Paula", "Dann", "Linette", "Meri", "Almeta", "Detra", "Lupe", "Neville", "Marivel", "Carmine", "Carina", "Laureen", "Lourdes", "Laverne", "Verona", "Gertha", "Jene", "Joslyn", "Jone", "Latoya", "Margurite", "Emmett", "Wallace", "Elana", "Xiomara", "Sabra", "Ouida", "Kenton", "Norene", "Raul"];
+	var lastNames = ["Avey", "Crofoot", "Flor", "Barletta", "Zoller", "Rosson", "Coomes", "Wilken", "Withey", "Ojeda", "Mennella", "Gauer", "Puccio", "Zimmerer", "Cottrell", "Bridgman", "Gershman", "Tinoco", "Ayoub", "Fournier", "Marcella", "Melrose", "Lafontaine", "Cathcart", "Cioffi", "Sands", "Lei", "Cardoso", "Dela", "Metcalfe", "Ethridge", "Fryer", "Warden", "Madson", "Gonsales", "Tobey", "Knecht", "Gallion", "Thibault", "Brockington", "Baney", "Haddox", "Kang", "Galyean", "Riccio", "Lake", "Mirabella", "Frechette", "Rearick", "Carmouche"];
+	var loremIpsum = [
+		"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+		"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur",
+		"But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?",
+		"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.",
+		"On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.",
+	];
+	var words = loremIpsum.join(" ").replace(/,|!|\?|\./g, "").replace(/-/g, " ").split(" ");
 
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
+	var posterWidth = 153;
+	var posterHeight = 243;
+	var _canvas;
+	function makePoster(color) {
+		if (!_canvas) {
+			_canvas = document.createElement("canvas");
+			_canvas.width = posterWidth;
+			_canvas.height = posterHeight;
+		}
+		var ctxt = _canvas.getContext("2d");
+		ctxt.fillStyle = color;
+		ctxt.fillRect(0, 0, posterWidth, posterHeight);
+		return _canvas.toDataURL();
+	}
 
-	module.exports = React.createClass({displayName: "exports",
-	    handleUpdateResult: function (result) {
-	        this.setState({ result: result });
-	    },
-	    handleToggleMe: function (eventObject) {
-	        var toggleCommand = eventObject.currentTarget.winControl;
-	        this.setState({ toggleSelected: toggleCommand.selected });
-	    },
-	    getInitialState: function () {
-	        return {
-	            toolBarIsSmall: false,
-	            result: null,
-	            toggleSelected: true
-	        };
-	    },
-	    render: function () {
-	        var subMenu = (
-	            React.createElement(ReactWinJS.Menu, null, 
-	                React.createElement(ReactWinJS.Menu.Button, {
-	                    key: "chooseMeA", 
-	                    label: "Or Choose Me", 
-	                    onClick: this.handleUpdateResult.bind(null, "Or Choose Me")}), 
-	                React.createElement(ReactWinJS.Menu.Button, {
-	                    key: "chooseMeB", 
-	                    label: "No, Choose Me!", 
-	                    onClick: this.handleUpdateResult.bind(null, "No, Choose Me!")})
-	            )
-	        );
-
-	        var appBar = (
-	            React.createElement(ReactWinJS.AppBar, null, 
-
-	                    React.createElement(ReactWinJS.AppBar.ContentCommand, {
-	                        key: "content", 
-	                        icon: "accept", 
-	                        label: "Accept"}, 
-	                        React.createElement("input", {className: "win-interactive", type: "text"})
-	                    ), 
-
-	                    React.createElement(ReactWinJS.AppBar.Separator, {key: "separator"}), 
-
-	                    React.createElement(ReactWinJS.AppBar.Button, {
-	                        key: "chooseMe", 
-	                        icon: "add", 
-	                        label: "Choose Me", 
-	                        onClick: this.handleUpdateResult.bind(null, "Choose Me")}), 
-
-	                    React.createElement(ReactWinJS.AppBar.Toggle, {
-	                        key: "toggleMe", 
-	                        icon: "accept", 
-	                        label: "Toggle Me", 
-	                        selected: this.state.toggleSelected, 
-	                        onClick: this.handleToggleMe}), 
-
-	                    React.createElement(ReactWinJS.AppBar.FlyoutCommand, {
-	                        key: "flyout", 
-	                        icon: "up", 
-	                        label: "Flyout", 
-	                        flyoutComponent: subMenu}), 
-
-	                    React.createElement(ReactWinJS.AppBar.Button, {
-	                        key: "orMe", 
-	                        section: "secondary", 
-	                        label: "Or Me", 
-	                        onClick: this.handleUpdateResult.bind(null, "Or Choose Me")}), 
-
-	                    React.createElement(ReactWinJS.AppBar.Button, {
-	                        key: "noMe", 
-	                        section: "secondary", 
-	                        label: "No Me!", 
-	                        onClick: this.handleUpdateResult.bind(null, "No Me!")})
-
-	                )
-	        );
-
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("p", null, "This AppBar renders at the bottom of the screen."), 
-	                React.createElement("p", null, "Resize your window. Notice how the AppBar puts commands into an" + ' ' +
-	                "overflow menu when it can't fit them in the primary area. You can" + ' ' +
-	                "control what gets overflowed first using the ", React.createElement("code", null, "priority"), " prop"), 
-	                React.createElement("button", {onClick: this.props.onToggleAppBar}, 
-	                    this.props.appBarShown ? "Hide" : "Show", " AppBar"
-	                ), 
-	                React.createElement("p", null, "Clicked command: ", this.state.result || "<null>"), 
-	                React.createElement("p", null, "Toggle selected: ", this.state.toggleSelected.toString()), 
-	                this.props.appBarShown ? appBar : null
-	            )
-	        );
-	    }
+	var posterColors = [
+		[68, 34, 87], [100, 66, 119], [132, 98, 151],
+		[164, 162, 165], [196, 194, 197], [228, 226, 229]
+	];
+	var posters = posterColors.map(function (color) {
+		return makePoster("rgb(" + color.join(", ") + ")");
 	});
+
+	function randomInt(first, last) {
+		return Math.round(Math.random() * (last - first)) + first;
+	}
+
+	function randomElement(array) {
+		return array[randomInt(0, array.length - 1)];
+	}
+
+	function genArray(minLength, maxLength, genElement) {
+		var len = randomInt(minLength, maxLength);
+		var result = new Array(len);
+		for (var i = 0; i < len; i++) {
+			result[i] = genElement();
+		}
+		return result;
+	}
+
+	function genActor() {
+		return { name: randomElement(firstNames) + " " + randomElement(lastNames) };
+	}
+
+	function genTitleWord() {
+		var word = randomElement(words).toLowerCase();
+		return word[0].toUpperCase() + word.substr(1);
+	}
+
+	function genMovie() {
+		return {
+			id: nextMovieId++,
+			title: (nextMovieId - 1 + " ") + genArray(1, 5, genTitleWord).join(" "),
+			year: randomInt(1950, 2015),
+			mpaa_rating: randomElement(ratings),
+			synopsis: randomElement(loremIpsum),
+			posters: {
+				detailed: randomElement(posters)
+			},
+			ratings: {
+				critics_score: randomInt(0, 100),
+				audience_score: randomInt(0, 100)
+			},
+			abridged_cast: genArray(1, 8, genActor)
+		};
+	}
+
+	var movieCount = 1000;
+	var movies = genArray(movieCount, movieCount, genMovie);
+	var moviesPerPage = 20;
+	var fetchDelay = 500;
+
+	function getSearchResults(query, page) {
+		query = query.toLowerCase();
+		var start = (page - 1) * moviesPerPage;
+		var results = movies.filter(function (m) {
+			return m.title.toLowerCase().indexOf(query) !== -1;
+		});
+		return WinJS.Promise.timeout(fetchDelay).then(function () {
+			return {
+				movies: results.slice(start, start + moviesPerPage),
+				total: results.length
+			};
+		});
+	}
+
+	function getInTheaters(page) {
+		var start = (page - 1) * moviesPerPage;
+		return WinJS.Promise.timeout(fetchDelay).then(function () {
+			return {
+				movies: movies.slice(start, start + moviesPerPage),
+				total: movies.length
+			};
+		});
+	}
+
+	module.exports = {
+		getSearchResults: getSearchResults,
+		getInTheaters: getInTheaters
+	};
 
 /***/ },
 /* 3 */
@@ -260,56 +343,110 @@
 	/** @jsx React.DOM */
 
 	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
+	var ReactWinJS = __webpack_require__(5);
+	var Score = __webpack_require__(6);
+	var formattedScore = Score.formattedScore;
+	var textColoredForScore = Score.textColoredForScore;
 
-	var suggestionList = ["Shanghai", "Istanbul", "Karachi", "Delhi", "Mumbai", "Moscow", "Seoul", "Beijing", "Jakarta",
-	"Tokyo", "Mexico City", "Kinshasa", "New York City", "Lagos", "London", "Lima", "Bogota", "Tehran", "Ho Chi Minh City", "Hong Kong",
-	"Bangkok", "Dhaka", "Cairo", "Hanoi", "Rio de Janeiro", "Lahore", "Chonquing", "Bengaluru", "Tianjin", "Baghdad", "Riyadh", "Singapore",
-	"Santiago", "Saint Petersburg", "Surat", "Chennai", "Kolkata", "Yangon", "Guangzhou", "Alexandria", "Shenyang", "Hyderabad", "Ahmedabad",
-	"Ankara", "Johannesburg", "Wuhan", "Los Angeles", "Yokohama", "Abidjan", "Busan", "Cape Town", "Durban", "Pune", "Jeddah", "Berlin",
-	"Pyongyang", "Kanpur", "Madrid", "Jaipur", "Nairobi", "Chicago", "Houston", "Philadelphia", "Phoenix", "San Antonio", "San Diego",
-	"Dallas", "San Jose", "Jacksonville", "Indianapolis", "San Francisco", "Austin", "Columbus", "Fort Worth", "Charlotte", "Detroit",
-	"El Paso", "Memphis", "Baltimore", "Boston", "Seattle Washington", "Nashville", "Denver", "Louisville", "Milwaukee", "Portland",
-	"Las Vegas", "Oklahoma City", "Albuquerque", "Tucson", "Fresno", "Sacramento", "Long Beach", "Kansas City", "Mesa", "Virginia Beach",
-	"Atlanta", "Colorado Springs", "Omaha", "Raleigh", "Miami", "Cleveland", "Tulsa", "Oakland", "Minneapolis", "Wichita", "Arlington",
-	"Bakersfield", "New Orleans", "Honolulu", "Anaheim", "Tampa", "Aurora", "Santa Ana", "St. Louis", "Pittsburgh", "Corpus Christi",
-	"Riverside", "Cincinnati", "Lexington", "Anchorage", "Stockton", "Toledo", "St. Paul", "Newark", "Greensboro", "Buffalo", "Plano",
-	"Lincoln", "Henderson", "Fort Wayne", "Jersey City", "St. Petersburg", "Chula Vista", "Norfolk", "Orlando", "Chandler", "Laredo", "Madison",
-	"Winston-Salem", "Lubbock", "Baton Rouge", "Durham", "Garland", "Glendale", "Reno", "Hialeah", "Chesapeake", "Scottsdale", "North Las Vegas",
-	"Irving", "Fremont", "Irvine", "Birmingham", "Rochester", "San Bernardino", "Spokane", "Toronto", "Montreal", "Vancouver", "Ottawa-Gatineau",
-	"Calgary", "Edmonton", "Quebec City", "Winnipeg", "Hamilton"];
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleSuggestionsRequested: function (eventObject) {
-	        var queryText = eventObject.detail.queryText,
-	            query = queryText.toLowerCase(),
-	            suggestionCollection = eventObject.detail.searchSuggestionCollection;
-
-	        if (queryText.length > 0) {
-	            for (var i = 0, len = suggestionList.length; i < len; i++) {
-	                if (suggestionList[i].substr(0, query.length).toLowerCase() === query) {
-	                    suggestionCollection.appendQuerySuggestion(suggestionList[i]);
-	                }
-	            }
+	// For best performance, .win-container should be sized in CSS.
+	// See index.html for its style.
+	var styles = {
+	    item: {
+	        root: {
+	            display: "flex"
+	        },
+	        poster: {
+	            marginRight: "10px",
+	            flex: "none"
+	        },
+	        info: {
+	            flex: "1"
 	        }
 	    },
-	    handleQuerySubmitted: function (eventObject) {
-	        this.setState({ query: eventObject.detail.queryText });
+	    root: {
+	        height: "100%"
+	    },
+	    listView: {
+	        height: "calc(100% - 50px)"
+	    },
+	    footer: {
+	        height: "91px",
+	        lineHeight: "91px",
+	        textAlign: "center"
+	    }
+	};
+
+	module.exports = React.createClass({displayName: "exports",
+	    itemRenderer: ReactWinJS.reactRenderer(function (item) {
+	        var score = item.data.ratings.critics_score;
+	        var scoreComponent = textColoredForScore("Critics " + formattedScore(score), score);
+	        return (
+	            React.createElement("div", {style: styles.item.root}, 
+	                React.createElement("img", {style: styles.item.poster, src: item.data.posters.detailed, width: 51, height: 81}), 
+	                React.createElement("div", {style: styles.item.info}, 
+	                    React.createElement("h3", null, item.data.title), 
+	                    React.createElement("div", {className: "win-type-small"}, 
+	                        item.data.year, " ", "\u2022", " ", scoreComponent
+	                    )
+	                )
+	            )
+	        );
+	    }),
+	    handleQueryChange: function (eventObject) {
+	        var queryText = eventObject.currentTarget.value;
+	        this.setState({ queryText: queryText });
+
+	        this.pendingQueryId && clearTimeout(this.pendingQueryId);
+	        this.pendingQueryId = setTimeout(function () {
+	            this.props.onFetchFirstPage(queryText);
+	        }.bind(this), 300);
+	    },
+	    handleMovieSelected: function (eventObject) {
+	        WinJS.Navigation.navigate("/movie", {
+	            movie: this.props.movies.getAt(eventObject.detail.itemIndex)
+	        });
+	    },
+	    handleFooterVisibilityChanged: function (eventObject) {
+	        if (eventObject.detail.visible) {
+	            this.props.onFetchNextPage();
+	        }
 	    },
 	    getInitialState: function () {
 	        return {
-	            query: null
+	            queryText: this.props.queryText,
+	            layout: { type: WinJS.UI.ListLayout }
 	        };
 	    },
-	    render: function () {
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement(ReactWinJS.AutoSuggestBox, {
-	                    placeholderText: "Type a city", 
-	                    onSuggestionsRequested: this.handleSuggestionsRequested, 
-	                    onQuerySubmitted: this.handleQuerySubmitted}), 
+	    render: function() {
+	        var resultsComponent;
+	        if (!this.props.movies) {
+	            resultsComponent = React.createElement("div", null, "Loading...");
+	        } else if (this.props.movies.length === 0) {
+	            resultsComponent = React.createElement("div", null, "No movies found for \"", this.props.queryText, "\".");
+	        } else {
+	            var footerComponent = !this.props.hasMore ? null : (
+	                React.createElement("div", {style: styles.footer}, 
+	                "Loading..."
+	                )
+	            );
 
-	                React.createElement("p", null, "Submitted Query: ", this.state.query || "<null>")
+	            resultsComponent = (
+	                React.createElement(ReactWinJS.ListView, {
+	                    style: styles.listView, 
+	                    className: "moviesListView", 
+	                    itemDataSource: this.props.movies.dataSource, 
+	                    itemTemplate: this.itemRenderer, 
+	                    layout: this.state.layout, 
+	                    onItemInvoked: this.handleMovieSelected, 
+	                    footerComponent: footerComponent, 
+	                    onFooterVisibilityChanged: this.handleFooterVisibilityChanged})
+	            );
+	        }
+
+	        return (
+	            React.createElement("div", {className: "searchPage", style: styles.root}, 
+	                React.createElement("div", null, React.createElement("input", {type: "text", value: this.state.queryText, onChange: this.handleQueryChange})), 
+	                resultsComponent
 	            )
 	        );
 	    }
@@ -322,928 +459,95 @@
 	/** @jsx React.DOM */
 
 	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
+	var ReactWinJS = __webpack_require__(5);
+	var Score = __webpack_require__(6);
+	var formattedScore = Score.formattedScore;
+	var textColoredForScore = Score.textColoredForScore;
+
+	var styles = {
+	    root: {
+	        marginLeft: "5px",
+	        marginRight: "5px"
+	    },
+	    header: {
+	        root: {
+	            display: "flex",
+	            flexDirection: "row"
+	        },
+	        backButton: {
+	            marginRight: "10px"
+	        },
+	        title: {
+	            marginBottom: "10px"
+	        }
+	    },
+	    detail: {
+	        root: {
+	            display: "flex"
+	        },
+	        poster: {
+	            marginRight: "10px",
+	            flex: "none",
+	            alignSelf: "center"
+	        },
+	        info: {
+	            flex: "1 1",
+	            alignSelf: "flex-start"
+	        },
+	        rating: {
+	            display: "inline-block",
+	            padding: "2px",
+	            border: "2px solid black",
+	            marginBottom: "15px",
+	            fontFamily: "Palatino",
+	            fontSize: "20px"
+	        },
+	        actors: {
+	            marginTop: "0",
+	            marginBottom: "0"
+	        }
+	    }
+	};
 
 	module.exports = React.createClass({displayName: "exports",
 	    render: function () {
+	        var movie = this.props.movie;
+	        var criticsScore = movie.ratings.critics_score;
+	        var audienceScore = movie.ratings.audience_score;
+	        var actors = movie.abridged_cast.map(function (person) {
+	            return React.createElement("li", {key: person.name}, person.name);
+	        });
+
 	        return (
-	            React.createElement(ReactWinJS.BackButton, null)
+	            React.createElement("div", {style: styles.root}, 
+	                React.createElement("div", {style: styles.header.root}, 
+	                    React.createElement(ReactWinJS.BackButton, {style: styles.header.backButton}), 
+	                    React.createElement("h2", {style: styles.header.title}, movie.title, " (", movie.year, ")")
+	                ), 
+	                React.createElement("div", {style: styles.detail.root}, 
+	                    React.createElement("img", {style: styles.detail.poster, src: movie.posters.detailed, width: 153, height: 243}), 
+	                    React.createElement("div", {style: styles.detail.info}, 
+	                        React.createElement("div", {style: styles.detail.rating}, movie.mpaa_rating), 
+	                        React.createElement("h3", null, "Critics:"), 
+	                        React.createElement("h2", null, textColoredForScore(formattedScore(criticsScore), criticsScore)), 
+	                        React.createElement("h3", null, "Audience:"), 
+	                        React.createElement("h2", null, textColoredForScore(formattedScore(audienceScore), audienceScore))
+	                    )
+	                ), 
+	                React.createElement("hr", null), 
+	                React.createElement("div", null, movie.synopsis), 
+	                React.createElement("hr", null), 
+	                React.createElement("div", null, 
+	                    "Actors", 
+	                    React.createElement("ul", {style: styles.detail.actors}, actors)
+	                )
+	            )
 	        );
 	    }
 	});
 
 /***/ },
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleShow: function () {
-	        this.refs.dialog.winControl.show().then(function (eventObject) {
-	            this.setState({ dialogResult: eventObject.result });
-	        }.bind(this));
-	    },
-	    getInitialState: function () {
-	        return {
-	            dialogResult: null
-	        };
-	    },
-	    render: function () {
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("p", null, "Dialog Result: ", this.state.dialogResult || "<null>"), 
-	                React.createElement("button", {onClick: this.handleShow}, "Show ContentDialog"), 
-
-	                React.createElement(ReactWinJS.ContentDialog, {
-	                    ref: "dialog", 
-	                    title: "Urgent Message", 
-	                    primaryCommandText: "OK", 
-	                    secondaryCommandText: "Cancel"}, 
-	                    React.createElement("div", null, 
-	                        "This content will appear in the body of the ContentDialog. You can put ", React.createElement("i", null, "arbitrary"), " HTML in here."
-	                    )
-	                )
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleDateChange: function (eventObject) {
-	        var datePicker = eventObject.currentTarget.winControl;
-	        this.setState({ date: datePicker.current });
-	    },
-	    getInitialState: function () {
-	        return {
-	            date: new Date()
-	        };
-	    },
-	    render: function () {
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("p", null, "Date: ", this.state.date.toDateString()), 
-	                React.createElement(ReactWinJS.DatePicker, {
-	                    current: this.state.date, 
-	                    onChange: this.handleDateChange, 
-	                    minYear: 1980, 
-	                    maxYear: 2050})
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    flipViewItemRenderer: ReactWinJS.reactRenderer(function (item) {
-	        return (
-	            React.createElement("div", {style: {height: "200px"}}, 
-	                "The rating of this flip view item is: ", item.data.rating
-	            )
-	        );
-	    }),
-	    getInitialState: function () {
-	        return {
-	            ratingsList: new WinJS.Binding.List([
-	                { rating: 4 },
-	                { rating: 2 }
-	            ])
-	        };
-	    },
-	    render: function () {
-	        return (
-	            React.createElement(ReactWinJS.FlipView, {
-	                style: {height: "200px", width: "200px"}, 
-	                itemDataSource: this.state.ratingsList.dataSource, 
-	                itemTemplate: this.flipViewItemRenderer})
-	        );
-	    }
-	});
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleShow: function (eventObject) {
-	        var anchor = eventObject.currentTarget;
-	        this.refs.flyout.winControl.show(anchor);
-	    },
-	    getInitialState: function () {
-	        return {
-	            dialogResult: null
-	        };
-	    },
-	    render: function () {
-	        var dialogResult = this.state.dialogResult ?
-	            React.createElement("div", null, "Dialog Result: ", this.state.dialogResult) :
-	            null;
-
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("button", {onClick: this.handleShow}, "Show Flyout"), 
-
-	                React.createElement(ReactWinJS.Flyout, {
-	                    ref: "flyout"}, 
-	                    React.createElement("div", null, "This is the flyout content!!")
-	                )
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleHeaderInvoked: function (eventObject) {
-	        if (eventObject.detail.index === 1) {
-	            this.setState({ counter: this.state.counter + 1 });
-	        }
-	    },
-	    getInitialState: function () {
-	        return {
-	            counter: 0
-	        };
-	    },
-	    render: function () {
-	        return (
-	            React.createElement(ReactWinJS.Hub, {
-	                style: {height: "500px"}, 
-	                onHeaderInvoked: this.handleHeaderInvoked}, 
-	                React.createElement(ReactWinJS.Hub.Section, {
-	                    key: "sectionA", 
-	                    header: "First section", 
-	                    isHeaderStatic: true}, 
-	                    React.createElement("div", null, "Hubs are useful for varied content.")
-	                ), 
-	                React.createElement(ReactWinJS.Hub.Section, {key: "sectionB", header: "The second section"}, 
-	                    React.createElement("div", null, 
-	                        "This section's header was clicked ", this.state.counter, " time(s)." + ' ' +
-	                        "This hub is boring."
-	                    )
-	                ), 
-	                React.createElement(ReactWinJS.Hub.Section, {key: "sectionC", header: "The tail"}, 
-	                    React.createElement("div", null, "Because it's only purpose is to show how to create a hub.")
-	                )
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleSelectionChanged: function (eventObject) {
-	        var itemContainer = eventObject.currentTarget.winControl;
-	        this.setState({ selected: itemContainer.selected });
-	    },
-	    getInitialState: function () {
-	        return {
-	            selected: true
-	        };
-	    },
-	    render: function () {
-	        return (
-	            React.createElement(ReactWinJS.ItemContainer, {
-	                style: {margin: "5px", height: "80px", width: "252px"}, 
-	                tapBehavior: "toggleSelect", 
-	                selected: this.state.selected, 
-	                onSelectionChanged: this.handleSelectionChanged}, 
-	                React.createElement("div", {style: {padding: "5px"}}, 
-	                    React.createElement("h4", null, "Marvelous Mint"), 
-	                    React.createElement("h6", null, "Gelato"), 
-	                    "Selected: ", this.state.selected.toString()
-	                )
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	// See CSS styles for win-container in index.html
-
-	module.exports = React.createClass({displayName: "exports",
-	    itemRenderer: ReactWinJS.reactRenderer(function (item) {
-	        return React.createElement("div", null, item.data.title);
-	    }),
-	    getInitialState: function () {
-	        return {
-	            list: new WinJS.Binding.List([
-	                { title: "Apple" },
-	                { title: "Banana" },
-	                { title: "Grape" },
-	                { title: "Lemon" },
-	                { title: "Mint" },
-	                { title: "Orange" },
-	                { title: "Pineapple" },
-	                { title: "Strawberry"}
-	            ]),
-	            layout: { type: WinJS.UI.ListLayout }
-	        };
-	    },
-	    render: function () {
-	        return (
-	            React.createElement(ReactWinJS.ListView, {
-	                className: "listViewExample win-selectionstylefilled", 
-	                style: {height: "200px"}, 
-	                itemDataSource: this.state.list.dataSource, 
-	                itemTemplate: this.itemRenderer, 
-	                layout: this.state.layout, 
-	                selectionMode: "single", 
-	                tapBehavior: "directSelect"})
-	        );
-	    }
-	});
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleShowMenu: function (eventObject) {
-	        var anchor = eventObject.currentTarget;
-	        this.refs.menu.winControl.show(anchor);
-	    },
-	    handleUpdateResult: function (result) {
-	        this.setState({ result: result });
-	    },
-	    handleToggleMe: function (eventObject) {
-	        var toggleCommand = eventObject.currentTarget.winControl;
-	        this.setState({ toggleSelected: toggleCommand.selected });
-	    },
-	    getInitialState: function () {
-	        return {
-	            result: null,
-	            toggleSelected: true
-	        };
-	    },
-	    render: function () {
-	        var subMenu = (
-	            React.createElement(ReactWinJS.Menu, null, 
-	                React.createElement(ReactWinJS.Menu.Button, {
-	                    key: "chooseMeA", 
-	                    label: "Or Choose Me", 
-	                    onClick: this.handleUpdateResult.bind(null, "Or Choose Me")}), 
-	                React.createElement(ReactWinJS.Menu.Button, {
-	                    key: "chooseMeB", 
-	                    label: "No, Choose Me!", 
-	                    onClick: this.handleUpdateResult.bind(null, "No, Choose Me!")})
-	            )
-	        );
-
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("button", {onClick: this.handleShowMenu}, "Show Menu"), 
-	                React.createElement("p", null, "Clicked command: ", this.state.result || "<null>"), 
-	                React.createElement("p", null, "Toggle selected: ", this.state.toggleSelected.toString()), 
-	                
-	                React.createElement(ReactWinJS.Menu, {ref: "menu"}, 
-
-	                    React.createElement(ReactWinJS.Menu.Button, {
-	                        key: "chooseMe", 
-	                        label: "Choose Me", 
-	                        onClick: this.handleUpdateResult.bind(null, "Choose Me")}), 
-
-	                    React.createElement(ReactWinJS.Menu.Toggle, {
-	                        key: "toggleMe", 
-	                        label: "Toggle Me", 
-	                        selected: this.state.toggleSelected, 
-	                        onClick: this.handleToggleMe}), 
-
-	                    React.createElement(ReactWinJS.Menu.Separator, {key: "separator"}), 
-
-	                    React.createElement(ReactWinJS.Menu.FlyoutCommand, {
-	                        key: "more", 
-	                        label: "More", 
-	                        flyoutComponent: subMenu})
-
-	                )
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleCommandInvoked: function (eventObject) {
-	        var navbarCommand = eventObject.detail.navbarCommand;
-	        this.setState({ result: navbarCommand.label });
-	    },
-	    getInitialState: function () {
-	        return {
-	            result: null
-	        };
-	    },
-	    render: function () {
-	        var navBar = (
-	            React.createElement(ReactWinJS.NavBar, {placement: "bottom"}, 
-	                React.createElement(ReactWinJS.NavBarContainer, {onInvoked: this.handleCommandInvoked}, 
-	                    React.createElement(ReactWinJS.NavBarCommand, {
-	                        key: "favorite", 
-	                        label: "Favorite", 
-	                        icon: "favorite"}), 
-	                     React.createElement(ReactWinJS.NavBarCommand, {
-	                        key: "delete", 
-	                        label: "Delete", 
-	                        icon: "delete"}), 
-	                    React.createElement(ReactWinJS.NavBarCommand, {
-	                        key: "music", 
-	                        label: "Music", 
-	                        icon: "audio"}), 
-	                    React.createElement(ReactWinJS.NavBarCommand, {
-	                        key: "edit", 
-	                        label: "Edit", 
-	                        icon: "edit"}), 
-	                    React.createElement(ReactWinJS.NavBarCommand, {
-	                        key: "settings", 
-	                        label: "Settings", 
-	                        icon: "settings"})
-	                )
-	            )
-	        );
-
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("p", null, "This NavBar renders at the bottom of the screen."), 
-	                React.createElement("button", {onClick: this.props.onToggleAppBar}, 
-	                    this.props.appBarShown ? "Hide" : "Show", " NavBar"
-	                ), 
-	                React.createElement("p", null, "Invoked command: ", this.state.result || "<null>"), 
-	                this.props.appBarShown ? navBar : null
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    render: function () {
-	        return (
-	            React.createElement(ReactWinJS.Pivot, {style: {height: "100px"}}, 
-	                React.createElement(ReactWinJS.Pivot.Item, {key: "itemA", header: "First"}, 
-	                    React.createElement("div", null, "Pivots are useful for varied content.")
-	                ), 
-	                React.createElement(ReactWinJS.Pivot.Item, {key: "itemB", header: "Second"}, 
-	                    React.createElement("div", null, "This pivot is boring.")
-	                ), 
-	                React.createElement(ReactWinJS.Pivot.Item, {key: "itemC", header: "Tail..."}, 
-	                    React.createElement("div", null, "Because it's only purpose is to show how to create a pivot.")
-	                )
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleChangeRating: function (eventObject) {
-	        var ratingControl = eventObject.currentTarget.winControl;
-	        this.setState({ rating: ratingControl.userRating });
-	    },
-	    handleAddToRating: function (amount) {
-	        this.setState({ rating: this.state.rating + amount });
-	    },
-	    getInitialState: function () {
-	        return {
-	            rating: 0
-	        };
-	    },
-	    render: function () {
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("div", null, 
-	                    React.createElement("button", {onClick: this.handleAddToRating.bind(null, -1)}, "-1"), 
-	                    React.createElement("button", {onClick: this.handleAddToRating.bind(null, 1)}, "+1")
-	                ), 
-	                React.createElement("p", null, "Current Rating: ", this.state.rating), 
-
-	                React.createElement(ReactWinJS.Rating, {
-	                    userRating: this.state.rating, 
-	                    maxRating: 8, 
-	                    onChange: this.handleChangeRating})
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	var suggestionList = ["Shanghai", "Istanbul", "Karachi", "Delhi", "Mumbai", "Moscow", "Seoul", "Beijing", "Jakarta",
-	"Tokyo", "Mexico City", "Kinshasa", "New York City", "Lagos", "London", "Lima", "Bogota", "Tehran", "Ho Chi Minh City", "Hong Kong",
-	"Bangkok", "Dhaka", "Cairo", "Hanoi", "Rio de Janeiro", "Lahore", "Chonquing", "Bengaluru", "Tianjin", "Baghdad", "Riyadh", "Singapore",
-	"Santiago", "Saint Petersburg", "Surat", "Chennai", "Kolkata", "Yangon", "Guangzhou", "Alexandria", "Shenyang", "Hyderabad", "Ahmedabad",
-	"Ankara", "Johannesburg", "Wuhan", "Los Angeles", "Yokohama", "Abidjan", "Busan", "Cape Town", "Durban", "Pune", "Jeddah", "Berlin",
-	"Pyongyang", "Kanpur", "Madrid", "Jaipur", "Nairobi", "Chicago", "Houston", "Philadelphia", "Phoenix", "San Antonio", "San Diego",
-	"Dallas", "San Jose", "Jacksonville", "Indianapolis", "San Francisco", "Austin", "Columbus", "Fort Worth", "Charlotte", "Detroit",
-	"El Paso", "Memphis", "Baltimore", "Boston", "Seattle Washington", "Nashville", "Denver", "Louisville", "Milwaukee", "Portland",
-	"Las Vegas", "Oklahoma City", "Albuquerque", "Tucson", "Fresno", "Sacramento", "Long Beach", "Kansas City", "Mesa", "Virginia Beach",
-	"Atlanta", "Colorado Springs", "Omaha", "Raleigh", "Miami", "Cleveland", "Tulsa", "Oakland", "Minneapolis", "Wichita", "Arlington",
-	"Bakersfield", "New Orleans", "Honolulu", "Anaheim", "Tampa", "Aurora", "Santa Ana", "St. Louis", "Pittsburgh", "Corpus Christi",
-	"Riverside", "Cincinnati", "Lexington", "Anchorage", "Stockton", "Toledo", "St. Paul", "Newark", "Greensboro", "Buffalo", "Plano",
-	"Lincoln", "Henderson", "Fort Wayne", "Jersey City", "St. Petersburg", "Chula Vista", "Norfolk", "Orlando", "Chandler", "Laredo", "Madison",
-	"Winston-Salem", "Lubbock", "Baton Rouge", "Durham", "Garland", "Glendale", "Reno", "Hialeah", "Chesapeake", "Scottsdale", "North Las Vegas",
-	"Irving", "Fremont", "Irvine", "Birmingham", "Rochester", "San Bernardino", "Spokane", "Toronto", "Montreal", "Vancouver", "Ottawa-Gatineau",
-	"Calgary", "Edmonton", "Quebec City", "Winnipeg", "Hamilton"];
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleSuggestionsRequested: function (eventObject) {
-	        var queryText = eventObject.detail.queryText,
-	            query = queryText.toLowerCase(),
-	            suggestionCollection = eventObject.detail.searchSuggestionCollection;
-
-	        if (queryText.length > 0) {
-	            for (var i = 0, len = suggestionList.length; i < len; i++) {
-	                if (suggestionList[i].substr(0, query.length).toLowerCase() === query) {
-	                    suggestionCollection.appendQuerySuggestion(suggestionList[i]);
-	                }
-	            }
-	        }
-	    },
-	    handleQuerySubmitted: function (eventObject) {
-	        this.setState({ query: eventObject.detail.queryText });
-	    },
-	    getInitialState: function () {
-	        return {
-	            query: null
-	        };
-	    },
-	    render: function () {
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement(ReactWinJS.SearchBox, {
-	                    placeholderText: "Type a city", 
-	                    onSuggestionsRequested: this.handleSuggestionsRequested, 
-	                    onQuerySubmitted: this.handleQuerySubmitted}), 
-
-	                React.createElement("p", null, "Submitted Query: ", this.state.query || "<null>")
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	// See CSS styles for win-container in index.html
-
-	function groupKey(item) {
-	    return item.title[0];
-	}
-
-	function groupData(item) {
-	    return { title: item.title[0] };
-	}
-
-	module.exports = React.createClass({displayName: "exports",
-	    itemRenderer: ReactWinJS.reactRenderer(function (item) {
-	        return React.createElement("div", null, item.data.title);
-	    }),
-	    groupHeaderRenderer: ReactWinJS.reactRenderer(function (item) {
-	        return React.createElement("div", null, item.data);
-	    }),
-	    handleToggleZoom: function (eventObject) {
-	        this.setState({ zoomedOut: !this.state.zoomedOut });
-	    },
-	    handleZoomChanged: function (eventObject) {
-	        this.setState({ zoomedOut: eventObject.detail });
-	    },
-	    getInitialState: function () {
-	        return {
-	            list: new WinJS.Binding.List([
-	                { title: "Aaron" },
-	                { title: "Adam" },
-	                { title: "Allison" },
-	                { title: "Barry" },
-	                { title: "Bill" },
-	                { title: "Brad" },
-	                { title: "Bridget" },
-	                { title: "Brett" },
-	                { title: "Carly" },
-	                { title: "Carol" },
-	                { title: "Charles" },
-	                { title: "Chris" },
-	                { title: "Daisy" },
-	                { title: "Dan" },
-	                { title: "Denise" },
-	                { title: "Derek" },
-	                { title: "Earl" },
-	                { title: "Emily" },
-	                { title: "Emma" },
-	                { title: "Erika" },
-	                { title: "Ethan" },
-	                { title: "Finley" },
-	                { title: "Florence" },
-	                { title: "Frank" },
-	                { title: "Fred" }
-	                
-	            ]).createGrouped(groupKey, groupData),
-	            layout: { type: WinJS.UI.ListLayout },
-	            zoomedOut: false
-	        };
-	    },
-	    render: function () {
-	        var zoomedInView = React.createElement(ReactWinJS.ListView, {
-	            className: "listViewExample win-selectionstylefilled", 
-	            itemDataSource: this.state.list.dataSource, 
-	            itemTemplate: this.itemRenderer, 
-	            groupDataSource: this.state.list.groups.dataSource, 
-	            groupHeaderTemplate: this.groupHeaderRenderer, 
-	            layout: this.state.layout, 
-	            selectionMode: "single", 
-	            tapBehavior: "directSelect"});
-
-	        var zoomedOutView = React.createElement(ReactWinJS.ListView, {
-	            className: "listViewExample", 
-	            itemDataSource: this.state.list.groups.dataSource, 
-	            itemTemplate: this.itemRenderer, 
-	            layout: this.state.layout});
-
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("button", {onClick: this.handleToggleZoom}, 
-	                    "Zoom ", this.state.zoomedOut ? "In" : "Out"
-	                ), 
-	                React.createElement(ReactWinJS.SemanticZoom, {
-	                    style: {height: "400px"}, 
-	                    zoomedInComponent: zoomedInView, 
-	                    zoomedOutComponent: zoomedOutView, 
-	                    zoomedOut: this.state.zoomedOut, 
-	                    onZoomChanged: this.handleZoomChanged})
-	            )
-	        );
-	            
-	    }
-	});
-
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	// Also see CSS styles in index.html.
-
-	var SplitViewButton = React.createClass({displayName: "SplitViewButton",
-	    render: function () {
-	        return (
-	            React.createElement("button", {
-	                onClick: this.props.onClick, 
-	                type: "button", 
-	                className: "win-splitview-button"})
-	        );
-	    }
-	});
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleTogglePane: function () {
-	        var splitView = this.refs.splitView.winControl;
-	        splitView.paneHidden = !splitView.paneHidden;
-	    },
-	    handleChangeContent: function (newContent) {
-	        this.setState({ content: newContent });
-	        this.refs.splitView.winControl.paneHidden = true;
-	    },
-	    getInitialState: function () {
-	        return {
-	            content: "Home"
-	        };
-	    },
-	    render: function () {
-	        var paneComponent = (
-	            React.createElement("div", {ref: "pane"}, 
-	                React.createElement("div", null, 
-	                    React.createElement(SplitViewButton, {onClick: this.handleTogglePane})
-	                ), 
-
-	                React.createElement(ReactWinJS.NavBarCommand, {
-	                    label: "Home", 
-	                    icon: "home", 
-	                    onClick: this.handleChangeContent.bind(null, "Home")}), 
-	                React.createElement(ReactWinJS.NavBarCommand, {
-	                    label: "Favorite", 
-	                    icon: "favorite", 
-	                    onClick: this.handleChangeContent.bind(null, "Favorite")}), 
-	                React.createElement(ReactWinJS.NavBarCommand, {
-	                    label: "Settings", 
-	                    icon: "settings", 
-	                    onClick: this.handleChangeContent.bind(null, "Settings")})
-	            )
-	        );
-	        var contentComponent = (
-	            React.createElement("h2", {style: {marginLeft: "10px"}}, this.state.content)
-	        );
-
-	        return (
-	            React.createElement(ReactWinJS.SplitView, {
-	                ref: "splitView", 
-	                style: {height: "300px"}, 
-	                paneComponent: paneComponent, 
-	                contentComponent: contentComponent})
-	        );
-	    }
-	});
-
-/***/ },
-/* 19 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	function formattedTime(time) {
-	    var rawHours = time.getHours();
-	    var amPM = rawHours < 12 ? "AM" : "PM";
-	    var hours = rawHours < 12 ? rawHours : (rawHours - 12);
-	    hours = hours === 0 ? 12 : hours;
-	    var rawMinutes = time.getMinutes();
-	    var minutes = (rawMinutes < 10 ? "0" : "") + rawMinutes;
-
-	    return hours + ":" + minutes + " " + amPM;
-	}
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleTimeChange: function (eventObject) {
-	        var timePicker = eventObject.currentTarget.winControl;
-	        this.setState({ time: timePicker.current });
-	    },
-	    getInitialState: function () {
-	        return {
-	            time: new Date()
-	        };
-	    },
-	    render: function () {
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("p", null, "Time: ", formattedTime(this.state.time)), 
-
-	                React.createElement(ReactWinJS.TimePicker, {
-	                    current: this.state.time, 
-	                    onChange: this.handleTimeChange})
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleToggle: function (eventObject) {
-	        var toggleCommand = eventObject.currentTarget.winControl;
-	        this.setState({ toggleSelected: toggleCommand.checked });
-	    },
-	    getInitialState: function () {
-	        return {
-	            toggleSelected: false
-	        };
-	    },
-	    render: function () {
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("p", null, "Toggle selected: ", this.state.toggleSelected.toString()), 
-	                
-	                React.createElement(ReactWinJS.ToggleSwitch, {
-	                    checked: this.state.toggleSelected, 
-	                    onChange: this.handleToggle, 
-	                    labelOn: "Switch is On", 
-	                    labelOff: "Switch is Off"})
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    handleToggleToolBarSize: function () {
-	        this.setState({ toolBarIsSmall: !this.state.toolBarIsSmall });
-	    },
-	    handleUpdateResult: function (result) {
-	        this.setState({ result: result });
-	    },
-	    handleToggleMe: function (eventObject) {
-	        var toggleCommand = eventObject.currentTarget.winControl;
-	        this.setState({ toggleSelected: toggleCommand.selected });
-	    },
-	    getInitialState: function () {
-	        return {
-	            toolBarIsSmall: false,
-	            result: null,
-	            toggleSelected: true
-	        };
-	    },
-	    componentDidUpdate: function (prevProps, prevState) {
-	        if (this.state.toolBarIsSmall !== prevState.toolBarIsSmall) {
-	            // Notify the ToolBar that is has been resized.
-	            this.refs.toolBar.winControl.forceLayout();
-	        }
-	    },
-	    render: function () {
-	        var subMenu = (
-	            React.createElement(ReactWinJS.Menu, null, 
-	                React.createElement(ReactWinJS.Menu.Button, {
-	                    key: "chooseMeA", 
-	                    label: "Or Choose Me", 
-	                    onClick: this.handleUpdateResult.bind(null, "Or Choose Me")}), 
-	                React.createElement(ReactWinJS.Menu.Button, {
-	                    key: "chooseMeB", 
-	                    label: "No, Choose Me!", 
-	                    onClick: this.handleUpdateResult.bind(null, "No, Choose Me!")})
-	            )
-	        );
-
-	        return (
-	            React.createElement("div", null, 
-	                React.createElement("p", null, "Notice how the ToolBar puts commands into an overflow menu when it can't fit" + ' ' +
-	                "them in the primary area. You can control what gets overflowed first using" + ' ' +
-	                "the ", React.createElement("code", null, "priority"), " prop"), 
-	                React.createElement("button", {onClick: this.handleToggleToolBarSize}, 
-	                    "Make ToolBar ", this.state.toolBarIsSmall ? "Bigger" : "Smaller"
-	                ), 
-	                React.createElement("p", null, "Clicked command: ", this.state.result || "<null>"), 
-	                React.createElement("p", null, "Toggle selected: ", this.state.toggleSelected.toString()), 
-	                
-	                React.createElement(ReactWinJS.ToolBar, {ref: "toolBar", style: {
-	                    width: this.state.toolBarIsSmall ? "400px" : "640px"
-	                }}, 
-
-	                    React.createElement(ReactWinJS.ToolBar.ContentCommand, {
-	                        key: "content", 
-	                        icon: "accept", 
-	                        label: "Accept"}, 
-	                        React.createElement("input", {className: "win-interactive", type: "text"})
-	                    ), 
-
-	                    React.createElement(ReactWinJS.ToolBar.Separator, {key: "separator"}), 
-
-	                    React.createElement(ReactWinJS.ToolBar.Button, {
-	                        key: "chooseMe", 
-	                        icon: "add", 
-	                        label: "Choose Me", 
-	                        onClick: this.handleUpdateResult.bind(null, "Choose Me")}), 
-
-	                    React.createElement(ReactWinJS.ToolBar.Toggle, {
-	                        key: "toggleMe", 
-	                        icon: "accept", 
-	                        label: "Toggle Me", 
-	                        selected: this.state.toggleSelected, 
-	                        onClick: this.handleToggleMe}), 
-
-	                    React.createElement(ReactWinJS.ToolBar.FlyoutCommand, {
-	                        key: "flyout", 
-	                        icon: "up", 
-	                        label: "Flyout", 
-	                        flyoutComponent: subMenu}), 
-
-	                    React.createElement(ReactWinJS.ToolBar.Button, {
-	                        key: "orMe", 
-	                        section: "secondary", 
-	                        label: "Or Me", 
-	                        onClick: this.handleUpdateResult.bind(null, "Or Choose Me")}), 
-
-	                    React.createElement(ReactWinJS.ToolBar.Button, {
-	                        key: "noMe", 
-	                        section: "secondary", 
-	                        label: "No Me!", 
-	                        onClick: this.handleUpdateResult.bind(null, "No Me!")})
-
-	                )
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(23);
-
-	module.exports = React.createClass({displayName: "exports",
-	    render: function () {
-	        var contentComponent = React.createElement("div", null, "This can contain arbitrary content, like images");
-
-	        return (
-	            React.createElement(ReactWinJS.Tooltip, {
-	                contentComponent: contentComponent}, 
-	                React.createElement("div", null, "This has a tooltip, hover and see...")
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Notes
@@ -2662,6 +1966,36 @@
 	};
 
 	module.exports = ReactWinJS;
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	function formattedScore(score) {
+	    return score >= 0 ? score + "%" : "N/A";
+	}
+
+	var maxColor = 200;
+	function colorForScore(score) {
+	    if (score >= 0) {
+	        var scoreAsColor = Math.round(score / 100 * maxColor);
+	        return "rgb(" + [maxColor - scoreAsColor, scoreAsColor, 0].join(",") + ")";
+	    } else {
+	        return "rgb(0, 0, 0)";
+	    }
+
+	}
+
+	function textColoredForScore(text, score) {
+	    return React.createElement("span", {style: {color: colorForScore(score)}}, text);
+	}
+
+	module.exports = {
+		formattedScore: formattedScore,
+		textColoredForScore: textColoredForScore
+	};
 
 /***/ }
 /******/ ]);
