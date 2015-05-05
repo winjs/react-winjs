@@ -11,6 +11,7 @@ var textColoredForScore = Score.textColoredForScore;
 var styles = {
     item: {
         root: {
+            height: "100%",
             display: "flex"
         },
         poster: {
@@ -18,7 +19,18 @@ var styles = {
             flex: "none"
         },
         info: {
-            flex: "1"
+            root: {
+                flex: "1 1",
+                display: "flex",
+                flexDirection: "column"
+            },
+            title: {
+                flex: "0 1 auto",
+                overflow: "hidden"
+            },
+            yearAndScore: {
+                flex: "none"
+            }
         }
     },
     root: {
@@ -41,9 +53,9 @@ module.exports = React.createClass({
         return (
             <div style={styles.item.root}>
                 <img style={styles.item.poster} src={item.data.posters.detailed} width={51} height={81} />
-                <div style={styles.item.info}>
-                    <h3>{item.data.title}</h3>
-                    <div className="win-type-small">
+                <div style={styles.item.info.root}>
+                    <h3 style={styles.item.info.title}>{item.data.title}</h3>
+                    <div style={styles.item.info.yearAndScore} className="win-type-small">
                         {item.data.year} {"\u2022"} {scoreComponent}
                     </div>
                 </div>
