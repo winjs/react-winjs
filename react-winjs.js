@@ -631,6 +631,43 @@ function processChildren(componentDisplayName, children, childComponentsMap) {
     };
 }
 
+function prefixedProperty(prefix, property) {
+    return prefix + property[0].toUpperCase() + property.substr(1);
+}
+
+var isUnitlessProperty = {
+    flex: true,
+    flexGrow: true,
+    flexPositive: true,
+    flexShrink: true,
+    flexNegative: true,
+    fontWeight: true,
+    lineClamp: true,
+    lineHeight: true,
+    opacity: true,
+    order: true,
+    orphans: true,
+    widows: true,
+    zIndex: true,
+    zoom: true
+};
+var vendorPrefixes = ["Moz", "ms", "Webkit"];
+Object.keys(isUnitlessProperty).forEach(function (property) {
+    vendorPrefixes.forEach(function (prefix) {
+        isUnitlessProperty[prefixedProperty(prefix, property)] = true;
+    });
+});
+
+function resolveStyleValue(cssProperty, value) {
+    if (typeof value === "number") {
+        return isUnitlessProperty[cssProperty] || value === 0 ?
+            ("" + value) :
+            (value + "px");
+    } else {
+        return value ? ("" + value) : "";
+    }
+}
+
 var PropHandlers = {
     // Maps to a property on the winControl.
     property: {
@@ -719,7 +756,7 @@ var PropHandlers = {
             var elementStyle = element.style;
             value = value || {};
             for (var cssProperty in value) {
-                elementStyle[cssProperty] = value[cssProperty];
+                elementStyle[cssProperty] = resolveStyleValue(cssProperty, value[cssProperty]);
             }
         },
         update: function winControlStyle_update(winjsComponent, propName, oldValue, newValue) {
@@ -734,7 +771,7 @@ var PropHandlers = {
                 }
                 for (var cssProperty in newValue) {
                     if (oldValue[cssProperty] !== newValue[cssProperty]) {
-                        elementStyle[cssProperty] = newValue[cssProperty];
+                        elementStyle[cssProperty] = resolveStyleValue(cssProperty, newValue[cssProperty]);
                     }
                 }
             }

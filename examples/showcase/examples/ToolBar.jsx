@@ -53,7 +53,7 @@ module.exports = React.createClass({
                 <p>Toggle selected: {this.state.toggleSelected.toString()}</p>
                 
                 <ReactWinJS.ToolBar ref="toolBar" style={{
-                    width: this.state.toolBarIsSmall ? "400px" : "640px"
+                    width: this.state.toolBarIsSmall ? 400 : 640
                 }}>
 
                     <ReactWinJS.ToolBar.ContentCommand
