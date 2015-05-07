@@ -62,7 +62,7 @@ module.exports = React.createClass({
     },
     render: function () {
         var zoomedInView = <ReactWinJS.ListView
-            className="listViewExample win-selectionstylefilled"
+            className="zoomedInListView win-selectionstylefilled"
             itemDataSource={this.state.list.dataSource}
             itemTemplate={this.itemRenderer}
             groupDataSource={this.state.list.groups.dataSource}
@@ -72,7 +72,7 @@ module.exports = React.createClass({
             tapBehavior="directSelect" />;
 
         var zoomedOutView = <ReactWinJS.ListView
-            className="listViewExample"
+            className="zoomedOutListView"
             itemDataSource={this.state.list.groups.dataSource}
             itemTemplate={this.itemRenderer}
             layout={this.state.layout} />;
@@ -83,6 +83,7 @@ module.exports = React.createClass({
                     Zoom {this.state.zoomedOut ? "In" : "Out"}
                 </button>
                 <ReactWinJS.SemanticZoom
+                    className="seZoExample"
                     style={{height: "400px"}}
                     zoomedInComponent={zoomedInView}
                     zoomedOutComponent={zoomedOutView}
