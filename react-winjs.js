@@ -832,23 +832,53 @@ var PropHandlers = {
             // Can't use preCtorInit because the mount point may not exist until the
             // constructor has run.
             update: function mountTo_update(winjsComponent, propName, oldValue, newValue) {
-                var oldElement = winjsComponent.data[propName];
+                var data = winjsComponent.data[propName] || {};
+                var version = (data.version || 0) + 1;
+                winjsComponent.data[propName] = {
+                    // *mountComponent* may run asynchronously and we may queue it multiple
+                    // times before it runs. *version* allows us to ensure only the latest
+                    // version runs and the others are no ops.
+                    version: version,
+                    // *element* is the element to which we last mounted the component.
+                    element: data.element
+                };
 
-                if (newValue) {
-                    var newElement = getMountPoint(winjsComponent);
-                    if (oldElement && oldElement !== newElement) {
-                        React.unmountComponentAtNode(oldElement);
+                var mountComponent = function () {
+                    if (version === winjsComponent.data[propName].version) {
+                        var oldElement = winjsComponent.data[propName].element;
+
+                        if (newValue) {
+                            var newElement = getMountPoint(winjsComponent);
+                            if (oldElement && oldElement !== newElement) {
+                                React.unmountComponentAtNode(oldElement);
+                            }
+
+                            React.render(newValue, newElement);
+                            winjsComponent.data[propName].element = newElement;
+                        } else if (oldValue) {
+                            oldElement && React.unmountComponentAtNode(oldElement);
+                            winjsComponent.data[propName].element = null;
+                        }
                     }
+                };
 
-                    React.render(newValue, newElement);
-                    winjsComponent.data[propName] = newElement;
-                } else if (oldValue) {
-                    oldElement && React.unmountComponentAtNode(oldElement);
-                    winjsComponent.data[propName] = null;
+                // *isDeclarativeControlContainer* is a hook some WinJS controls provide
+                // (e.g. HubSection, PivotItem) to ensure that processing runs on the
+                // control only when the control is ready for it. This enables lazy loading
+                // of HubSections/PivotItems (e.g. load off screen items asynchronously in
+                // batches). Additionally, doing processing thru this hook guarantees that
+                // the processing won't run until the control is in the DOM.
+                var winControl = winjsComponent.winControl;
+                var queueProcessing = winControl.constructor.isDeclarativeControlContainer;
+                if (queueProcessing && typeof queueProcessing === "function") {
+                    queueProcessing(winControl, mountComponent);
+                } else {
+                    mountComponent();
                 }
             },
             dispose: function mountTo_dispose(winjsComponent, propName) {
-                var element = winjsComponent.data[propName];
+                var data = winjsComponent.data[propName] || {};
+                var element = data.element;
                 element && React.unmountComponentAtNode(element);
             }
         };
