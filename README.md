@@ -4,9 +4,11 @@ A React wrapper around WinJS's controls. Implemented using the technique describ
 
 A work in progress.
 
-[Documentation and examples](https://github.com/winjs/react-winjs/wiki/Documentation).
+[Documentation](https://github.com/winjs/react-winjs/wiki/Documentation)
 
-[Live demo](http://winjs.github.io/react-winjs/examples/showcase/index.html) showing an example usage of each component.
+Live demos:
+  - [Showcase](http://winjs.github.io/react-winjs/examples/showcase/index.html): shows an example usage of each component.
+  - [Movies](http://winjs.github.io/react-winjs/examples/movies/index.html): demonstrates a couple of react-winjs components in a small app for looking up movies.
 
 ## Installation
 
@@ -38,7 +40,7 @@ var App = React.createClass({
 React.render(<App />, document.getElementById("app"));
 ```
 
-See the [documentation](https://github.com/winjs/react-winjs/wiki/Documentation) and [showcase demo](http://winjs.github.io/react-winjs/examples/showcase/index.html) for more details and examples.
+See the [documentation](https://github.com/winjs/react-winjs/wiki/Documentation) and [examples](https://github.com/winjs/react-winjs/tree/master/examples) for more details.
 
 ## License
 
