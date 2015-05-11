@@ -22,8 +22,7 @@ module.exports = React.createClass({
             <div>
                 <button onClick={this.handleShow}>Show Flyout</button>
 
-                <ReactWinJS.Flyout
-                    ref="flyout">
+                <ReactWinJS.Flyout ref="flyout">
                     <div>This is the flyout content!!</div>
                 </ReactWinJS.Flyout>
             </div>

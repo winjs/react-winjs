@@ -57,14 +57,14 @@ var App = React.createClass({
     },
     render: function() {
         var tableOfContents = examples.map(function (example) {
-            return <li><a href={"#" + example.title}>{example.title}</a></li>;
+            return <li key={example.title}><a href={"#" + example.title}>{example.title}</a></li>;
         });
 
         var exampleMarkup = examples.map(function (example) {
             var sourceUrl = baseSourceUrl + example.title + ".jsx";
 
             return (
-                <div style={styles.example} id={example.title} className="example">
+                <div style={styles.example} id={example.title} key={example.title} className="example">
                     <h3 style={styles.exampleTitle}>
                         {example.title}
                         <a

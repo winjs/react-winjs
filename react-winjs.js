@@ -1014,7 +1014,7 @@ function defineControl(controlName, options) {
         // will run when WinJSChildComponent renders the component to a string via
         // renderRootlessComponent.
         componentDidMount: function () {
-            initWinJSComponent(this, this.getDOMNode(), this.props);
+            initWinJSComponent(this, React.findDOMNode(this), this.props);
         },
         componentWillUnmount: function () {
             disposeWinJSComponent(this);
@@ -1047,7 +1047,7 @@ function renderRootlessComponent(component) {
 // that refs don't work than generating stale refs.
 function WinJSChildComponent(component) { // implements IWinJSChildComponent
     // Clone the component so a ref isn't generated.
-    var clonedComponent = React.addons.cloneWithProps(component);
+    var clonedComponent = React.cloneElement(component, { ref: null });
     var element = renderRootlessComponent(clonedComponent);
     component.type.initWinJSComponent(this, element, component.props);
     this.key = component.key;

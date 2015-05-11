@@ -32,7 +32,7 @@ module.exports = React.createClass({
     },
     render: function () {
         var paneComponent = (
-            <div ref="pane">
+            <div>
                 <div>
                     <SplitViewButton onClick={this.handleTogglePane} />
                 </div>

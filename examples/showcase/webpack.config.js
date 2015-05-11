@@ -17,6 +17,7 @@ module.exports = {
     }
   },
   externals: {
+    'react': 'React',
     'react/addons': 'React'
   }
 };

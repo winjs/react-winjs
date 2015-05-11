@@ -18,7 +18,7 @@ module.exports = React.createClass({
         return <div>{item.data.title}</div>;
     }),
     groupHeaderRenderer: ReactWinJS.reactRenderer(function (item) {
-        return <div>{item.data}</div>;
+        return <div>{item.data.title}</div>;
     }),
     handleToggleZoom: function (eventObject) {
         this.setState({ zoomedOut: !this.state.zoomedOut });
