@@ -43,7 +43,7 @@
 //   BackButton has to work around it. I wonder if other controls which often cause
 //   navigation on "click" will also have to workaround it (e.g. NavBarCommand).
 
-var React = require('react/addons');
+var React = require('react');
 
 var ReactWinJS = {};
 

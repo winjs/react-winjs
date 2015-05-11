@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 
-var React = require('react/addons');
+var React = require('react');
 var ReactWinJS = require('react-winjs');
 
 // See CSS styles for win-container in index.html

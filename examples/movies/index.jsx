@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 
-var React = require('react/addons');
+var React = require('react');
 var ReactWinJS = require('react-winjs');
 var FakeData = require('./FakeData');
 var Data = FakeData;

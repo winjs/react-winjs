@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 
-var React = require('react/addons');
+var React = require('react');
 var ReactWinJS = require('react-winjs');
 var Score = require('./Score.jsx');
 var formattedScore = Score.formattedScore;
