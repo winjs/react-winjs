@@ -434,6 +434,17 @@ function isEvent(propName) {
     return propName[0] === "o" && propName[1] === "n";
 }
 
+function mapObject(obj, callback) {
+    var result = {};
+    Object.keys(obj).forEach(function (key) {
+        var value = callback(key, obj[key]);
+        if (value !== undefined) {
+            result[key] = value;
+        }
+    });
+    return result;
+}
+
 function cloneObject(obj) {
     var result = {};
     for (k in obj) { result[k] = obj[k]; }
@@ -829,6 +840,7 @@ var PropHandlers = {
     // Mounts a React component on whatever element gets returned by getMountPoint.
     mountTo: function PropHandlers_mountTo(getMountPoint) {
         return {
+            propType: React.PropTypes.element,
             // Can't use preCtorInit because the mount point may not exist until the
             // constructor has run.
             update: function mountTo_update(winjsComponent, propName, oldValue, newValue) {
@@ -1007,6 +1019,9 @@ function defineControl(controlName, options) {
             updateWinJSComponent: updateWinJSComponent,
             disposeWinJSComponent: disposeWinJSComponent
         },
+        propTypes: mapObject(propHandlers, function (propName, propHandler) {
+            return propHandler.propType;
+        }),
         shouldComponentUpdate: function () {
             return false;
         },
