@@ -706,6 +706,7 @@ var PropHandlers = {
 
     // Maps to an event on the winControl.
     event: {
+        propType: React.PropTypes.func,
         // Can't set options in preCtorInit for events. The problem is WinJS control options
         // use a different code path to hook up events than the event property setters.
         // Consequently, setting an event property will not automatically unhook the event
@@ -720,6 +721,7 @@ var PropHandlers = {
 
     // Maps to an event on the winControl's element.
     domEvent: {
+        propType: React.PropTypes.func,
         preCtorInit: function domEvent_preCtorInit(element, options, data, displayName, propName, value) {
             element[propName.toLowerCase()] = value;
         },
@@ -734,6 +736,7 @@ var PropHandlers = {
     //  but don't clobber whatever CSS classes the underlying control may have added
     //  (e.g. don't clobber win-listview).
     winControlClassName: {
+        propType: React.PropTypes.string,
         preCtorInit: function winControlClassName_preCtorInit(element, options, data, displayName, propName, value) {
             if (value) {
                 element.className = value;
@@ -805,6 +808,7 @@ var PropHandlers = {
     // element to the *winControlProperty* property of the winControl.
     propertyWithMount: function PropHandlers_propertyWithMount(winControlProperty) {
         return {
+            propType: React.PropTypes.element,
             preCtorInit: function propertyWithMount_preCtorInit(element, options, data, displayName, propName, value) {
                 if (value) {
                     data[propName] = document.createElement("div");
