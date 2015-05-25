@@ -49,368 +49,1346 @@ var ReactWinJS = {};
 
 // Generated from https://github.com/rigdern/winjs-control-apis
 var RawControlApis = {
-    AppBar: [
-        "closedDisplayMode",
-        "commands",
-        "disabled",
-        "element",
-        "hidden",
-        "layout",
-        "onAfterHide",
-        "onAfterShow",
-        "onBeforeHide",
-        "onBeforeShow",
-        "placement",
-        "sticky"
-    ],
-    AppBarCommand: [
-        "disabled",
-        "element",
-        "extraClass",
-        "firstElementFocus",
-        "flyout",
-        "hidden",
-        "icon",
-        "id",
-        "label",
-        "lastElementFocus",
-        "onClick",
-        "section",
-        "selected",
-        "tooltip",
-        "type"
-    ],
-    AutoSuggestBox: [
-        "chooseSuggestionOnEnter",
-        "disabled",
-        "element",
-        "onQueryChanged",
-        "onQuerySubmitted",
-        "onResultSuggestionChosen",
-        "onSuggestionsRequested",
-        "placeholderText",
-        "queryText",
-        "searchHistoryContext",
-        "searchHistoryDisabled"
-    ],
-    BackButton: [
-        "element"
-    ],
-    CellSpanningLayout: [
-        "groupHeaderPosition",
-        "groupInfo",
-        "itemInfo",
-        "maximumRowsOrColumns",
-        "numberOfItemsPerItemsBlock",
-        "orientation"
-    ],
-    ContentDialog: [
-        "element",
-        "hidden",
-        "onAfterHide",
-        "onAfterShow",
-        "onBeforeHide",
-        "onBeforeShow",
-        "primaryCommandDisabled",
-        "primaryCommandText",
-        "secondaryCommandDisabled",
-        "secondaryCommandText",
-        "title"
-    ],
-    DatePicker: [
-        "calendar",
-        "current",
-        "datePattern",
-        "disabled",
-        "element",
-        "maxYear",
-        "minYear",
-        "monthPattern",
-        "onChange",
-        "yearPattern"
-    ],
-    FlipView: [
-        "currentPage",
-        "element",
-        "itemDataSource",
-        "itemSpacing",
-        "itemTemplate",
-        "onDataSourceCountChanged",
-        "onPageCompleted",
-        "onPageSelected",
-        "onPageVisibilityChanged",
-        "orientation"
-    ],
-    Flyout: [
-        "alignment",
-        "anchor",
-        "element",
-        "hidden",
-        "onAfterHide",
-        "onAfterShow",
-        "onBeforeHide",
-        "onBeforeShow",
-        "placement"
-    ],
-    GridLayout: [
-        "backdropColor",
-        "disableBackdrop",
-        "groupHeaderPosition",
-        "groupInfo",
-        "horizontal",
-        "itemInfo",
-        "maxRows",
-        "maximumRowsOrColumns",
-        "numberOfItemsPerItemsBlock",
-        "orientation"
-    ],
-    Hub: [
-        "element",
-        "headerTemplate",
-        "indexOfFirstVisible",
-        "indexOfLastVisible",
-        "loadingState",
-        "onContentAnimating",
-        "onHeaderInvoked",
-        "onLoadingStateChanged",
-        "orientation",
-        "scrollPosition",
-        "sectionOnScreen",
-        "sections",
-        "zoomableView"
-    ],
-    HubSection: [
-        "contentElement",
-        "element",
-        "header",
-        "isHeaderStatic"
-    ],
-    ItemContainer: [
-        "draggable",
-        "element",
-        "onInvoked",
-        "onSelectionChanged",
-        "onSelectionChanging",
-        "selected",
-        "selectionDisabled",
-        "swipeBehavior",
-        "swipeOrientation",
-        "tapBehavior"
-    ],
-    ListLayout: [
-        "backdropColor",
-        "disableBackdrop",
-        "groupHeaderPosition",
-        "groupInfo",
-        "horizontal",
-        "itemInfo",
-        "numberOfItemsPerItemsBlock",
-        "orientation"
-    ],
-    ListView: [
-        "automaticallyLoadPages",
-        "currentItem",
-        "element",
-        "footer",
-        "groupDataSource",
-        "groupHeaderTapBehavior",
-        "groupHeaderTemplate",
-        "header",
-        "indexOfFirstVisible",
-        "indexOfLastVisible",
-        "itemDataSource",
-        "itemTemplate",
-        "itemsDraggable",
-        "itemsReorderable",
-        "layout",
-        "loadingBehavior",
-        "loadingState",
-        "maxDeferredItemCleanup",
-        "onContentAnimating",
-        "onGroupHeaderInvoked",
-        "onItemDragBetween",
-        "onItemDragChanged",
-        "onItemDragDrop",
-        "onItemDragEnd",
-        "onItemDragEnter",
-        "onItemDragLeave",
-        "onItemDragStart",
-        "onItemInvoked",
-        "onKeyboardNavigating",
-        "onLoadingStateChanged",
-        "onSelectionChanged",
-        "onSelectionChanging",
-        "pagesToLoad",
-        "pagesToLoadThreshold",
-        "scrollPosition",
-        "selection",
-        "selectionMode",
-        "swipeBehavior",
-        "tapBehavior",
-        "zoomableView"
-    ],
-    Menu: [
-        "alignment",
-        "anchor",
-        "commands",
-        "element",
-        "hidden",
-        "onAfterHide",
-        "onAfterShow",
-        "onBeforeHide",
-        "onBeforeShow",
-        "placement"
-    ],
-    MenuCommand: [
-        "disabled",
-        "element",
-        "extraClass",
-        "flyout",
-        "hidden",
-        "id",
-        "label",
-        "onClick",
-        "selected",
-        "type"
-    ],
-    NavBar: [
-        "commands",
-        "disabled",
-        "element",
-        "hidden",
-        "layout",
-        "onAfterHide",
-        "onAfterShow",
-        "onBeforeHide",
-        "onBeforeShow",
-        "onChildrenProcessed",
-        "placement",
-        "sticky"
-    ],
-    NavBarCommand: [
-        "element",
-        "icon",
-        "label",
-        "location",
-        "splitButton",
-        "splitOpened",
-        "state",
-        "tooltip"
-    ],
-    NavBarContainer: [
-        "currentIndex",
-        "data",
-        "element",
-        "fixedSize",
-        "layout",
-        "maxRows",
-        "onInvoked",
-        "onSplitToggle",
-        "template"
-    ],
-    Pivot: [
-        "element",
-        "items",
-        "locked",
-        "onItemAnimationEnd",
-        "onItemAnimationStart",
-        "onSelectionChanged",
-        "selectedIndex",
-        "selectedItem",
-        "title"
-    ],
-    PivotItem: [
-        "contentElement",
-        "element",
-        "header"
-    ],
-    Rating: [
-        "averageRating",
-        "disabled",
-        "element",
-        "enableClear",
-        "maxRating",
-        "onCancel",
-        "onChange",
-        "onPreviewChange",
-        "tooltipStrings",
-        "userRating"
-    ],
-    SearchBox: [
-        "chooseSuggestionOnEnter",
-        "disabled",
-        "element",
-        "focusOnKeyboardInput",
-        "onQueryChanged",
-        "onQuerySubmitted",
-        "onReceivingFocusOnKeyboardInput",
-        "onResultSuggestionChosen",
-        "onSuggestionsRequested",
-        "placeholderText",
-        "queryText",
-        "searchHistoryContext",
-        "searchHistoryDisabled"
-    ],
-    SemanticZoom: [
-        "element",
-        "enableButton",
-        "isDeclarativeControlContainer",
-        "locked",
-        "onZoomChanged",
-        "zoomFactor",
-        "zoomedOut"
-    ],
-    SplitView: [
-        "contentElement",
-        "element",
-        "hiddenDisplayMode",
-        "onAfterHide",
-        "onAfterShow",
-        "onBeforeHide",
-        "onBeforeShow",
-        "paneElement",
-        "paneHidden",
-        "panePlacement",
-        "shownDisplayMode"
-    ],
-    TimePicker: [
-        "clock",
-        "current",
-        "disabled",
-        "element",
-        "hourPattern",
-        "minuteIncrement",
-        "minutePattern",
-        "onChange",
-        "periodPattern"
-    ],
-    ToggleSwitch: [
-        "checked",
-        "disabled",
-        "element",
-        "labelOff",
-        "labelOn",
-        "onChange",
-        "title"
-    ],
-    ToolBar: [
-        "data",
-        "element",
-        "extraClass",
-        "shownDisplayMode"
-    ],
-    Tooltip: [
-        "contentElement",
-        "element",
-        "extraClass",
-        "infotip",
-        "innerHTML",
-        "onBeforeClose",
-        "onBeforeOpen",
-        "onClosed",
-        "onOpened",
-        "placement"
-    ]
+    AppBar: {
+        closedDisplayMode: {
+            type: "string"
+        },
+        commands: {
+            name: "Array",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "WinJS.UI.AppBarCommand",
+                    type: "reference",
+                    typeArguments: []
+                }
+            ]
+        },
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        hidden: {
+            type: "boolean"
+        },
+        layout: {
+            type: "string"
+        },
+        onAfterHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onAfterShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        placement: {
+            type: "string"
+        },
+        sticky: {
+            type: "boolean"
+        }
+    },
+    AppBarCommand: {
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        extraClass: {
+            type: "string"
+        },
+        firstElementFocus: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        flyout: {
+            name: "WinJS.UI.Flyout",
+            type: "reference",
+            typeArguments: []
+        },
+        hidden: {
+            type: "boolean"
+        },
+        icon: {
+            type: "string"
+        },
+        id: {
+            type: "string"
+        },
+        label: {
+            type: "string"
+        },
+        lastElementFocus: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        onClick: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        section: {
+            type: "string"
+        },
+        selected: {
+            type: "boolean"
+        },
+        tooltip: {
+            type: "string"
+        },
+        type: {
+            type: "string"
+        }
+    },
+    AutoSuggestBox: {
+        chooseSuggestionOnEnter: {
+            type: "boolean"
+        },
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        onQueryChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onQuerySubmitted: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onResultSuggestionChosen: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onSuggestionsRequested: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        placeholderText: {
+            type: "string"
+        },
+        queryText: {
+            type: "string"
+        },
+        searchHistoryContext: {
+            type: "string"
+        },
+        searchHistoryDisabled: {
+            type: "boolean"
+        }
+    },
+    BackButton: {
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        }
+    },
+    CellSpanningLayout: {
+        groupHeaderPosition: {
+            name: "WinJS.UI.HeaderPosition",
+            type: "enum"
+        },
+        groupInfo: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        itemInfo: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        maximumRowsOrColumns: {
+            type: "number"
+        },
+        numberOfItemsPerItemsBlock: {
+            type: "any"
+        },
+        orientation: {
+            name: "WinJS.UI.Orientation",
+            type: "enum"
+        }
+    },
+    ContentDialog: {
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        hidden: {
+            type: "boolean"
+        },
+        onAfterHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onAfterShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        primaryCommandDisabled: {
+            type: "boolean"
+        },
+        primaryCommandText: {
+            type: "string"
+        },
+        secondaryCommandDisabled: {
+            type: "boolean"
+        },
+        secondaryCommandText: {
+            type: "string"
+        },
+        title: {
+            type: "string"
+        }
+    },
+    DatePicker: {
+        calendar: {
+            type: "string"
+        },
+        current: {
+            name: "Date",
+            type: "reference",
+            typeArguments: []
+        },
+        datePattern: {
+            type: "string"
+        },
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        maxYear: {
+            type: "number"
+        },
+        minYear: {
+            type: "number"
+        },
+        monthPattern: {
+            type: "string"
+        },
+        onChange: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        yearPattern: {
+            type: "string"
+        }
+    },
+    FlipView: {
+        currentPage: {
+            type: "number"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        itemDataSource: {
+            name: "WinJS.UI.IListDataSource",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "T",
+                    type: "type-param"
+                }
+            ]
+        },
+        itemSpacing: {
+            type: "number"
+        },
+        itemTemplate: {
+            type: "any"
+        },
+        onDataSourceCountChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onPageCompleted: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onPageSelected: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onPageVisibilityChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        orientation: {
+            type: "string"
+        }
+    },
+    Flyout: {
+        alignment: {
+            type: "string"
+        },
+        anchor: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        hidden: {
+            type: "boolean"
+        },
+        onAfterHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onAfterShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        placement: {
+            type: "string"
+        }
+    },
+    GridLayout: {
+        backdropColor: {
+            type: "string"
+        },
+        disableBackdrop: {
+            type: "boolean"
+        },
+        groupHeaderPosition: {
+            name: "WinJS.UI.HeaderPosition",
+            type: "enum"
+        },
+        groupInfo: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        horizontal: {
+            type: "boolean"
+        },
+        itemInfo: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        maxRows: {
+            type: "number"
+        },
+        maximumRowsOrColumns: {
+            type: "number"
+        },
+        numberOfItemsPerItemsBlock: {
+            type: "any"
+        },
+        orientation: {
+            name: "WinJS.UI.Orientation",
+            type: "enum"
+        }
+    },
+    Hub: {
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        headerTemplate: {
+            type: "any"
+        },
+        indexOfFirstVisible: {
+            type: "number"
+        },
+        indexOfLastVisible: {
+            type: "number"
+        },
+        loadingState: {
+            type: "string"
+        },
+        onContentAnimating: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onHeaderInvoked: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onLoadingStateChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        orientation: {
+            name: "WinJS.UI.Orientation",
+            type: "enum"
+        },
+        scrollPosition: {
+            type: "number"
+        },
+        sectionOnScreen: {
+            type: "number"
+        },
+        sections: {
+            name: "WinJS.Binding.List",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "WinJS.UI.HubSection",
+                    type: "reference",
+                    typeArguments: []
+                }
+            ]
+        },
+        zoomableView: {
+            name: "WinJS.UI.IZoomableView",
+            type: "reference",
+            typeArguments: [
+                {
+                    type: "any"
+                }
+            ]
+        }
+    },
+    HubSection: {
+        contentElement: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        header: {
+            type: "string"
+        },
+        isHeaderStatic: {
+            type: "boolean"
+        }
+    },
+    ItemContainer: {
+        draggable: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        onInvoked: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onSelectionChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onSelectionChanging: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        selected: {
+            type: "boolean"
+        },
+        selectionDisabled: {
+            type: "boolean"
+        },
+        swipeBehavior: {
+            name: "WinJS.UI.SwipeBehavior",
+            type: "enum"
+        },
+        swipeOrientation: {
+            name: "WinJS.UI.Orientation",
+            type: "enum"
+        },
+        tapBehavior: {
+            name: "WinJS.UI.TapBehavior",
+            type: "enum"
+        }
+    },
+    ListLayout: {
+        backdropColor: {
+            type: "string"
+        },
+        disableBackdrop: {
+            type: "boolean"
+        },
+        groupHeaderPosition: {
+            name: "WinJS.UI.HeaderPosition",
+            type: "enum"
+        },
+        groupInfo: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        horizontal: {
+            type: "boolean"
+        },
+        itemInfo: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        numberOfItemsPerItemsBlock: {
+            type: "any"
+        },
+        orientation: {
+            name: "WinJS.UI.Orientation",
+            type: "enum"
+        }
+    },
+    ListView: {
+        automaticallyLoadPages: {
+            type: "boolean"
+        },
+        currentItem: {
+            name: "WinJS.UI.IListViewItem",
+            type: "reference",
+            typeArguments: []
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        footer: {
+            name: "HTMLDivElement",
+            type: "reference",
+            typeArguments: []
+        },
+        groupDataSource: {
+            name: "WinJS.UI.IListDataSource",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "T",
+                    type: "type-param"
+                }
+            ]
+        },
+        groupHeaderTapBehavior: {
+            name: "WinJS.UI.GroupHeaderTapBehavior",
+            type: "enum"
+        },
+        groupHeaderTemplate: {
+            type: "any"
+        },
+        header: {
+            name: "HTMLDivElement",
+            type: "reference",
+            typeArguments: []
+        },
+        indexOfFirstVisible: {
+            type: "number"
+        },
+        indexOfLastVisible: {
+            type: "number"
+        },
+        itemDataSource: {
+            name: "WinJS.UI.IListDataSource",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "T",
+                    type: "type-param"
+                }
+            ]
+        },
+        itemTemplate: {
+            type: "any"
+        },
+        itemsDraggable: {
+            type: "boolean"
+        },
+        itemsReorderable: {
+            type: "boolean"
+        },
+        layout: {
+            name: "WinJS.UI.ILayout2",
+            type: "reference",
+            typeArguments: []
+        },
+        loadingBehavior: {
+            type: "string"
+        },
+        loadingState: {
+            type: "string"
+        },
+        maxDeferredItemCleanup: {
+            type: "number"
+        },
+        onContentAnimating: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onGroupHeaderInvoked: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onItemDragBetween: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onItemDragChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onItemDragDrop: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onItemDragEnd: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onItemDragEnter: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onItemDragLeave: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onItemDragStart: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onItemInvoked: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onKeyboardNavigating: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onLoadingStateChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onSelectionChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onSelectionChanging: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        pagesToLoad: {
+            type: "number"
+        },
+        pagesToLoadThreshold: {
+            type: "number"
+        },
+        scrollPosition: {
+            type: "number"
+        },
+        selection: {
+            name: "WinJS.UI.ISelection",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "T",
+                    type: "type-param"
+                }
+            ]
+        },
+        selectionMode: {
+            name: "WinJS.UI.SelectionMode",
+            type: "enum"
+        },
+        swipeBehavior: {
+            name: "WinJS.UI.SwipeBehavior",
+            type: "enum"
+        },
+        tapBehavior: {
+            name: "WinJS.UI.TapBehavior",
+            type: "enum"
+        },
+        zoomableView: {
+            name: "WinJS.UI.IZoomableView",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "WinJS.UI.ListView",
+                    type: "reference",
+                    typeArguments: [
+                        {
+                            name: "T",
+                            type: "type-param"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    Menu: {
+        alignment: {
+            type: "string"
+        },
+        anchor: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        commands: {
+            name: "Array",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "WinJS.UI.MenuCommand",
+                    type: "reference",
+                    typeArguments: []
+                }
+            ]
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        hidden: {
+            type: "boolean"
+        },
+        onAfterHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onAfterShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        placement: {
+            type: "string"
+        }
+    },
+    MenuCommand: {
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        extraClass: {
+            type: "string"
+        },
+        flyout: {
+            name: "WinJS.UI.Flyout",
+            type: "reference",
+            typeArguments: []
+        },
+        hidden: {
+            type: "boolean"
+        },
+        id: {
+            type: "string"
+        },
+        label: {
+            type: "string"
+        },
+        onClick: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        selected: {
+            type: "boolean"
+        },
+        type: {
+            type: "string"
+        }
+    },
+    NavBar: {
+        commands: {
+            name: "WinJS.UI.AppBarCommand",
+            type: "reference",
+            typeArguments: []
+        },
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        hidden: {
+            type: "boolean"
+        },
+        layout: {
+            type: "string"
+        },
+        onAfterHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onAfterShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onChildrenProcessed: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        placement: {
+            type: "string"
+        },
+        sticky: {
+            type: "boolean"
+        }
+    },
+    NavBarCommand: {
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        icon: {
+            type: "string"
+        },
+        label: {
+            type: "string"
+        },
+        location: {
+            type: "any"
+        },
+        splitButton: {
+            type: "boolean"
+        },
+        splitOpened: {
+            type: "boolean"
+        },
+        state: {
+            type: "any"
+        },
+        tooltip: {
+            type: "any"
+        }
+    },
+    NavBarContainer: {
+        currentIndex: {
+            type: "number"
+        },
+        data: {
+            name: "WinJS.Binding.List",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "WinJS.UI.NavBarCommand",
+                    type: "reference",
+                    typeArguments: []
+                }
+            ]
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        fixedSize: {
+            type: "boolean"
+        },
+        layout: {
+            name: "WinJS.UI.Orientation",
+            type: "enum"
+        },
+        maxRows: {
+            type: "number"
+        },
+        onInvoked: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onSplitToggle: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        template: {
+            name: "WinJS.Binding.Template",
+            type: "reference",
+            typeArguments: []
+        }
+    },
+    Pivot: {
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        items: {
+            name: "WinJS.Binding.List",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "WinJS.UI.PivotItem",
+                    type: "reference",
+                    typeArguments: []
+                }
+            ]
+        },
+        locked: {
+            type: "boolean"
+        },
+        onItemAnimationEnd: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onItemAnimationStart: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onSelectionChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        selectedIndex: {
+            type: "number"
+        },
+        selectedItem: {
+            name: "WinJS.UI.PivotItem",
+            type: "reference",
+            typeArguments: []
+        },
+        title: {
+            type: "string"
+        }
+    },
+    PivotItem: {
+        contentElement: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        header: {
+            type: "string"
+        }
+    },
+    Rating: {
+        averageRating: {
+            type: "number"
+        },
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        enableClear: {
+            type: "boolean"
+        },
+        maxRating: {
+            type: "number"
+        },
+        onCancel: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onChange: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onPreviewChange: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        tooltipStrings: {
+            name: "Array",
+            type: "reference",
+            typeArguments: [
+                {
+                    type: "string"
+                }
+            ]
+        },
+        userRating: {
+            type: "number"
+        }
+    },
+    SearchBox: {
+        chooseSuggestionOnEnter: {
+            type: "boolean"
+        },
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        focusOnKeyboardInput: {
+            type: "boolean"
+        },
+        onQueryChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onQuerySubmitted: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onReceivingFocusOnKeyboardInput: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onResultSuggestionChosen: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onSuggestionsRequested: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        placeholderText: {
+            type: "string"
+        },
+        queryText: {
+            type: "string"
+        },
+        searchHistoryContext: {
+            type: "string"
+        },
+        searchHistoryDisabled: {
+            type: "boolean"
+        }
+    },
+    SemanticZoom: {
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        enableButton: {
+            type: "boolean"
+        },
+        isDeclarativeControlContainer: {
+            type: "boolean"
+        },
+        locked: {
+            type: "boolean"
+        },
+        onZoomChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        zoomFactor: {
+            type: "number"
+        },
+        zoomedOut: {
+            type: "boolean"
+        }
+    },
+    SplitView: {
+        contentElement: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        hiddenDisplayMode: {
+            type: "string"
+        },
+        onAfterHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onAfterShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeHide: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeShow: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        paneElement: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        paneHidden: {
+            type: "boolean"
+        },
+        panePlacement: {
+            type: "string"
+        },
+        shownDisplayMode: {
+            type: "string"
+        }
+    },
+    TimePicker: {
+        clock: {
+            type: "string"
+        },
+        current: {
+            name: "Date",
+            type: "reference",
+            typeArguments: []
+        },
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        hourPattern: {
+            type: "string"
+        },
+        minuteIncrement: {
+            type: "number"
+        },
+        minutePattern: {
+            type: "string"
+        },
+        onChange: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        periodPattern: {
+            type: "string"
+        }
+    },
+    ToggleSwitch: {
+        checked: {
+            type: "boolean"
+        },
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        labelOff: {
+            type: "string"
+        },
+        labelOn: {
+            type: "string"
+        },
+        onChange: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        title: {
+            type: "string"
+        }
+    },
+    ToolBar: {
+        data: {
+            name: "WinJS.Binding.List",
+            type: "reference",
+            typeArguments: [
+                {
+                    name: "WinJS.UI.AppBarCommand",
+                    type: "reference",
+                    typeArguments: []
+                }
+            ]
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        extraClass: {
+            type: "string"
+        },
+        shownDisplayMode: {
+            type: "string"
+        }
+    },
+    Tooltip: {
+        contentElement: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        extraClass: {
+            type: "string"
+        },
+        infotip: {
+            type: "boolean"
+        },
+        innerHTML: {
+            type: "string"
+        },
+        onBeforeClose: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeOpen: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onClosed: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onOpened: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        placement: {
+            type: "string"
+        }
+    }
 };
 
 function isEvent(propName) {
@@ -1079,7 +2057,7 @@ var DefaultControlApis = (function processRawApis() {
             // more generically.
             id: PropHandlers.domProperty
         };
-        RawControlApis[controlName].forEach(function (propName) {
+        Object.keys(RawControlApis[controlName]).forEach(function (propName) {
             if (isEvent(propName)) {
                 propHandlers[propName] = PropHandlers.event;
             } else if (keepProperty(propName)) {
