@@ -104,23 +104,6 @@ var RawControlApis = {
         "numberOfItemsPerItemsBlock",
         "orientation"
     ],
-    Command: [
-        "disabled",
-        "element",
-        "extraClass",
-        "firstElementFocus",
-        "flyout",
-        "hidden",
-        "icon",
-        "id",
-        "label",
-        "lastElementFocus",
-        "onClick",
-        "section",
-        "selected",
-        "tooltip",
-        "type"
-    ],
     ContentDialog: [
         "element",
         "hidden",
