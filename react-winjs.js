@@ -1467,6 +1467,40 @@ function makeClassSet(className) {
     return classSet;
 }
 
+function getIn(object, path) {
+    var parts = path.split(".");
+    return parts.reduce(function (current, name) {
+        return current && current[name];
+    }, object);
+}
+
+// Given a type from RawControlApis returns a React propType.
+function typeToPropType(typeInfo) {
+    if (typeInfo.type === "string") {
+        return React.PropTypes.string;
+    } else if (typeInfo.type === "boolean") {
+        return React.PropTypes.bool;
+    } else if (typeInfo.type === "number") {
+        return React.PropTypes.number;
+    } else if (typeInfo.type === "enum") {
+        return React.PropTypes.string;
+    } else if (typeInfo.type === "any") {
+        return React.PropTypes.any;
+    } else if (typeInfo.type === "reference") {
+        if (typeInfo.name === "Function") {
+            return React.PropTypes.func;
+        } else if (typeInfo.name === "Array") {
+            var itemPropType = typeToPropType(typeInfo.typeArguments[0]);
+            return itemPropType ? React.PropTypes.arrayOf(itemPropType) : React.PropTypes.array;
+        } else if (getIn(window, typeInfo.name)) {
+            var instance = getIn(window, typeInfo.name);
+            return React.PropTypes.instanceOf(instance);
+        }
+    } else {
+        console.warn("react-winjs typeToPropType: unable to find propType for type: " + JSON.stringify(typeInfo, null, 2));
+    }
+}
+
 // TODO: Revisit all of this diffing stuff:
 //   - Make it more efficient
 //   - It's currently hard to understand because it makes aggressive
@@ -1642,15 +1676,18 @@ function resolveStyleValue(cssProperty, value) {
 
 var PropHandlers = {
     // Maps to a property on the winControl.
-    property: {
-        preCtorInit: function property_preCtorInit(element, options, data, displayName, propName, value) {
-            options[propName] = value;
-        },
-        update: function property_update(winjsComponent, propName, oldValue, newValue) {
-            if (oldValue !== newValue) {
-                winjsComponent.winControl[propName] = newValue;
+    property: function (propType) {
+        return {
+            propType: propType,
+            preCtorInit: function property_preCtorInit(element, options, data, displayName, propName, value) {
+                options[propName] = value;
+            },
+            update: function property_update(winjsComponent, propName, oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    winjsComponent.winControl[propName] = newValue;
+                }
             }
-        }
+        };
     },
 
     // Maps to a property on the winControl's element.
@@ -2061,7 +2098,9 @@ var DefaultControlApis = (function processRawApis() {
             if (isEvent(propName)) {
                 propHandlers[propName] = PropHandlers.event;
             } else if (keepProperty(propName)) {
-                propHandlers[propName] = PropHandlers.property;
+                var typeInfo = RawControlApis[controlName][propName];
+                var propType = typeToPropType(typeInfo);
+                propHandlers[propName] = PropHandlers.property(propType);
             }
         });
         result[controlName] = {
