@@ -1691,15 +1691,18 @@ var PropHandlers = {
     },
 
     // Maps to a property on the winControl's element.
-    domProperty: {
-        preCtorInit: function domProperty_preCtorInit(element, options, data, displayName, propName, value) {
-            element[propName] = value;
-        },
-        update: function domProperty_update(winjsComponent, propName, oldValue, newValue) {
-            if (oldValue !== newValue) {
-                winjsComponent.element[propName] = newValue;
+    domProperty: function (propType) {
+        return {
+            propType: propType,
+            preCtorInit: function domProperty_preCtorInit(element, options, data, displayName, propName, value) {
+                element[propName] = value;
+            },
+            update: function domProperty_update(winjsComponent, propName, oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    winjsComponent.element[propName] = newValue;
+                }
             }
-        }
+        };
     },
 
     // Maps to an event on the winControl.
@@ -1764,6 +1767,7 @@ var PropHandlers = {
     //  Enable the addition and removal of inline styles on the root of the winControl
     //  but don't clobber whatever inline styles the underlying control may have added.
     winControlStyle: {
+        propType: React.PropTypes.object,
         preCtorInit: function winControlStyle_preCtorInit(element, options, data, displayName, propName, value) {
             var elementStyle = element.style;
             value = value || {};
@@ -2092,7 +2096,7 @@ var DefaultControlApis = (function processRawApis() {
             style: PropHandlers.winControlStyle,
             // TODO: Instead of special casing id, support DOM attributes
             // more generically.
-            id: PropHandlers.domProperty
+            id: PropHandlers.domProperty(React.PropTypes.string)
         };
         Object.keys(RawControlApis[controlName]).forEach(function (propName) {
             if (isEvent(propName)) {
@@ -2174,6 +2178,7 @@ var CommandSpecs = {
         propHandlers: {
             type: typeWarnPropHandler,
             flyoutComponent: {
+                propType: React.PropTypes.element,
                 update: function FlyoutCommand_flyoutComponent_update(winjsComponent, propName, oldValue, newValue) {
                     var data = winjsComponent.data[propName];
                     if (!data) {
@@ -2403,6 +2408,7 @@ var ControlApis = updateWithDefaults({
     SemanticZoom: {
         propHandlers: {
             zoomedInComponent: {
+                propType: React.PropTypes.element,
                 preCtorInit: function zoomedInComponent_preCtorInit(element, options, data, displayName, propName, value) {
                     var child = new WinJSChildComponent(value);
                     // Zoomed in component should be the first child.
@@ -2423,6 +2429,7 @@ var ControlApis = updateWithDefaults({
                 }
             },
             zoomedOutComponent: {
+                propType: React.PropTypes.element,
                 preCtorInit: function zoomedOutComponent_preCtorInit(element, options, data, displayName, propName, value) {
                     var child = new WinJSChildComponent(value);
                     // Zoomed out component should be the second child.
