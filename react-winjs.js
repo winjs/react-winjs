@@ -216,8 +216,11 @@ var RawControlApis = {
     },
     CellSpanningLayout: {
         groupHeaderPosition: {
-            name: "WinJS.UI.HeaderPosition",
-            type: "enum"
+            type: "enum",
+            values: [
+                "left",
+                "top"
+            ]
         },
         groupInfo: {
             name: "Function",
@@ -236,8 +239,11 @@ var RawControlApis = {
             type: "any"
         },
         orientation: {
-            name: "WinJS.UI.Orientation",
-            type: "enum"
+            type: "enum",
+            values: [
+                "horizontal",
+                "vertical"
+            ]
         }
     },
     ContentDialog: {
@@ -421,8 +427,11 @@ var RawControlApis = {
             type: "boolean"
         },
         groupHeaderPosition: {
-            name: "WinJS.UI.HeaderPosition",
-            type: "enum"
+            type: "enum",
+            values: [
+                "left",
+                "top"
+            ]
         },
         groupInfo: {
             name: "Function",
@@ -447,8 +456,11 @@ var RawControlApis = {
             type: "any"
         },
         orientation: {
-            name: "WinJS.UI.Orientation",
-            type: "enum"
+            type: "enum",
+            values: [
+                "horizontal",
+                "vertical"
+            ]
         }
     },
     Hub: {
@@ -485,8 +497,11 @@ var RawControlApis = {
             typeArguments: []
         },
         orientation: {
-            name: "WinJS.UI.Orientation",
-            type: "enum"
+            type: "enum",
+            values: [
+                "horizontal",
+                "vertical"
+            ]
         },
         scrollPosition: {
             type: "number"
@@ -564,16 +579,27 @@ var RawControlApis = {
             type: "boolean"
         },
         swipeBehavior: {
-            name: "WinJS.UI.SwipeBehavior",
-            type: "enum"
+            type: "enum",
+            values: [
+                "none",
+                "select"
+            ]
         },
         swipeOrientation: {
-            name: "WinJS.UI.Orientation",
-            type: "enum"
+            type: "enum",
+            values: [
+                "horizontal",
+                "vertical"
+            ]
         },
         tapBehavior: {
-            name: "WinJS.UI.TapBehavior",
-            type: "enum"
+            type: "enum",
+            values: [
+                "directSelect",
+                "invokeOnly",
+                "none",
+                "toggleSelect"
+            ]
         }
     },
     ListLayout: {
@@ -584,8 +610,11 @@ var RawControlApis = {
             type: "boolean"
         },
         groupHeaderPosition: {
-            name: "WinJS.UI.HeaderPosition",
-            type: "enum"
+            type: "enum",
+            values: [
+                "left",
+                "top"
+            ]
         },
         groupInfo: {
             name: "Function",
@@ -604,8 +633,11 @@ var RawControlApis = {
             type: "any"
         },
         orientation: {
-            name: "WinJS.UI.Orientation",
-            type: "enum"
+            type: "enum",
+            values: [
+                "horizontal",
+                "vertical"
+            ]
         }
     },
     ListView: {
@@ -638,8 +670,11 @@ var RawControlApis = {
             ]
         },
         groupHeaderTapBehavior: {
-            name: "WinJS.UI.GroupHeaderTapBehavior",
-            type: "enum"
+            type: "enum",
+            values: [
+                "invoke",
+                "none"
+            ]
         },
         groupHeaderTemplate: {
             type: "any"
@@ -778,16 +813,28 @@ var RawControlApis = {
             ]
         },
         selectionMode: {
-            name: "WinJS.UI.SelectionMode",
-            type: "enum"
+            type: "enum",
+            values: [
+                "multi",
+                "none",
+                "single"
+            ]
         },
         swipeBehavior: {
-            name: "WinJS.UI.SwipeBehavior",
-            type: "enum"
+            type: "enum",
+            values: [
+                "none",
+                "select"
+            ]
         },
         tapBehavior: {
-            name: "WinJS.UI.TapBehavior",
-            type: "enum"
+            type: "enum",
+            values: [
+                "directSelect",
+                "invokeOnly",
+                "none",
+                "toggleSelect"
+            ]
         },
         zoomableView: {
             name: "WinJS.UI.IZoomableView",
@@ -1000,8 +1047,11 @@ var RawControlApis = {
             type: "boolean"
         },
         layout: {
-            name: "WinJS.UI.Orientation",
-            type: "enum"
+            type: "enum",
+            values: [
+                "horizontal",
+                "vertical"
+            ]
         },
         maxRows: {
             type: "number"
@@ -1483,7 +1533,7 @@ function typeToPropType(typeInfo) {
     } else if (typeInfo.type === "number") {
         return React.PropTypes.number;
     } else if (typeInfo.type === "enum") {
-        return React.PropTypes.string;
+        return React.PropTypes.oneOf(typeInfo.values);
     } else if (typeInfo.type === "any") {
         return React.PropTypes.any;
     } else if (typeInfo.type === "reference") {
