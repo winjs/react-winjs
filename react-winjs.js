@@ -1272,7 +1272,11 @@ var RawControlApis = {
             typeArguments: []
         },
         hiddenDisplayMode: {
-            type: "string"
+            type: "enum",
+            values: [
+                "inline",
+                "none"
+            ]
         },
         onAfterHide: {
             name: "Function",
@@ -1303,10 +1307,20 @@ var RawControlApis = {
             type: "boolean"
         },
         panePlacement: {
-            type: "string"
+            type: "enum",
+            values: [
+                "bottom",
+                "left",
+                "right",
+                "top"
+            ]
         },
         shownDisplayMode: {
-            type: "string"
+            type: "enum",
+            values: [
+                "inline",
+                "overlay"
+            ]
         }
     },
     TimePicker: {
