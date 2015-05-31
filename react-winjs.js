@@ -45,8 +45,6 @@
 
 var React = require('react');
 
-var ReactWinJS = {};
-
 // Generated from https://github.com/rigdern/winjs-control-apis
 var RawControlApis = {
     AppBar: {
@@ -1476,13 +1474,13 @@ function cloneObject(obj) {
     return result;
 }
 
-function merge(a, b) {
+function merge(/* objs */) {
     var result = {};
-    if (a) {
-        for (k in a) { result[k] = a[k]; }
-    }
-    if (b) {
-        for (k in b) { result[k] = b[k]; }
+    for (var i = 0, len = arguments.length; i < len; i++) {
+        var obj = arguments[i];
+        if (obj) {
+            for (k in obj) { result[k] = obj[k]; }
+        }
     }
     return result;
 }
@@ -2017,16 +2015,18 @@ var PropHandlers = {
     }
 };
 
-function defineControl(controlName, options) {
-    options = options || {};
+function defineControl(options) {
+    // Required
+    var winjsControl = options.winjsControl;
+
+    // Optional
     var winControlOptions = options.winControlOptions || {};
     var preCtorInit = options.preCtorInit || function () { };
     var propHandlers = options.propHandlers || {};
     var render = options.render || function (component) {
         return React.DOM.div();
     };
-    var winjsControlName = options.underlyingControlName || controlName;
-    var displayName = controlName;
+    var displayName = options.displayName;
 
     function initWinJSComponent(winjsComponent, element, props) {
         winjsComponent.data = {};
@@ -2043,7 +2043,7 @@ function defineControl(controlName, options) {
                 handler.preCtorInit(element, options, winjsComponent.data, displayName, propName, props[propName]);
             }
         });
-        winjsComponent.winControl = new WinJS.UI[winjsControlName](element, options);        
+        winjsComponent.winControl = new winjsControl(element, options);        
 
         // Process propHandlers that don't implement preCtorInit.
         Object.keys(props).forEach(function (propName) {
@@ -2148,43 +2148,57 @@ WinJSChildComponent.prototype.dispose = function () {
     this._disposeWinJSComponent(this);
 };
 
-var DefaultControlApis = (function processRawApis() {
+
+// Prop handlers that are common to every WinJS control.
+var defaultPropHandlers = {
+    className: PropHandlers.winControlClassName,
+    style: PropHandlers.winControlStyle,
+    // TODO: Instead of special casing id, support DOM attributes
+    // more generically.
+    id: PropHandlers.domProperty(React.PropTypes.string)
+};
+
+// Control-specific prop handler derived from RawContorlApis
+var DefaultControlPropHandlers = (function processRawApis() {
     var keepProperty = function keepProperty(propertyName) {
         return !endsWith(propertyName.toLowerCase(), "element");
     };
 
-    var result = {};
-    Object.keys(RawControlApis).forEach(function (controlName) {
-        var propHandlers = {
-            className: PropHandlers.winControlClassName,
-            style: PropHandlers.winControlStyle,
-            // TODO: Instead of special casing id, support DOM attributes
-            // more generically.
-            id: PropHandlers.domProperty(React.PropTypes.string)
-        };
-        Object.keys(RawControlApis[controlName]).forEach(function (propName) {
+    return mapObject(RawControlApis, function (controlName, controlApis) {
+        var propHandlers = {};
+        Object.keys(controlApis).forEach(function (propName) {
             if (isEvent(propName)) {
                 propHandlers[propName] = PropHandlers.event;
             } else if (keepProperty(propName)) {
-                var typeInfo = RawControlApis[controlName][propName];
+                var typeInfo = controlApis[propName];
                 var propType = typeToPropType(typeInfo);
                 propHandlers[propName] = PropHandlers.property(propType);
             }
         });
-        result[controlName] = {
-            propHandlers: propHandlers
-        };
+        return propHandlers;
     });
-    return result;
 })();
 
+// Each entry in controlApis has the same format as the argument to defineControl except
+// updateWithDefaults automatically provides:
+//   - winjsControl
+//   - displayName
+//   - propHandlers
+// and updateWithDefaults implements an extra option:
+//   - underlyingControlName
+// By default, winjsControl, displayName, and propHanders are inferred from the entry's key
+// in controlApis. If underlyingControlName is provided, they will instead be inferred from
+// that name.
 function updateWithDefaults(controlApis) {
     Object.keys(controlApis).forEach(function (controlName) {
-        var winjsControlName = controlApis[controlName].underlyingControlName || controlName;
         var spec = controlApis[controlName];
+        var winjsControlName = spec.underlyingControlName || controlName;
+        spec.winjsControl = spec.winjsControl || WinJS.UI[winjsControlName];
+        spec.displayName = spec.displayName || winjsControlName;
         spec.propHandlers = merge(
-            DefaultControlApis[winjsControlName].propHandlers,
-            spec.propHandlers
+            defaultPropHandlers, // Common to all WinJS controls
+            DefaultControlPropHandlers[winjsControlName], // Control-specific derived from RawControlApis
+            spec.propHandlers // Control-specific handwritten
         );
     });
     return controlApis;
@@ -2547,11 +2561,23 @@ var ControlApis = updateWithDefaults({
     }
 });
 
+//
+// Publish
+//
+
+var ReactWinJS = {};
+
+// Controls
+//
+
 // Sort to ensure that controls come before their subcontrols
 // (e.g. AppBar comes before AppBar.Toggle).
 Object.keys(ControlApis).sort().forEach(function (controlName) {
-    nestedSet(ReactWinJS, controlName, defineControl(controlName, ControlApis[controlName]));
+    nestedSet(ReactWinJS, controlName, defineControl(ControlApis[controlName]));
 });
+
+// Utilites
+//
 
 // Given a function that returns a React component,
 // returns an item renderer function that can be used
@@ -2569,5 +2595,12 @@ ReactWinJS.reactRenderer = function reactRenderer(componentFunction) {
         });
     }
 };
+
+//
+// Low-level utilities for wrapping custom WinJS-style controls
+
+ReactWinJS.defineControl = defineControl;
+ReactWinJS.PropHandlers = PropHandlers;
+ReactWinJS.defaultPropHandlers = defaultPropHandlers;
 
 module.exports = ReactWinJS;
