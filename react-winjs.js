@@ -2158,7 +2158,7 @@ var defaultPropHandlers = {
     id: PropHandlers.domProperty(React.PropTypes.string)
 };
 
-// Control-specific prop handler derived from RawContorlApis
+// Control-specific prop handlers derived from RawContorlApis
 var DefaultControlPropHandlers = (function processRawApis() {
     var keepProperty = function keepProperty(propertyName) {
         return !endsWith(propertyName.toLowerCase(), "element");
@@ -2584,20 +2584,31 @@ Object.keys(ControlApis).sort().forEach(function (controlName) {
 // with WinJS controls. Useful for describing FlipView
 // and ListView item templates as React components.
 ReactWinJS.reactRenderer = function reactRenderer(componentFunction) {
-    return function itemRenderer(itemPromise) {
-        return itemPromise.then(function (item) {
-            var element = document.createElement("div");
-            React.render(componentFunction(item), element);
-            WinJS.Utilities.markDisposable(element, function () {
-                React.unmountComponentAtNode(element);
-            });
-            return element;
+    var componentFunctionBound;
+    var renderItem = function renderItem(item) {
+        var element = document.createElement("div");
+        element.className = "win-react-renderer-host";
+        React.render(componentFunctionBound(item), element);
+        WinJS.Utilities.markDisposable(element, function () {
+            React.unmountComponentAtNode(element);
         });
+        return element;
+    };
+
+    return function itemRenderer(itemOrItemPromise) {
+        if (!componentFunctionBound) {
+            componentFunctionBound = componentFunction.bind(this);
+        }
+
+        return WinJS.Promise.is(itemOrItemPromise) ?
+            itemOrItemPromise.then(renderItem) :
+            renderItem(itemOrItemPromise);
     }
 };
 
-//
+
 // Low-level utilities for wrapping custom WinJS-style controls
+//
 
 ReactWinJS.defineControl = defineControl;
 ReactWinJS.PropHandlers = PropHandlers;
