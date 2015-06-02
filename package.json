@@ -1,6 +1,6 @@
 {
   "name": "react-winjs",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "React wrapper around WinJS's controls",
   "main": "react-winjs.js",
   "scripts": {
