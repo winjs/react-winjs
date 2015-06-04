@@ -66,16 +66,16 @@ module.exports = React.createClass({
             <div style={styles.root}>
                 <div style={styles.header.root}>
                     <ReactWinJS.BackButton style={styles.header.backButton} />
-                    <h2 style={styles.header.title}>{movie.title} ({movie.year})</h2>
+                    <h2 className="win-h2" style={styles.header.title}>{movie.title} ({movie.year})</h2>
                 </div>
                 <div style={styles.detail.root}>
                     <img style={styles.detail.poster} src={movie.posters.detailed} width={153} height={243} />
                     <div style={styles.detail.info}>
                         <div style={styles.detail.rating}>{movie.mpaa_rating}</div>
-                        <h3>Critics:</h3>
-                        <h2>{textColoredForScore(formattedScore(criticsScore), criticsScore)}</h2>
-                        <h3>Audience:</h3>
-                        <h2>{textColoredForScore(formattedScore(audienceScore), audienceScore)}</h2>
+                        <h3 className="win-h3">Critics:</h3>
+                        <h2 className="win-h2">{textColoredForScore(formattedScore(criticsScore), criticsScore)}</h2>
+                        <h3 className="win-h3">Audience:</h3>
+                        <h2 className="win-h2">{textColoredForScore(formattedScore(audienceScore), audienceScore)}</h2>
                     </div>
                 </div>
                 <hr />

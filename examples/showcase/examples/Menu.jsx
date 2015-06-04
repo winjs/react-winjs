@@ -37,7 +37,7 @@ module.exports = React.createClass({
 
         return (
             <div>
-                <button onClick={this.handleShowMenu}>Show Menu</button>
+                <button className="win-button" onClick={this.handleShowMenu}>Show Menu</button>
                 <p>Clicked command: {this.state.result || "<null>"}</p>
                 <p>Toggle selected: {this.state.toggleSelected.toString()}</p>
                 

@@ -44,7 +44,7 @@ module.exports = React.createClass({
         return (
             <div>
                 <p>This NavBar renders at the bottom of the screen.</p>
-                <button onClick={this.props.onToggleAppBar}>
+                <button className="win-button" onClick={this.props.onToggleAppBar}>
                     {this.props.appBarShown ? "Hide" : "Show"} NavBar
                 </button>
                 <p>Invoked command: {this.state.result || "<null>"}</p>

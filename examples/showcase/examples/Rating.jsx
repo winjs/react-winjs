@@ -20,8 +20,8 @@ module.exports = React.createClass({
         return (
             <div>
                 <div>
-                    <button onClick={this.handleAddToRating.bind(null, -1)}>-1</button>
-                    <button onClick={this.handleAddToRating.bind(null, 1)}>+1</button>
+                    <button className="win-button" onClick={this.handleAddToRating.bind(null, -1)}>-1</button>
+                    <button className="win-button" onClick={this.handleAddToRating.bind(null, 1)}>+1</button>
                 </div>
                 <p>Current Rating: {this.state.rating}</p>
 

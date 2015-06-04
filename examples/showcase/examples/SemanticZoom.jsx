@@ -79,7 +79,7 @@ module.exports = React.createClass({
 
         return (
             <div>
-                <button onClick={this.handleToggleZoom}>
+                <button className="win-button" onClick={this.handleToggleZoom}>
                     Zoom {this.state.zoomedOut ? "In" : "Out"}
                 </button>
                 <ReactWinJS.SemanticZoom

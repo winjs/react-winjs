@@ -1,106 +1,62 @@
-// Notes
-// - What's the most common way to distribute React components? webpack? requirejs?
-// - React appears to restore focus after componentWillReceiveProps. This is problematic for
-//   overlays like Flyout that are synchronously shown and take focus in componentWillReceiveProps.
-//   Maybe treat props such as hidden/opened as special and set them outside of React component
-//   lifecycle so that focus movements work properly.
-// - propTypes
-// - Should React be listed as a peerDependency instead of as a dependency?
-// - Does this project need a webpack config file?
-// - Enable setting of classNames and inline styles on control roots?
-// - Which props need to work like controlled components?
-// - What if we modeled dismissables like this? Instead of the app having to call hide/show,
-//   the app could render a special element for all dismissables (e.g. Dismissables) and when
-//   a dismissable is rendered into there, it will be shown. When it is no longer rendered
-//   in there, it will be hidden and removed from the DOM when its hide animation completes.
-//   This only makes sense for things that hide/show not for things that close/open because
-//   the latter need to be rendered even they're closed. Example:
-//     <Dismissables>
-//       <Flyout key="myFlyout">
-//         This is a Flyout!
-//       </Flyout>
-//       <ContentDialog key="myDialog">
-//         This is a ContentDialog!
-//       </ContentDialog>
-//     </Dismissables>
-// - Adaptive apps. In adaptive apps, you want to render certain components at some screen
-//   sizes but not at others. For cheap WinJS controls, reinstantiating the control during
-//   resize when it is needed may be fine. However, this pattern may not work well for
-//   expensive controls like the ListView. We'd want more of a lazy init pattern:
-//     - If the control isn't needed at this screen size, don't render it.
-//     - When the control is needed, instatiate it.
-//     - When the control isn't needed anymore, hide it (display: none).
-//     - When the control is needed again, show it (display: block) and call forceLayout()
-//   react-winjs could add a special prop to handle all of the details of this pattern for
-//   you with a special prop (e.g. displayNone). It could look like this:
-//     <ListView
-//       displayNone={this.state.shouldHideListViewAtThisScreenSize}
-//       itemDataSource={this.state.itemDataSource}
-//       itemTemplate={this.itemTemplate} />
-// - Provide SplitViewButton & SplitViewCommand components or wait for WinJS to provide
-//   the corresponding controls?
-// - Think more about React bug: https://github.com/facebook/react/issues/3790
-//   BackButton has to work around it. I wonder if other controls which often cause
-//   navigation on "click" will also have to workaround it (e.g. NavBarCommand).
-
 var React = require('react');
 
 // Generated from https://github.com/rigdern/winjs-control-apis
 var RawControlApis = {
     AppBar: {
         closedDisplayMode: {
-            type: "string"
+            type: "enum",
+            values: [
+                "compact",
+                "full",
+                "minimal",
+                "none"
+            ]
         },
-        commands: {
-            name: "Array",
+        data: {
+            name: "WinJS.Binding.List",
             type: "reference",
             typeArguments: [
                 {
-                    name: "WinJS.UI.AppBarCommand",
+                    name: "WinJS.UI.ICommand",
                     type: "reference",
                     typeArguments: []
                 }
             ]
-        },
-        disabled: {
-            type: "boolean"
         },
         element: {
             name: "HTMLElement",
             type: "reference",
             typeArguments: []
         },
-        hidden: {
+        onAfterClose: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onAfterOpen: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeClose: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeOpen: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        opened: {
             type: "boolean"
-        },
-        layout: {
-            type: "string"
-        },
-        onAfterHide: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
-        },
-        onAfterShow: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
-        },
-        onBeforeHide: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
-        },
-        onBeforeShow: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
         },
         placement: {
-            type: "string"
-        },
-        sticky: {
-            type: "boolean"
+            type: "enum",
+            values: [
+                "bottom",
+                "top"
+            ]
         }
     },
     AppBarCommand: {
@@ -146,6 +102,9 @@ var RawControlApis = {
             name: "Function",
             type: "reference",
             typeArguments: []
+        },
+        priority: {
+            type: "number"
         },
         section: {
             type: "string"
@@ -384,6 +343,9 @@ var RawControlApis = {
             name: "HTMLElement",
             type: "reference",
             typeArguments: []
+        },
+        disabled: {
+            type: "boolean"
         },
         element: {
             name: "HTMLElement",
@@ -871,6 +833,9 @@ var RawControlApis = {
                 }
             ]
         },
+        disabled: {
+            type: "boolean"
+        },
         element: {
             name: "HTMLElement",
             type: "reference",
@@ -947,36 +912,27 @@ var RawControlApis = {
             type: "reference",
             typeArguments: []
         },
-        disabled: {
-            type: "boolean"
-        },
         element: {
             name: "HTMLElement",
             type: "reference",
             typeArguments: []
         },
-        hidden: {
-            type: "boolean"
-        },
-        layout: {
-            type: "string"
-        },
-        onAfterHide: {
+        onAfterClose: {
             name: "Function",
             type: "reference",
             typeArguments: []
         },
-        onAfterShow: {
+        onAfterOpen: {
             name: "Function",
             type: "reference",
             typeArguments: []
         },
-        onBeforeHide: {
+        onBeforeClose: {
             name: "Function",
             type: "reference",
             typeArguments: []
         },
-        onBeforeShow: {
+        onBeforeOpen: {
             name: "Function",
             type: "reference",
             typeArguments: []
@@ -986,11 +942,11 @@ var RawControlApis = {
             type: "reference",
             typeArguments: []
         },
+        opened: {
+            type: "boolean"
+        },
         placement: {
             type: "string"
-        },
-        sticky: {
-            type: "boolean"
         }
     },
     NavBarCommand: {
@@ -1071,6 +1027,16 @@ var RawControlApis = {
         }
     },
     Pivot: {
+        customLeftHeader: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        customRightHeader: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
         element: {
             name: "HTMLElement",
             type: "reference",
@@ -1259,6 +1225,13 @@ var RawControlApis = {
         }
     },
     SplitView: {
+        closedDisplayMode: {
+            type: "enum",
+            values: [
+                "inline",
+                "none"
+            ]
+        },
         contentElement: {
             name: "HTMLElement",
             type: "reference",
@@ -1269,39 +1242,39 @@ var RawControlApis = {
             type: "reference",
             typeArguments: []
         },
-        hiddenDisplayMode: {
+        onAfterClose: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onAfterOpen: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeClose: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeOpen: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        openedDisplayMode: {
             type: "enum",
             values: [
                 "inline",
-                "none"
+                "overlay"
             ]
-        },
-        onAfterHide: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
-        },
-        onAfterShow: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
-        },
-        onBeforeHide: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
-        },
-        onBeforeShow: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
         },
         paneElement: {
             name: "HTMLElement",
             type: "reference",
             typeArguments: []
         },
-        paneHidden: {
+        paneOpened: {
             type: "boolean"
         },
         panePlacement: {
@@ -1312,13 +1285,23 @@ var RawControlApis = {
                 "right",
                 "top"
             ]
+        }
+    },
+    SplitViewPaneToggle: {
+        element: {
+            name: "HTMLButtonElement",
+            type: "reference",
+            typeArguments: []
         },
-        shownDisplayMode: {
-            type: "enum",
-            values: [
-                "inline",
-                "overlay"
-            ]
+        onInvoked: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        splitView: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
         }
     },
     TimePicker: {
@@ -1384,12 +1367,19 @@ var RawControlApis = {
         }
     },
     ToolBar: {
+        closedDisplayMode: {
+            type: "enum",
+            values: [
+                "compact",
+                "full"
+            ]
+        },
         data: {
             name: "WinJS.Binding.List",
             type: "reference",
             typeArguments: [
                 {
-                    name: "WinJS.UI.AppBarCommand",
+                    name: "WinJS.UI.ICommand",
                     type: "reference",
                     typeArguments: []
                 }
@@ -1400,11 +1390,28 @@ var RawControlApis = {
             type: "reference",
             typeArguments: []
         },
-        extraClass: {
-            type: "string"
+        onAfterClose: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
         },
-        shownDisplayMode: {
-            type: "string"
+        onAfterOpen: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeClose: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeOpen: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        opened: {
+            type: "boolean"
         }
     },
     Tooltip: {
@@ -1519,6 +1526,17 @@ function deparent(element) {
     parent && parent.removeChild(element);
 }
 
+function fireEvent(element, eventName) {
+    var eventObject = document.createEvent("CustomEvent");
+    eventObject.initCustomEvent(
+        eventName,
+        true,  // bubbles
+        false, // cancelable
+        null   // detail
+    );
+    element.dispatchEvent(eventObject);
+}
+
 function makeClassSet(className) {
     var classSet = {};
     className && className.split(" ").forEach(function (aClass) {
@@ -1596,7 +1614,6 @@ function diffArraysByKey(old, latest) {
         var item = old[i];
         if (!latestIndex.hasOwnProperty(item.key)) {
             edits.push({ type: "delete", index: i });
-            console.log(JSON.stringify(edits[edits.length - 1]));
             old.splice(i, 1);
         }
     }
@@ -1607,7 +1624,6 @@ function diffArraysByKey(old, latest) {
         if (!oldIndex.hasOwnProperty(item.key)) {
             // Insertion
             edits.push({ type: "insert", index: i, value: item });
-            console.log(JSON.stringify({ type: "insert", index: i, value: item.key }));
             old.splice(i, 0, item);
         } else if (old[i].key !== item.key) {
             // Move
@@ -1616,7 +1632,6 @@ function diffArraysByKey(old, latest) {
 
             var fromIndex = indexOfKey(old, item.key);
             edits.push({ type: "move", from: fromIndex, to: i });
-            console.log(JSON.stringify(edits[edits.length - 1]));
             old.splice(fromIndex, 1);
             old.splice(i, 0, item);
         }
@@ -1762,6 +1777,22 @@ var PropHandlers = {
             update: function domProperty_update(winjsComponent, propName, oldValue, newValue) {
                 if (oldValue !== newValue) {
                     winjsComponent.element[propName] = newValue;
+                }
+            }
+        };
+    },
+
+    // Maps to an attribute on the winControl's element.
+    domAttribute: function (propType) {
+        return {
+            propType: propType,
+            update: function domAttribute_update(winjsComponent, propName, oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    if (newValue !== null && newValue !== undefined) {
+                        winjsComponent.element.setAttribute(propName, "" + newValue);
+                    } else {
+                        winjsComponent.element.removeAttribute(propName);
+                    }
                 }
             }
         };
@@ -2153,12 +2184,15 @@ WinJSChildComponent.prototype.dispose = function () {
 var defaultPropHandlers = {
     className: PropHandlers.winControlClassName,
     style: PropHandlers.winControlStyle,
-    // TODO: Instead of special casing id, support DOM attributes
+
+    // TODO: Instead of special casing these, support DOM attributes
     // more generically.
-    id: PropHandlers.domProperty(React.PropTypes.string)
+    id: PropHandlers.domProperty(React.PropTypes.string),
+    "aria-controls": PropHandlers.domAttribute(React.PropTypes.any),
+    "aria-expanded": PropHandlers.domAttribute(React.PropTypes.any)
 };
 
-// Control-specific prop handlers derived from RawContorlApis
+// Control-specific prop handlers derived from RawControlApis
 var DefaultControlPropHandlers = (function processRawApis() {
     var keepProperty = function keepProperty(propertyName) {
         return !endsWith(propertyName.toLowerCase(), "element");
@@ -2290,49 +2324,7 @@ var CommandSpecs = {
 var ControlApis = updateWithDefaults({
     AppBar: {
         propHandlers: {
-            children: {
-                preCtorInit: function AppBar_children_preCtorInit(element, options, data, displayName, propName, value) {
-                    var latest = processChildren(displayName, value, {});
-                    data[propName] = {
-                        winjsChildComponents: latest.childComponents,
-                        winjsChildComponentsMap: latest.childComponentsMap
-                    };
-
-                    options.commands = latest.childComponents.map(function (winjsChildComponent) {
-                        return winjsChildComponent.winControl;
-                    });
-                },
-                update: function AppBar_children_update(winjsComponent, propName, oldValue, newValue) {
-                    var data = winjsComponent.data[propName] || {};
-                    var oldChildComponents = data.winjsChildComponents || [];
-                    var oldChildComponentsMap = data.winjsChildComponentsMap || {};
-                    var latest = processChildren(winjsComponent.displayName, newValue, oldChildComponentsMap);
-
-                    if (!arraysShallowEqual(oldChildComponents, latest.childComponents)) {
-                        // TODO: There's currently a bug here because AppBar disposes all
-                        // current commands when setting commands even when some of the current
-                        // commands are in the new commands array. Maybe not worth finding a
-                        // workaround because WinJS's AppBar implementation is changing soon
-                        // and when that happens, we should be able to just use
-                        // syncChildrenWithBindingList.
-                        winjsComponent.winControl.commands = latest.childComponents.map(function (winjsChildComponent) {
-                            return winjsChildComponent.winControl;
-                        });
-                    
-                        winjsComponent.data[propName] = {
-                            winjsChildComponents: latest.childComponents,
-                            winjsChildComponentsMap: latest.childComponentsMap
-                        };
-                    }
-                },
-                dispose: function AppBar_children_dispose(winjsComponent, propName) {
-                    var data = winjsComponent.data[propName] || {};
-                    var childComponents = data.winjsChildComponents || [];
-                    childComponents.forEach(function (winjsChildComponent) {
-                        winjsChildComponent.dispose();
-                    });
-                }
-            }
+            children: PropHandlers.syncChildrenWithBindingList("data")
         }
     },
     "AppBar.Button": CommandSpecs.Button,
@@ -2470,7 +2462,9 @@ var ControlApis = updateWithDefaults({
     },
     Pivot: {
         propHandlers: {
-            children: PropHandlers.syncChildrenWithBindingList("items")
+            children: PropHandlers.syncChildrenWithBindingList("items"),
+            customLeftHeaderComponent: PropHandlers.propertyWithMount("customLeftHeader"),
+            customRightHeaderComponent: PropHandlers.propertyWithMount("customRightHeader")
         }
     },
     "Pivot.Item": {
@@ -2482,7 +2476,6 @@ var ControlApis = updateWithDefaults({
         }
     },
     Rating: {},
-    SearchBox: {},
     SemanticZoom: {
         propHandlers: {
             zoomedInComponent: {
@@ -2537,6 +2530,66 @@ var ControlApis = updateWithDefaults({
             contentComponent: PropHandlers.mountTo(function (winjsComponent) {
                 return winjsComponent.winControl.contentElement;
             })
+        }
+    },
+    SplitViewPaneToggle: {
+        render: function (component) {
+            return React.DOM.button();
+        },
+        propHandlers: {
+            // paneOpened provides a React-friendly interface for making the SplitViewPaneToggle accessible.
+            // When paneOpened is specified, is not undefined, and is not null, it:
+            //  - Sets SplitViewPaneToggle's aria-expanded attribute to match paneOpened
+            //  - Fires SplitViewPaneToggle's "invoked" event when aria-expanded is mutated
+            paneOpened: {
+                propType: React.PropTypes.bool,
+                update: function paneOpened_update(winjsComponent, propName, oldValue, newValue) {
+                    var data = winjsComponent.data[propName];
+                    if (!data) {
+                        data = {
+                            // WinJS.UI.SplitViewPaneToggle depends on WinJS.Utilities._MutationObserver so it
+                            // is safe to use it here.
+                            ariaExpandedMutationObserver: new WinJS.Utilities._MutationObserver(function () {
+                                var element = winjsComponent.element;
+                                var ariaExpanded = (element.getAttribute("aria-expanded") === "true");
+                                if (ariaExpanded !== winjsComponent.data[propName].value) {
+                                    fireEvent(element, "invoked"); // Fire WinJS.UI.SplitViewPaneToggle's invoked event
+                                }
+                            }),
+                            observing: false,
+                            value: newValue
+                        };
+                        winjsComponent.data[propName] = data;
+                    }
+
+                    if (oldValue !== newValue) {
+                        if (newValue !== null && newValue !== undefined) {
+                            winjsComponent.element.setAttribute("aria-expanded", newValue ? "true" : "false");
+                            if (!data.observing) {
+                                data.observing = true;
+                                data.ariaExpandedMutationObserver.observe(winjsComponent.element, {
+                                    attributes: true,
+                                    attributeFilter: ["aria-expanded"]
+                                });
+                            }
+                        } else {
+                            winjsComponent.element.removeAttribute("aria-expanded");
+                            if (data.observing) {
+                                data.observing = false;
+                                data.ariaExpandedMutationObserver.disconnect();
+                            }
+                        }
+                    }
+
+                    data.value = newValue;
+                },
+                dispose: function paneOpened_dispose(winjsComponent, propName) {
+                    var data = winjsComponent.data[propName];
+                    if (data && data.observing) {
+                        data.ariaExpandedMutationObserver.disconnect();
+                    }
+                }
+            }
         }
     },
     TimePicker: {},

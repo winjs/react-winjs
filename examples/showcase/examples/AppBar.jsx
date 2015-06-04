@@ -39,7 +39,7 @@ module.exports = React.createClass({
                         key="content"
                         icon="accept"
                         label="Accept">
-                        <input className="win-interactive" type="text" />
+                        <input className="win-textbox win-interactive" type="text" />
                     </ReactWinJS.AppBar.ContentCommand>
 
                     <ReactWinJS.AppBar.Separator key="separator" />
@@ -84,7 +84,7 @@ module.exports = React.createClass({
                 <p>Resize your window. Notice how the AppBar puts commands into an
                 overflow menu when it can't fit them in the primary area. You can
                 control what gets overflowed first using the <code>priority</code> prop</p>
-                <button onClick={this.props.onToggleAppBar}>
+                <button className="win-button" onClick={this.props.onToggleAppBar}>
                     {this.props.appBarShown ? "Hide" : "Show"} AppBar
                 </button>
                 <p>Clicked command: {this.state.result || "<null>"}</p>

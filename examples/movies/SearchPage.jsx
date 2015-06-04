@@ -54,7 +54,7 @@ module.exports = React.createClass({
             <div style={styles.item.root}>
                 <img style={styles.item.poster} src={item.data.posters.detailed} width={51} height={81} />
                 <div style={styles.item.info.root}>
-                    <h3 style={styles.item.info.title}>{item.data.title}</h3>
+                    <h3 className="win-h3" style={styles.item.info.title}>{item.data.title}</h3>
                     <div style={styles.item.info.yearAndScore} className="win-type-small">
                         {item.data.year} {"\u2022"} {scoreComponent}
                     </div>
@@ -115,7 +115,7 @@ module.exports = React.createClass({
 
         return (
             <div className="searchPage" style={styles.root}>
-                <div><input type="text" value={this.state.queryText} onChange={this.handleQueryChange} /></div>
+                <div><input className="win-textbox" type="text" value={this.state.queryText} onChange={this.handleQueryChange} /></div>
                 {resultsComponent}
             </div>
         );

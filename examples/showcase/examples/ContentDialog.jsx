@@ -18,7 +18,7 @@ module.exports = React.createClass({
         return (
             <div>
                 <p>Dialog Result: {this.state.dialogResult || "<null>"}</p>
-                <button onClick={this.handleShow}>Show ContentDialog</button>
+                <button className="win-button" onClick={this.handleShow}>Show ContentDialog</button>
 
                 <ReactWinJS.ContentDialog
                     ref="dialog"
