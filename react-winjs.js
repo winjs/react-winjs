@@ -1460,6 +1460,18 @@ var RawControlApis = {
     }
 };
 
+var setImmediate;
+var clearImmediate;
+if (window.setImmediate && window.clearImmediate) {
+    setImmediate = window.setImmediate;
+    clearImmediate = window.clearImmediate;
+} else {
+    setImmediate = function (callback) {
+        return setTimeout(callback, 0);
+    };
+    clearImmediate = window.clearTimeout;
+}
+
 function isEvent(propName) {
     return propName[0] === "o" && propName[1] === "n";
 }
@@ -1763,6 +1775,32 @@ var PropHandlers = {
                 if (oldValue !== newValue) {
                     winjsComponent.winControl[propName] = newValue;
                 }
+            }
+        };
+    },
+
+    // Maps to a property on the winControl which involves setting focus. Such properties
+    // are set outside of componentWillReceiveProps to prevent React from undoing the
+    // focus move.
+    focusProperty: function (propType) {
+        return {
+            propType: propType,
+            preCtorInit: function focusProperty_preCtorInit(element, options, data, displayName, propName, value) {
+                options[propName] = value;
+            },
+            update: function focusProperty_update(winjsComponent, propName, oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    var asyncToken = winjsComponent.data[propName];
+                    asyncToken && clearImmediate(asyncToken);
+                    asyncToken = setImmediate(function () {
+                        winjsComponent.data[propName] = null;
+                        winjsComponent.winControl[propName] = newValue;
+                    });
+                }
+            },
+            dispose: function focusProperty_dispose(winjsComponent, propName) {
+                var asyncToken = winjsComponent.data[propName];
+                asyncToken && clearImmediate(asyncToken);
             }
         };
     },
@@ -2324,6 +2362,7 @@ var CommandSpecs = {
 var ControlApis = updateWithDefaults({
     AppBar: {
         propHandlers: {
+            opened: PropHandlers.focusProperty(React.PropTypes.bool),
             children: PropHandlers.syncChildrenWithBindingList("data")
         }
     },
@@ -2348,6 +2387,7 @@ var ControlApis = updateWithDefaults({
     // CellSpanningLayout: Not a component so just use off of WinJS.UI?
     ContentDialog: {
         propHandlers: {
+            hidden: PropHandlers.focusProperty(React.PropTypes.bool),
             children: PropHandlers.mountTo(function (winjsComponent) {
                 return winjsComponent.winControl.element.querySelector(".win-contentdialog-content");
             })
@@ -2367,6 +2407,7 @@ var ControlApis = updateWithDefaults({
             return React.DOM.div(null, React.DOM.div({ className: "win-react-flyout-mount-point" }));
         },
         propHandlers: {
+            hidden: PropHandlers.focusProperty(React.PropTypes.bool),
             children: PropHandlers.mountTo(function (winjsComponent) {
                 return winjsComponent.winControl.element.querySelector(".win-react-flyout-mount-point");
             })
@@ -2396,6 +2437,7 @@ var ControlApis = updateWithDefaults({
     // ListLayout: Not a component so just use off of WinJS.UI?
     ListView: {
         propHandlers: {
+            currentItem: PropHandlers.focusProperty(React.PropTypes.any),
             headerComponent: PropHandlers.propertyWithMount("header"),
             footerComponent: PropHandlers.propertyWithMount("footer"),
 
@@ -2408,6 +2450,7 @@ var ControlApis = updateWithDefaults({
     // children of the Menu.
     Menu: {
         propHandlers: {
+            hidden: PropHandlers.focusProperty(React.PropTypes.bool),
             children: {
                 // children propHandler looks like this rather than using mountTo on
                 // winControl.element because this enables props.children to have
@@ -2443,6 +2486,7 @@ var ControlApis = updateWithDefaults({
             return React.DOM.div(null, React.DOM.div({ className: "win-react-navbar-mount-point" }));
         },
         propHandlers: {
+            opened: PropHandlers.focusProperty(React.PropTypes.bool),
             children: PropHandlers.mountTo(function (winjsComponent) {
                 return winjsComponent.winControl.element.querySelector(".win-react-navbar-mount-point");
             })
@@ -2524,6 +2568,7 @@ var ControlApis = updateWithDefaults({
     },
     SplitView: {
         propHandlers: {
+            paneOpened: PropHandlers.focusProperty(React.PropTypes.bool),
             paneComponent: PropHandlers.mountTo(function (winjsComponent) {
                 return winjsComponent.winControl.paneElement;
             }),
@@ -2596,6 +2641,7 @@ var ControlApis = updateWithDefaults({
     ToggleSwitch: {},
     ToolBar: {
         propHandlers: {
+            opened: PropHandlers.focusProperty(React.PropTypes.bool),
             children: PropHandlers.syncChildrenWithBindingList("data")
         }
     },
