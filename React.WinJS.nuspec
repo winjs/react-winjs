@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>React.WinJS</id>
+        <version>1.0.0</version>
+        <authors>Microsoft Corporation and other contributors</authors>
+    	<licenseUrl>https://raw.githubusercontent.com/winjs/react-winjs/master/LICENSE.txt</licenseUrl>
+        <projectUrl>https://github.com/winjs/react-winjs</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>React wrapper around WinJS's controls</description>
+        <tags>winjs react</tags>
+    </metadata>
+    <files>
+    	<file src="react-winjs.js" target="content\react-winjs.js" />
+    </files>
+</package>
