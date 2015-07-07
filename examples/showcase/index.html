@@ -6,10 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="msapplication-tap-highlight" content="no">
 
-        <script src="http://fb.me/react-with-addons-0.12.2.min.js"></script>
+        <script src="http://fb.me/react-0.13.3.js"></script>
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.0.0-preview/css/ui-light.css" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.0.0-preview/js/WinJS.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.0.1/css/ui-light.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.0.1/js/base.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.0.1/js/ui.js"></script>
 
         <style>
             #app {
@@ -21,6 +22,18 @@
             */
 
             #app .listViewExample .win-container {
+                height: 50px;
+            }
+
+            /*
+             * SemanticZoom
+            */
+
+            #app .seZoExample .zoomedInListView .win-container {
+                height: 50px;
+            }
+
+            #app .seZoExample .zoomedOutListView .win-container {
                 height: 50px;
             }
 
@@ -41,45 +54,9 @@
                    NavBarCommand's label */
                 visibility: hidden;
             }
-
-            /*
-             * SplitViewButton
-            */
-
-            button.win-splitview-button {
-                box-sizing: border-box;
-                height: 48px;
-                width: 48px;
-                min-height: 0;
-                min-width: 0;
-                padding: 0;
-                border: 1px dotted transparent;
-                margin: 0;
-                outline: none;
-                background-color: transparent;
-            }
-
-            html.win-hoverable button.win-splitview-button:hover {
-                background-color: rgba(0, 0, 0, 0.1);
-            }
-
-            button.win-splitview-button.win-splitview-button:active,
-            button.win-splitview-button.win-splitview-button:hover:active {
-                background-color: rgba(0, 0, 0, 0.2);
-            }
-
-            button.win-splitview-button.win-keyboard:focus {
-                border-color: rgb(0, 0, 0);
-            }
-
-            button.win-splitview-button:after {
-                font-size: 24px;
-                font-family: 'Segoe MDL2 Assets', 'Symbols';
-                content: "\E700";
-            }
         </style>
     </head>
-    <body>
+    <body class="win-type-body">
         <div id="app"></div>
         <script src="browser-bundle.js"></script>
     </body>

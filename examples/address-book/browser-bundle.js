@@ -46,166 +46,199 @@
 
 	/** @jsx React.DOM */
 
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(2);
-	var FakeData = __webpack_require__(3);
-	var Data = FakeData;
-	var SearchPage = __webpack_require__(4);
-	var DetailPage = __webpack_require__(6);
+	var React = __webpack_require__(2);
+	var ReactWinJS = __webpack_require__(3);
+	var PeoplePage = __webpack_require__(4);
+	var OtherPage = __webpack_require__(1);
+	var ProfilePicture = __webpack_require__(5);
+	var Data = __webpack_require__(6);
 
-	// TODO: Preserve the scroll position when navigating back to search page.
-	// TODO: Use a loading spinner instead of the text "Loading..."
+	var splitViewId = "rootSplitView";
 
-	// Manages fetching of movie data. *fetchFirst* and *fetchNext* start fetches and the when the
-	// resuts are ready, *dataHandler* is called.
-	var MovieFetcher = function (dataHandler) {
-	    this._dataHandler = dataHandler;
-	    this._outstandingFetch = null;
-
-	    this.queryText = "";
-	    this.nextPage = 1;
-	    this.receivedCount = 0;
-	    this.totalCount = 0;
-
-	};
-	// Fetches the first page of results of *queryText*. If that fetch is already in
-	// progress, this function is a no op.
-	MovieFetcher.prototype.fetchFirst = function (queryText) {
-	    this.queryText = queryText;
-	    this.nextPage = 1;
-	    this.receivedCount = 0;
-	    this.totalCount = 0;
-
-	    this._doFetch();
-	};
-	// Fetches the next page of results for whatever *queryText* was passed to the most
-	// recent call to *fetchFirst*. If a fetch is already in progress, this function is a no op.
-	MovieFetcher.prototype.fetchNext = function () {
-	    this._doFetch();
-	};
-	// Cancels whatever fetch is currently in progress.
-	MovieFetcher.prototype.stop = function () {
-	    var currFetch = this._outstandingFetch;
-	    this._outstandingFetch = null;
-	    currFetch && currFetch.promise.cancel();
-	};
-	MovieFetcher.prototype._doFetch = function () {
-	    var handleResults = function (response) {
-	        this._outstandingFetch = null;
-
-	        this.nextPage++;
-	        this.receivedCount += response.movies.length;
-	        this.totalCount = response.total;
-
-	        this._dataHandler({
-	            queryText: queryText,
-	            page: page,
-	            movies: response.movies,
-	            hasMore: this.receivedCount < this.totalCount
-
-	        });
-	    }.bind(this);
-
-	    var queryText = this.queryText;
-	    var page = this.nextPage;
-
-	    var hasMore = page === 1 || this.receivedCount < this.totalCount;
-	    var currFetch = this._outstandingFetch;
-	    if (!hasMore || currFetch && currFetch.queryText === queryText && currFetch.page === page) {
-	        // No more data or the fetch is already in progress.
-	        return;
+	var splitViewConfigs = {
+	    small: {
+	        closedDisplayMode: "none",
+	        openedDisplayMode: "overlay"
+	    },
+	    medium: {
+	        closedDisplayMode: "inline",
+	        openedDisplayMode: "overlay"
+	    },
+	    large: {
+	        closedDisplayMode: "inline",
+	        openedDisplayMode: "inline"
 	    }
-
-	    this._outstandingFetch = null;
-	    currFetch && currFetch.promise.cancel();
-
-	    var fetchPromise = queryText ? Data.getSearchResults(queryText, page) : Data.getInTheaters(page);
-	    fetchPromise = fetchPromise.then(
-	        handleResults,
-	        function (error) {
-	            console.log("Query error: ");
-	            console.log("  Query: '" + queryText + "'");
-	            console.log("  Page: " + page);
-	            console.log("  Error: " + JSON.stringify(error));
-	        }
-	    );
-
-	    this._outstandingFetch = {
-	        promise: fetchPromise,
-	        queryText: queryText,
-	        page: page
-	    };
 	};
+
+	function merge(/* objs */) {
+	    var result = {};
+	    for (var i = 0, len = arguments.length; i < len; i++) {
+	        var obj = arguments[i];
+	        if (obj) {
+	            for (k in obj) { result[k] = obj[k]; }
+	        }
+	    }
+	    return result;
+	}
+
+	function getMode() {
+	    return (
+	        window.innerWidth >= 1366 ? "large" :
+	        window.innerWidth >= 800 ? "medium" :
+	        "small"
+	    );
+	}
 
 	var App = React.createClass({displayName: "App",
-	    handleFetchResults: function (results) {
-	        var newMovies = results.movies;
-	        var currentMovies;
-	        if (results.page === 1) {
-	            currentMovies = new WinJS.Binding.List(newMovies);
-	        } else {
-	            currentMovies = this.state.movies;
-	            currentMovies.push.apply(currentMovies, newMovies);
-	        }
-
+	    getSplitViewConfig: function () {
+	        return splitViewConfigs[this.state.mode];
+	    },
+	    handlePeopleChanged: function (newPeople) {
 	        this.setState({
-	            movies: currentMovies,
-	            queryText: results.queryText,
-	            hasMore: results.hasMore
+	            people: newPeople
 	        });
 	    },
-	    handleFetchFirstPage: function (queryText) {
-	        this.fetcher.fetchFirst(queryText);
-	    },
-	    handleFetchNextPage: function () {
-	        this.fetcher.fetchNext();
-	    },
-	    handleNavigated: function (eventObject) {
-	        this.setState({ 
-	            nav: {
-	                location: eventObject.detail.location,
-	                state: eventObject.detail.state
-	            }
+	    handleNavigation: function (newLocation) {
+	        this.setState({
+	            location: newLocation
 	        });
+	    },
+	    handleBack: function () {
+	        var location = this.state.location;
+	        location.pop();
+	        this.handleNavigation(location);
+	    },
+	    handleResize: function () {
+	        var prevMode = this.state.mode;
+	        var nextMode = getMode();
+	            
+	        if (prevMode !== nextMode) {
+	            this.setState({ mode: nextMode });
+	        }
+	    },
+	    handleCommandInvoked: function (newLocation) {
+	        this.setState({
+	            location: newLocation,
+	            paneOpened: this.getSplitViewConfig().openedDisplayMode === "overlay" ? false : this.state.paneOpened
+	        });
+	    },
+	    handleTogglePane: function () {
+	        this.setState({ paneOpened: !this.state.paneOpened });
+	    },
+	    handleAfterClose: function () {
+	        this.setState({ paneOpened: false });
 	    },
 	    getInitialState: function () {
-	        return {
-	            movies: null,
-	            queryText: "",
-	            hasMore: true,
-	            nav: {
-	                location: WinJS.Navigation.location,
-	                state: WinJS.Navigation.state
+	        var mode = getMode();
+
+	        var groupKey = function (data) {
+	            return data.name[0].toUpperCase();
+	        };
+
+	        var groupData = function (data) {
+	            return { title: groupKey(data) };
+	        };
+
+	        var sorter = function (a, b) {
+	            if (a.name < b.name) {
+	                return -1;
+	            } else if (a.name > b.name) {
+	                return 1;
+	            } else {
+	                return 0;
 	            }
+	        };
+
+	        var data = new WinJS.Binding.List(Data.people)
+	            .createSorted(sorter)
+	            .createGrouped(groupKey, groupData);
+
+	        return {
+	            people: data,
+	            mode: mode,
+	            location: ["people"]
 	        };
 	    },
 	    componentWillMount: function () {
-	        this.fetcher = new MovieFetcher(this.handleFetchResults);
-	        WinJS.Navigation.addEventListener("navigated", this.handleNavigated);
-	        WinJS.Navigation.navigate("/");
-	        this.handleFetchNextPage();
+	        window.addEventListener("resize", this.handleResize);
 	    },
 	    componentWillUnmount: function () {
-	        WinJS.Navigation.removeEventListener("navigated", this.handleNavigated);
-	        this.fetcher.stop();
+	        window.removeEventListener("resize", this.handleResize);
+	    },
+	    renderPeoplePage: function () {
+	        return (
+	            React.createElement(PeoplePage, {
+	                mode: this.state.mode, 
+	                people: this.state.people, 
+	                location: this.state.location, 
+	                onNavigate: this.handleNavigation, 
+	                onPeopleChanged: this.handlePeopleChanged})
+	        );
+	    },
+	    renderOtherPage: function () {
+	        return React.createElement(OtherPage, {location: this.state.location})
+	    },
+	    renderContent: function () {
+	        if (this.state.location.length === 0 || this.state.location[0] === "people") {
+	            return this.renderPeoplePage();
+	        } else {
+	            return this.renderOtherPage();
+	        }
+	    },
+	    renderBackButton: function () {
+	        var canGoBack = this.state.location.length > 1;
+	        var shouldShowBackButton = canGoBack && this.state.mode === "small";
+	        return shouldShowBackButton ?
+	            React.createElement("button", {style: {display: "inline-block"}, className: "win-backbutton", onClick: this.handleBack}) :
+	            null;
 	    },
 	    render: function () {
-	        var nav = this.state.nav;
-	        if (nav.location === "/movie") {
-	            return (
-	                React.createElement(DetailPage, {
-	                    movie: nav.state.movie})
-	            );
-	        } else {
-	            return (
-	                React.createElement(SearchPage, {
-	                    movies: this.state.movies, 
-	                    queryText: this.state.queryText, 
-	                    hasMore: this.state.hasMore, 
-	                    onFetchFirstPage: this.handleFetchFirstPage, 
-	                    onFetchNextPage: this.handleFetchNextPage})
-	            );
-	        }
+	        var paneComponent = (
+	            React.createElement("div", null, 
+	                React.createElement(ReactWinJS.NavBarCommand, {
+	                    label: "People", 
+	                    icon: "contact", 
+	                    onClick: this.handleCommandInvoked.bind(null, ["people"])}), 
+	                React.createElement(ReactWinJS.NavBarCommand, {
+	                    label: "What's New", 
+	                    icon: "comment", 
+	                    onClick: this.handleCommandInvoked.bind(null, ["new"])}), 
+	                React.createElement(ReactWinJS.NavBarCommand, {
+	                    label: "Groups", 
+	                    icon: "people", 
+	                    onClick: this.handleCommandInvoked.bind(null, ["groups"])}), 
+
+	                React.createElement(ReactWinJS.NavBarCommand, {
+	                    style: {position: "absolute", bottom: 0, width: "100%"}, 
+	                    label: "Settings", 
+	                    icon: "settings", 
+	                    onClick: this.handleCommandInvoked.bind(null, ["settings"])})
+	            )
+	        );
+
+	        var contentComponent = this.renderContent();
+
+	        return (
+	            React.createElement("div", {style: {height: "100%"}}, 
+	                React.createElement("div", {style: {height: 48, backgroundColor: "rgb(1, 121, 216)"}, className: "win-ui-dark"}, 
+	                    React.createElement(ReactWinJS.SplitViewPaneToggle, {
+	                        "aria-controls": splitViewId, 
+	                        style: {display:'inline-block'}, 
+	                        paneOpened: this.state.paneOpened, 
+	                        onInvoked: this.handleTogglePane}), 
+	                    this.renderBackButton(), 
+	                    React.createElement("h3", {className: "win-h3", style: {display: "inline-block", marginLeft: 5}}, "Address Book")
+	                ), 
+	                React.createElement(ReactWinJS.SplitView, React.__spread({
+	                    id: splitViewId, 
+	                    style: {height: "calc(100% - 48px)"}, 
+	                    paneComponent: paneComponent, 
+	                    contentComponent: contentComponent, 
+	                    onAfterClose: this.handleAfterClose, 
+	                    paneOpened: this.state.paneOpened}, 
+	                    this.getSplitViewConfig()))
+	            )
+	        );
 	    }
 	});
 
@@ -214,15 +247,42 @@
 
 /***/ },
 /* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	var React = __webpack_require__(2);
+
+	var urlToContent = {
+	    "new": "What's New",
+	    groups: "Groups",
+	    settings: "Settings"
+	};
+
+	var OtherPage = React.createClass({displayName: "OtherPage",
+	    propTypes: {
+	        location: React.PropTypes.array.isRequired
+	    },
+	    render: function () {
+	        var title = urlToContent[this.props.location] || "Other";
+	        return React.createElement("h2", {className: "win-h2", style: {marginLeft: "10px"}}, title)
+	    }
+	});
+
+	module.exports = OtherPage;
+
+
+/***/ },
+/* 2 */
 /***/ function(module, exports) {
 
 	module.exports = React;
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React = __webpack_require__(1);
+	var React = __webpack_require__(2);
 
 	// Generated from https://github.com/rigdern/winjs-control-apis
 	var RawControlApis = {
@@ -2941,12 +3001,268 @@
 
 
 /***/ },
-/* 3 */
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	var React = __webpack_require__(2);
+	var ReactWinJS = __webpack_require__(3);
+	var ProfilePicture = __webpack_require__(5);
+
+	function calc100PercentMinus(n) {
+	    return n === 0 ?
+	        "100%" :
+	        "calc(100% - " + (n + "px") + ")";
+	}
+
+	var PeoplePage = React.createClass({displayName: "PeoplePage",
+	    handleToggleSelectionMode: function () {
+	        this.setState({
+	            selectionMode: !this.state.selectionMode
+	        });
+	        this.props.onNavigate(["people"]);
+	        this.refs.listView.winControl.selection.clear();
+	    },
+	    handleSelectionChanged: function (eventObject) {
+	        var listView = eventObject.currentTarget.winControl;
+	        var indices = listView.selection.getIndices();
+	        // Post to avoid navigating while in the middle of the event handler
+	        setTimeout(function () {
+	            this.setState({ selectedPeople: indices });
+	            this.props.onNavigate(indices.length === 1 && !this.state.selectionMode ? ["people", indices[0]] : ["people"]);
+	        }.bind(this), 0);
+	    },
+	    handleDelete: function () {
+	        var people = this.props.people;
+	        var indices = this.state.selectedPeople;
+	        indices.sort();
+	        indices.reverse();
+	        indices.forEach(function (i) {
+	            people.splice(i, 1);
+	        });
+	        this.setState({
+	            selectedPeople: [],
+	            selectionMode: false
+	        });
+	        this.props.onPeopleChanged(people);
+	    },
+	    handleContentAnimating: function (eventObject) {
+	        // Disable ListView's entrance animation
+	        if (eventObject.detail.type === "entrance") {
+	            eventObject.preventDefault();
+	        }
+	    },
+	    personRenderer: ReactWinJS.reactRenderer(function (person) {
+	        return (
+	            React.createElement("div", null, 
+	                React.createElement(ProfilePicture, {backgroundUrl: person.data.picture, size: 34}), 
+	                React.createElement("span", {className: "name"}, person.data.name)
+	            )
+	        );
+	    }),
+	    groupHeaderRenderer: ReactWinJS.reactRenderer(function (item) {
+	        return (
+	            React.createElement("div", null, item.data.title)
+	        );
+	    }),
+	    renderPeoplePane: function (peoplePaneWidth) {
+	        var deleteCommand = (
+	            React.createElement(ReactWinJS.ToolBar.Button, {
+	                key: "delete", 
+	                icon: "delete", 
+	                priority: 0, 
+	                disabled: this.state.selectedPeople.length === 0, 
+	                onClick: this.handleDelete})
+	        );
+
+	        return (
+	            React.createElement("div", {className: "peopleSearchPane", style: {height: "100%", width: peoplePaneWidth, display: "inline-block", verticalAlign:"top"}}, 
+	                React.createElement(ReactWinJS.ToolBar, {className: "peopleToolBar"}, 
+	                    React.createElement(ReactWinJS.ToolBar.Button, {
+	                        key: "edit", 
+	                        icon: "edit", 
+	                        label: "Edit", 
+	                        priority: 4}), 
+	                    React.createElement(ReactWinJS.ToolBar.Button, {
+	                        key: "favorite", 
+	                        icon: "favorite", 
+	                        label: "Favorite", 
+	                        priority: 3}), 
+	                    React.createElement(ReactWinJS.ToolBar.Button, {
+	                        key: "link", 
+	                        icon: "link", 
+	                        label: "Link", 
+	                        priority: 2}), 
+	                    React.createElement(ReactWinJS.ToolBar.Button, {
+	                        key: "refresh", 
+	                        icon: "refresh", 
+	                        label: "Refresh", 
+	                        priority: 1}), 
+
+	                    React.createElement(ReactWinJS.ToolBar.Button, {
+	                        key: "add", 
+	                        icon: "add", 
+	                        label: "Add", 
+	                        priority: 0}), 
+	                    this.state.selectionMode ? deleteCommand : null, 
+	                    React.createElement(ReactWinJS.ToolBar.Toggle, {
+	                        key: "select", 
+	                        icon: "bullets", 
+	                        label: "Select", 
+	                        priority: 0, 
+	                        selected: this.state.selectionMode, 
+	                        onClick: this.handleToggleSelectionMode})
+	                ), 
+
+	                React.createElement(ReactWinJS.ListView, {
+	                    ref: "listView", 
+	                    className: "peopleListView win-selectionstylefilled", 
+	                    style: {height: "calc(100% - 48px)"}, 
+	                    itemDataSource: this.props.people.dataSource, 
+	                    itemTemplate: this.personRenderer, 
+	                    groupDataSource: this.props.people.groups.dataSource, 
+	                    groupHeaderTemplate: this.groupHeaderRenderer, 
+	                    layout: this.state.layout, 
+	                    selectionMode: this.state.selectionMode ? "multi" : "single", 
+	                    tapBehavior: this.state.selectionMode ? "toggleSelect" : "directSelect", 
+	                    onSelectionChanged: this.handleSelectionChanged, 
+	                    onContentAnimating: this.handleContentAnimating})
+	            )
+	        );
+	    },
+	    renderProfilePane: function (selectedIndex, peoplePaneWidth) {
+	        if (selectedIndex === null) {
+	            return (
+	                React.createElement("div", {className: "profilePane", style: {height: "100%", width: calc100PercentMinus(peoplePaneWidth), display: "inline-block",verticalAlign:"top"}}, 
+	                    React.createElement("div", {style: {display: "flex", height: "100%", justifyContent: "center", alignItems: "center", flexDirection: "column"}}, 
+	                        React.createElement("h1", {className: "win-h1", style: {color: "grey"}}, "No Selection")
+	                    )
+	                )
+	            );
+	        } else {
+	            var selectedPerson = this.props.people.getAt(selectedIndex);
+	            return (
+	                React.createElement("div", {className: "profilePane", style: {height: "100%", width: calc100PercentMinus(peoplePaneWidth), display: "inline-block",verticalAlign:"top"}}, 
+	                    React.createElement("div", {className: "profileHeader"}, 
+	                        React.createElement("div", {className: "name"}, selectedPerson.name), 
+	                        React.createElement("div", {className: "personInfo"}, 
+	                            React.createElement(ProfilePicture, {backgroundUrl: selectedPerson.picture, size: 100}), 
+	                            React.createElement("div", {className: "profileStatus"}, 
+	                                React.createElement("span", {className: "message"}, 
+	                                    selectedPerson.status
+	                                ), 
+	                                React.createElement("span", {className: "source"}, selectedPerson.statusHoursAgo, " hours ago")
+	                            )
+	                        )
+	                    ), 
+	                    React.createElement("div", {className: "separator"}), 
+	                    React.createElement("div", {className: "profileContent"}, 
+	                        React.createElement("ul", null, 
+	                            React.createElement("li", null, React.createElement("span", {className: "messageIcon"}), "Message"), 
+	                            React.createElement("li", null, 
+	                                React.createElement("span", {className: "phoneIcon"}), 
+	                                React.createElement("div", {className: "callContent"}, 
+	                                    React.createElement("a", {href: "call:5550100"}, "Call Mobile"), 
+	                                    React.createElement("div", {className: "number"}, selectedPerson.mobilePhone)
+	                                )
+	                            ), 
+	                            React.createElement("li", null, 
+	                                React.createElement("span", {className: "phoneIcon"}), 
+	                                React.createElement("div", {className: "callContent"}, 
+	                                    React.createElement("a", {href: "call:5550100"}, "Call Work"), 
+	                                    React.createElement("div", {className: "number"}, selectedPerson.workPhone)
+	                                )
+	                            ), 
+	                            React.createElement("li", null, React.createElement("span", {className: "phoneIcon"}), "Call using an app"), 
+	                            React.createElement("li", null, React.createElement("span", {className: "videoCallIcon"}), "Video call"), 
+	                            React.createElement("li", null, React.createElement("span", {className: "emailIcon"}), "Email work"), 
+	                            React.createElement("li", null, React.createElement("span", {className: "mapIcon"}), "Map home")
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    },
+	    propTypes: {
+	        mode: React.PropTypes.oneOf(["small", "medium", "large"]).isRequired,
+	        people: React.PropTypes.object.isRequired,
+	        location: React.PropTypes.array.isRequired,
+	        onNavigate: React.PropTypes.func.isRequired,
+	        onPeopleChanged: React.PropTypes.func.isRequired
+	    },
+	    getInitialState: function () {
+	        return {
+	            layout: { type: WinJS.UI.ListLayout },
+	            selectedPeople: [],
+	            selectionMode: false
+	        };
+	    },
+	    render: function () {
+	        var selectedIndex = this.props.location.length >= 2 ? this.props.location[1] : null;
+
+	        if (this.props.mode === "small") {
+	            if (selectedIndex === null) {
+	                return this.renderPeoplePane("100%");
+	            } else {
+	                return this.renderProfilePane(selectedIndex, 0);
+	            }
+	        } else {
+	            var peoplePaneWidth = 320;
+	            return (
+	                React.createElement("div", {style: {height: "100%"}}, 
+	                    this.renderPeoplePane(peoplePaneWidth), 
+	                    this.renderProfilePane(selectedIndex, peoplePaneWidth)
+	                )
+	            );
+	        }
+	    }
+	});
+
+	module.exports = PeoplePage;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	var React = __webpack_require__(2);
+
+	function cssUrl(url) {
+	    return "url(" + url + ")";
+	}
+
+	var ProfilePicture = React.createClass({displayName: "ProfilePicture",
+	    render: function () {
+	        var size = this.props.size;
+	        return (
+	            React.createElement("div", {className: "profilePicture", style: {
+	                backgroundImage: cssUrl(this.props.backgroundUrl),
+	                width: size,
+	                height: size,
+	                WebkitBorderRadius: size,
+	                MozBorderRadius: size,
+	                borderRadius: size,
+	                backgroundSize: "cover",
+	                display: "inline-block"
+	            }}, 
+	                React.createElement("img", {src: "profile.png", height: size, width: size})
+	            )
+	        );
+	    }
+	});
+
+	module.exports = ProfilePicture;
+
+
+/***/ },
+/* 6 */
 /***/ function(module, exports) {
 
-	var nextMovieId = 0;
-	var ratings = ["Unrated", "G", "PG", "PG-13", "R"];
-	var firstNames = ["Charlsie", "Ofelia", "Jerome", "Leana", "Harlan", "Annalisa", "Leida", "Dessie", "Valrie", "Sharen", "Sergio", "Mitzie", "Celia", "Debbra", "Florida", "Kara", "Jacquie", "Sherley", "Carson", "Staci", "Paula", "Dann", "Linette", "Meri", "Almeta", "Detra", "Lupe", "Neville", "Marivel", "Carmine", "Carina", "Laureen", "Lourdes", "Laverne", "Verona", "Gertha", "Jene", "Joslyn", "Jone", "Latoya", "Margurite", "Emmett", "Wallace", "Elana", "Xiomara", "Sabra", "Ouida", "Kenton", "Norene", "Raul"];
+	var nextPersonId = 0;
+	var firstNames = ["Aaliyah","Aaron","Abigail","Adam","Addison","Adrian","Aiden","Alexa","Alexandra","Alexis","Alice","Allison","Alyssa","Amelia","Andrew","Angel","Anna","Annabelle","Anthony","Aria","Ariana","Arianna","Asher","Ashley","Aubree","Aubrey","Audrey","Austin","Autumn","Ava","Avery","Ayden","Bella","Benjamin","Bentley","Blake","Brandon","Brayden","Brianna","Brody","Brooklyn","Caleb","Camden","Cameron","Camila","Caroline","Carson","Carter","Charles","Charlotte","Chase","Chloe","Christian","Christopher","Claire","Colton","Connor","Cooper","Daniel","David","Dominic","Dylan","Easton","Eleanor","Eli","Elijah","Elizabeth","Ella","Ellie","Emily","Emma","Eva","Evan","Evelyn","Faith","Gabriel","Gabriella","Gavin","Genesis","Gianna","Grace","Grayson","Hadley","Hailey","Hannah","Harper","Henry","Hudson","Hunter","Ian","Isaac","Isabella","Isabelle","Isaiah","Jace","Jack","Jackson","Jasmine","Jason","Jaxon","Jaxson","Jayden","Jeremiah","John","Jonathan","Jordan","Jose","Joseph","Joshua","Josiah","Juan","Julia","Julian","Justin","Katherine","Kayden","Kaylee","Kennedy","Kevin","Khloe","Kylie","Landon","Lauren","Layla","Leah","Leo","Levi","Lillian","Lily","Lincoln","Logan","London","Lucas","Lucy","Luis","Luke","Lydia","Mackenzie","Madeline","Madelyn","Madison","Matthew","Maya","Melanie","Mia","Mila","Naomi","Natalie","Nathan","Nathaniel","Nevaeh","Nicholas","Nolan","Nora","Oliver","Olivia","Owen","Paisley","Parker","Penelope","Peyton","Piper","Riley","Robert","Ruby","Ryan","Ryder","Sadie","Samantha","Samuel","Sarah","Savannah","Scarlett","Sebastian","Serenity","Skylar","Sofia","Sophia","Sophie","Stella","Taylor","Thomas","Tristan","Tyler","Victoria","Violet","Vivian","Wyatt","Xavier","Zachary","Zoe","Zoey"];
 	var lastNames = ["Avey", "Crofoot", "Flor", "Barletta", "Zoller", "Rosson", "Coomes", "Wilken", "Withey", "Ojeda", "Mennella", "Gauer", "Puccio", "Zimmerer", "Cottrell", "Bridgman", "Gershman", "Tinoco", "Ayoub", "Fournier", "Marcella", "Melrose", "Lafontaine", "Cathcart", "Cioffi", "Sands", "Lei", "Cardoso", "Dela", "Metcalfe", "Ethridge", "Fryer", "Warden", "Madson", "Gonsales", "Tobey", "Knecht", "Gallion", "Thibault", "Brockington", "Baney", "Haddox", "Kang", "Galyean", "Riccio", "Lake", "Mirabella", "Frechette", "Rearick", "Carmouche"];
 	var loremIpsum = [
 	    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
@@ -2955,10 +3271,16 @@
 	    "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.",
 	    "On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.",
 	];
-	var words = loremIpsum.join(" ").replace(/,|!|\?|\./g, "").replace(/-/g, " ").split(" ");
+	var statuses = [
+	    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim.",
+	    "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo.",
+	    "But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account.",
+	    "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas.",
+	    "On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the."
+	];
 
-	var posterWidth = 153;
-	var posterHeight = 243;
+	var posterWidth = 400;
+	var posterHeight = 400;
 	var _canvas;
 	function makePoster(color) {
 	    if (!_canvas) {
@@ -2974,7 +3296,8 @@
 
 	var posterColors = [
 	    [68, 34, 87], [100, 66, 119], [132, 98, 151],
-	    [164, 162, 165], [196, 194, 197], [228, 226, 229]
+	    [164, 162, 165], [196, 194, 197], [228, 226, 229],
+	    [220, 77, 6], [252, 109, 38], [255, 141, 70]
 	];
 	var posters = posterColors.map(function (color) {
 	    return makePoster("rgb(" + color.join(", ") + ")");
@@ -2997,320 +3320,32 @@
 	    return result;
 	}
 
-	function genActor() {
-	    return { name: randomElement(firstNames) + " " + randomElement(lastNames) };
+	function genName() {
+	    return randomElement(firstNames) + " " + randomElement(lastNames);
 	}
 
-	function genTitleWord() {
-	    var word = randomElement(words).toLowerCase();
-	    return word[0].toUpperCase() + word.substr(1);
+	function genPhoneNumber() {
+	    return "555-0" + randomInt(100, 199);
 	}
 
-	function genMovie() {
+	function genPerson() {
 	    return {
-	        id: nextMovieId++,
-	        title: (nextMovieId - 1 + " ") + genArray(1, 5, genTitleWord).join(" "),
-	        year: randomInt(1950, 2015),
-	        mpaa_rating: randomElement(ratings),
-	        synopsis: randomElement(loremIpsum),
-	        posters: {
-	            detailed: randomElement(posters)
-	        },
-	        ratings: {
-	            critics_score: randomInt(0, 100),
-	            audience_score: randomInt(0, 100)
-	        },
-	        abridged_cast: genArray(1, 8, genActor)
+	        id: nextPersonId++,
+	        name: genName(),
+	        status: randomElement(statuses),
+	        statusHoursAgo: randomElement([2, 3, 4, 5, 6, 7, 8, 9]),
+	        picture: randomElement(posters),
+	        mobilePhone: genPhoneNumber(),
+	        workPhone: genPhoneNumber()
 	    };
 	}
 
-	var movieCount = 1000;
-	var movies = genArray(movieCount, movieCount, genMovie);
-	var moviesPerPage = 20;
-	var fetchDelay = 500;
-
-	function getSearchResults(query, page) {
-	    query = query.toLowerCase();
-	    var start = (page - 1) * moviesPerPage;
-	    var results = movies.filter(function (m) {
-	        return m.title.toLowerCase().indexOf(query) !== -1;
-	    });
-	    return WinJS.Promise.timeout(fetchDelay).then(function () {
-	        return {
-	            movies: results.slice(start, start + moviesPerPage),
-	            total: results.length
-	        };
-	    });
-	}
-
-	function getInTheaters(page) {
-	    var start = (page - 1) * moviesPerPage;
-	    return WinJS.Promise.timeout(fetchDelay).then(function () {
-	        return {
-	            movies: movies.slice(start, start + moviesPerPage),
-	            total: movies.length
-	        };
-	    });
-	}
+	var personCount = 50;
+	var people = genArray(personCount, personCount, genPerson);
 
 	module.exports = {
-	    getSearchResults: getSearchResults,
-	    getInTheaters: getInTheaters
+	    people: people
 	};
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(2);
-	var Score = __webpack_require__(5);
-	var formattedScore = Score.formattedScore;
-	var textColoredForScore = Score.textColoredForScore;
-
-	// For best performance, .win-container should be sized in CSS.
-	// See index.html for its style.
-	var styles = {
-	    item: {
-	        root: {
-	            height: "100%",
-	            display: "flex"
-	        },
-	        poster: {
-	            marginRight: "10px",
-	            flex: "none"
-	        },
-	        info: {
-	            root: {
-	                flex: "1 1",
-	                display: "flex",
-	                flexDirection: "column"
-	            },
-	            title: {
-	                flex: "0 1 auto",
-	                overflow: "hidden"
-	            },
-	            yearAndScore: {
-	                flex: "none"
-	            }
-	        }
-	    },
-	    root: {
-	        height: "100%"
-	    },
-	    listView: {
-	        height: "calc(100% - 50px)"
-	    },
-	    footer: {
-	        height: "91px",
-	        lineHeight: "91px",
-	        textAlign: "center"
-	    }
-	};
-
-	module.exports = React.createClass({displayName: "module.exports",
-	    itemRenderer: ReactWinJS.reactRenderer(function (item) {
-	        var score = item.data.ratings.critics_score;
-	        var scoreComponent = textColoredForScore("Critics " + formattedScore(score), score);
-	        return (
-	            React.createElement("div", {style: styles.item.root}, 
-	                React.createElement("img", {style: styles.item.poster, src: item.data.posters.detailed, width: 51, height: 81}), 
-	                React.createElement("div", {style: styles.item.info.root}, 
-	                    React.createElement("h3", {className: "win-h3", style: styles.item.info.title}, item.data.title), 
-	                    React.createElement("div", {style: styles.item.info.yearAndScore, className: "win-type-small"}, 
-	                        item.data.year, " ", "\u2022", " ", scoreComponent
-	                    )
-	                )
-	            )
-	        );
-	    }),
-	    handleQueryChange: function (eventObject) {
-	        var queryText = eventObject.currentTarget.value;
-	        this.setState({ queryText: queryText });
-
-	        this.pendingQueryId && clearTimeout(this.pendingQueryId);
-	        this.pendingQueryId = setTimeout(function () {
-	            this.props.onFetchFirstPage(queryText);
-	        }.bind(this), 300);
-	    },
-	    handleMovieSelected: function (eventObject) {
-	        WinJS.Navigation.navigate("/movie", {
-	            movie: this.props.movies.getAt(eventObject.detail.itemIndex)
-	        });
-	    },
-	    handleFooterVisibilityChanged: function (eventObject) {
-	        if (eventObject.detail.visible) {
-	            this.props.onFetchNextPage();
-	        }
-	    },
-	    getInitialState: function () {
-	        return {
-	            queryText: this.props.queryText,
-	            layout: { type: WinJS.UI.ListLayout }
-	        };
-	    },
-	    render: function() {
-	        var resultsComponent;
-	        if (!this.props.movies) {
-	            resultsComponent = React.createElement("div", null, "Loading...");
-	        } else if (this.props.movies.length === 0) {
-	            resultsComponent = React.createElement("div", null, "No movies found for \"", this.props.queryText, "\".");
-	        } else {
-	            var footerComponent = !this.props.hasMore ? null : (
-	                React.createElement("div", {style: styles.footer}, 
-	                "Loading..."
-	                )
-	            );
-
-	            resultsComponent = (
-	                React.createElement(ReactWinJS.ListView, {
-	                    style: styles.listView, 
-	                    className: "moviesListView", 
-	                    itemDataSource: this.props.movies.dataSource, 
-	                    itemTemplate: this.itemRenderer, 
-	                    layout: this.state.layout, 
-	                    onItemInvoked: this.handleMovieSelected, 
-	                    footerComponent: footerComponent, 
-	                    onFooterVisibilityChanged: this.handleFooterVisibilityChanged})
-	            );
-	        }
-
-	        return (
-	            React.createElement("div", {className: "searchPage", style: styles.root}, 
-	                React.createElement("div", null, React.createElement("input", {className: "win-textbox", type: "text", value: this.state.queryText, onChange: this.handleQueryChange})), 
-	                resultsComponent
-	            )
-	        );
-	    }
-	});
-
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	/** @jsx React.DOM */
-
-	function formattedScore(score) {
-	    return score >= 0 ? score + "%" : "N/A";
-	}
-
-	var maxColor = 200;
-	function colorForScore(score) {
-	    if (score >= 0) {
-	        var scoreAsColor = Math.round(score / 100 * maxColor);
-	        return "rgb(" + [maxColor - scoreAsColor, scoreAsColor, 0].join(",") + ")";
-	    } else {
-	        return "rgb(0, 0, 0)";
-	    }
-
-	}
-
-	function textColoredForScore(text, score) {
-	    return React.createElement("span", {style: {color: colorForScore(score)}}, text);
-	}
-
-	module.exports = {
-		formattedScore: formattedScore,
-		textColoredForScore: textColoredForScore
-	};
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	var React = __webpack_require__(1);
-	var ReactWinJS = __webpack_require__(2);
-	var Score = __webpack_require__(5);
-	var formattedScore = Score.formattedScore;
-	var textColoredForScore = Score.textColoredForScore;
-
-	var styles = {
-	    root: {
-	        marginLeft: "5px",
-	        marginRight: "5px"
-	    },
-	    header: {
-	        root: {
-	            display: "flex",
-	            flexDirection: "row"
-	        },
-	        backButton: {
-	            marginRight: "10px",
-	            flex: "none"
-	        },
-	        title: {
-	            marginBottom: "10px",
-	            flex: "1 1"
-	        }
-	    },
-	    detail: {
-	        root: {
-	            display: "flex"
-	        },
-	        poster: {
-	            marginRight: "10px",
-	            flex: "none",
-	            alignSelf: "center"
-	        },
-	        info: {
-	            flex: "1 1",
-	            alignSelf: "flex-start"
-	        },
-	        rating: {
-	            display: "inline-block",
-	            padding: "2px",
-	            border: "2px solid black",
-	            marginBottom: "15px",
-	            fontFamily: "Palatino",
-	            fontSize: "20px"
-	        },
-	        actors: {
-	            marginTop: "0",
-	            marginBottom: "0"
-	        }
-	    }
-	};
-
-	module.exports = React.createClass({displayName: "module.exports",
-	    render: function () {
-	        var movie = this.props.movie;
-	        var criticsScore = movie.ratings.critics_score;
-	        var audienceScore = movie.ratings.audience_score;
-	        var actors = movie.abridged_cast.map(function (person) {
-	            return React.createElement("li", {key: person.name}, person.name);
-	        });
-
-	        return (
-	            React.createElement("div", {style: styles.root}, 
-	                React.createElement("div", {style: styles.header.root}, 
-	                    React.createElement(ReactWinJS.BackButton, {style: styles.header.backButton}), 
-	                    React.createElement("h2", {className: "win-h2", style: styles.header.title}, movie.title, " (", movie.year, ")")
-	                ), 
-	                React.createElement("div", {style: styles.detail.root}, 
-	                    React.createElement("img", {style: styles.detail.poster, src: movie.posters.detailed, width: 153, height: 243}), 
-	                    React.createElement("div", {style: styles.detail.info}, 
-	                        React.createElement("div", {style: styles.detail.rating}, movie.mpaa_rating), 
-	                        React.createElement("h3", {className: "win-h3"}, "Critics:"), 
-	                        React.createElement("h2", {className: "win-h2"}, textColoredForScore(formattedScore(criticsScore), criticsScore)), 
-	                        React.createElement("h3", {className: "win-h3"}, "Audience:"), 
-	                        React.createElement("h2", {className: "win-h2"}, textColoredForScore(formattedScore(audienceScore), audienceScore))
-	                    )
-	                ), 
-	                React.createElement("hr", null), 
-	                React.createElement("div", null, movie.synopsis), 
-	                React.createElement("hr", null), 
-	                React.createElement("div", null, 
-	                    "Actors", 
-	                    React.createElement("ul", {style: styles.detail.actors}, actors)
-	                )
-	            )
-	        );
-	    }
-	});
 
 /***/ }
 /******/ ]);
