@@ -7,6 +7,7 @@ A React wrapper around WinJS's controls. Implemented using the technique describ
 Live demos:
   - [Showcase](http://winjs.github.io/react-winjs/examples/showcase/index.html) ([source](https://github.com/winjs/react-winjs/tree/master/examples/showcase)): shows an example usage of each component.
   - [Movies](http://winjs.github.io/react-winjs/examples/movies/index.html) ([source](https://github.com/winjs/react-winjs/tree/master/examples/movies)): demonstrates a couple of react-winjs components in a small app for looking up movies.
+  - [Address Book](http://winjs.github.io/react-winjs/examples/address-book/index.html) ([source](https://github.com/winjs/react-winjs/tree/master/examples/address-book)): demonstrates how to use react-winjs components to build an adaptive app which works well on mobile, tablet, and desktop computers.
 
 ## Installation
 
