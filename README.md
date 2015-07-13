@@ -16,12 +16,12 @@ npm install react-winjs --save
 
 ## Usage
 
-Include [WinJS 4.0.1](http://try.buildwinjs.com/#get) on your page. For example:
+Include [WinJS 4.1](http://try.buildwinjs.com/#get) on your page. For example:
 
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.0.1/css/ui-dark.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.0.1/js/base.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.0.1/js/ui.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.1.0/css/ui-dark.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.1.0/js/base.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.1.0/js/ui.js"></script>
 ```
 
 Then require `react-winjs` and use it:
