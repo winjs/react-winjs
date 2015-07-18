@@ -34,18 +34,18 @@ module.exports = React.createClass({
                         onInvoked={this.handleTogglePane} />
                 </div>
 
-                <ReactWinJS.NavBarCommand
+                <ReactWinJS.SplitView.Command
                     label="Home"
                     icon="home"
-                    onClick={this.handleChangeContent.bind(null, "Home")} />
-                <ReactWinJS.NavBarCommand
+                    onInvoked={this.handleChangeContent.bind(null, "Home")} />
+                <ReactWinJS.SplitView.Command
                     label="Favorite"
                     icon="favorite"
-                    onClick={this.handleChangeContent.bind(null, "Favorite")} />
-                <ReactWinJS.NavBarCommand
+                    onInvoked={this.handleChangeContent.bind(null, "Favorite")} />
+                <ReactWinJS.SplitView.Command
                     label="Settings"
                     icon="settings"
-                    onClick={this.handleChangeContent.bind(null, "Settings")} />
+                    onInvoked={this.handleChangeContent.bind(null, "Settings")} />
             </div>
         );
         var contentComponent = (

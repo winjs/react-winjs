@@ -20,7 +20,6 @@ var examples = [
     { title: "ItemContainer", componenent: require('./examples/ItemContainer.jsx') },
     { title: "ListView", componenent: require('./examples/ListView.jsx') },
     { title: "Menu", componenent: require('./examples/Menu.jsx') },
-    { title: "NavBar", componenent: require('./examples/NavBar.jsx') },
     { title: "Pivot", componenent: require('./examples/Pivot.jsx') },
     { title: "Rating", componenent: require('./examples/Rating.jsx') },
     { title: "SemanticZoom", componenent: require('./examples/SemanticZoom.jsx') },
@@ -35,7 +34,7 @@ var baseSourceUrl = "https://github.com/winjs/react-winjs/tree/master/examples/"
     "showcase/examples/";
 var styles = {
     viewport: { height: "100%", overflow: "auto" },
-    surface: { paddingBottom: 96 + 10 }, // Leave room for bottom AppBar/NavBar
+    surface: { paddingBottom: 96 + 10 }, // Leave room for bottom AppBar
     example: { paddingBottom: 30 },
     exampleTitle: { paddingBottom: 10 },
     sourceLink: { paddingLeft: 5 }

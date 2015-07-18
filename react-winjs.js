@@ -1287,6 +1287,27 @@ var RawControlApis = {
             ]
         }
     },
+    SplitViewCommand: {
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        icon: {
+            type: "string"
+        },
+        label: {
+            type: "string"
+        },
+        onInvoked: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        tooltip: {
+            type: "any"
+        }
+    },
     SplitViewPaneToggle: {
         element: {
             name: "HTMLButtonElement",
@@ -2474,36 +2495,6 @@ var ControlApis = updateWithDefaults({
     "Menu.FlyoutCommand": merge(CommandSpecs.FlyoutCommand, {
         underlyingControlName: "MenuCommand"
     }),
-    NavBar: {
-        // The WinJS NavBar control doesn't come with a good mount point.
-        // App content and control content are siblings in NavBar.element.
-        // Consequently, if React rendered to NavBar.element, it would destroy
-        // some of NavBar's elements. To fix this, we give NavBar a div
-        // (className="win-react-navbar-mount-point") which will contain only
-        // app content. The React component renders into this div so it doesn't
-        // destroy any control content.
-        render: function (component) {
-            return React.DOM.div(null, React.DOM.div({ className: "win-react-navbar-mount-point" }));
-        },
-        propHandlers: {
-            opened: PropHandlers.focusProperty(React.PropTypes.bool),
-            children: PropHandlers.mountTo(function (winjsComponent) {
-                return winjsComponent.winControl.element.querySelector(".win-react-navbar-mount-point");
-            })
-        }
-    },
-    NavBarCommand: {
-        propHandlers: {
-            // TODO: Instead of special casing onClick, support DOM attributes
-            // more generically.
-            onClick: PropHandlers.domEvent
-        }
-    },
-    NavBarContainer: {
-        propHandlers: {
-            children: PropHandlers.syncChildrenWithBindingList("data")
-        }
-    },
     Pivot: {
         propHandlers: {
             children: PropHandlers.syncChildrenWithBindingList("items"),
@@ -2576,6 +2567,9 @@ var ControlApis = updateWithDefaults({
                 return winjsComponent.winControl.contentElement;
             })
         }
+    },
+    "SplitView.Command": {
+        underlyingControlName: "SplitViewCommand",
     },
     SplitViewPaneToggle: {
         render: function (component) {

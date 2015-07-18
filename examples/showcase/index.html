@@ -1,21 +1,22 @@
-<!doctype html>
+﻿<!doctype html>
 <html>
-    <head>
-        <title>react-winjs Showcase</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="msapplication-tap-highlight" content="no">
+<head>
+    <title>react-winjs Showcase</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msapplication-tap-highlight" content="no">
 
-        <script src="http://fb.me/react-0.13.3.js"></script>
+    <script src="http://fb.me/react-0.13.3.js"></script>
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.1.0/css/ui-light.css" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.1.0/js/base.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.1.0/js/ui.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.1.0/css/ui-light.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.1.0/js/base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/winjs/4.1.0/js/ui.js"></script>
 
-        <style>
-            #app {
-                height: 100%;
-            }
+
+    <style>
+        #app {
+            height: 100%;
+        }
 
             /*
              * ListView
@@ -41,23 +42,23 @@
              * SplitView
             */
 
-            .win-navbarcommand-button {
+            .win-splitviewcommand-button {
                 background-color: transparent;
             }
 
-            #app .win-splitview-pane-hidden .win-navbarcommand-button {
+            #app .win-splitview-pane-hidden .win-splitviewcommand-button {
                 width: 46px;
             }
 
-            #app .win-splitview-pane-hidden .win-navbarcommand-label {
+            #app .win-splitview-pane-hidden .win-splitviewcommand-label {
                 /* Workaround: Make sure pane doesn't scroll if focus is restored to
-                   NavBarCommand's label */
+                   SplitViewCommands's label */
                 visibility: hidden;
             }
-        </style>
-    </head>
-    <body class="win-type-body">
-        <div id="app"></div>
-        <script src="browser-bundle.js"></script>
-    </body>
+    </style>
+</head>
+<body class="win-type-body">
+    <div id="app"></div>
+    <script src="browser-bundle.js"></script>
+</body>
 </html>
