@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>React.WinJS</id>
-        <version>1.1.0</version>
+        <version>1.0.0</version>
         <authors>Microsoft Corporation and other contributors</authors>
     	<licenseUrl>https://raw.githubusercontent.com/winjs/react-winjs/master/LICENSE.txt</licenseUrl>
         <projectUrl>https://github.com/winjs/react-winjs</projectUrl>

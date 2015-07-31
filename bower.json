@@ -1,7 +1,6 @@
 {
   "name": "react-winjs",
   "main": "react-winjs.js",
-  "version": "1.1.0",
   "homepage": "https://github.com/winjs/react-winjs",
   "authors": [
     "Microsoft Corporation and other contributors"
@@ -20,6 +19,7 @@
     "tests",
     "examples",
     "package.json",
-    "*.nuspec"
+    "*.nuspec",
+    "Gruntfile.js"
   ]
 }
