@@ -22,6 +22,8 @@ module.exports = function(grunt) {
     
     var currentGitCommitHash = execSync('git rev-parse HEAD').toString().trim();
     
+    var bomGlob = "**/*.+(js|css|htm|html)";
+    
     // Project configuration.
     grunt.initConfig({
         pkg: pkg,
@@ -54,6 +56,21 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: npmPublishRoot,
                     src: ["**"]
+                }]
+            }
+        },
+        
+        "check-bom": {
+            publish: {
+                files: [{
+                    src: "react-winjs.js",
+                    expand: true,
+                    nocase: true
+                }, {
+                    cwd: publishRoot,
+                    src: bomGlob,
+                    expand: true,
+                    nocase: true
                 }]
             }
         },
@@ -104,6 +121,8 @@ module.exports = function(grunt) {
         }
     });
     
+    grunt.loadTasks('tasks/');
+    
     var plugins = [
         'grunt-contrib-clean',
         'grunt-contrib-compress',
@@ -135,6 +154,7 @@ module.exports = function(grunt) {
         'copy:publish',
         'compress:publish',
         'nugetpack:publish',
+        'check-bom:publish',
     ]);
     
     grunt.registerTask('finished-publish', function (mode) {

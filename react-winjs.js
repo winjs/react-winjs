@@ -1,4 +1,4 @@
-var React = require('react');
+﻿var React = require('react');
 
 // Generated from https://github.com/rigdern/winjs-control-apis
 var RawControlApis = {
