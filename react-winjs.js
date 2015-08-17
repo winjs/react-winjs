@@ -203,6 +203,66 @@ var RawControlApis = {
             ]
         }
     },
+    Command: {
+        disabled: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        extraClass: {
+            type: "string"
+        },
+        firstElementFocus: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        flyout: {
+            name: "WinJS.UI.Flyout",
+            type: "reference",
+            typeArguments: []
+        },
+        hidden: {
+            type: "boolean"
+        },
+        icon: {
+            type: "string"
+        },
+        id: {
+            type: "string"
+        },
+        label: {
+            type: "string"
+        },
+        lastElementFocus: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        onClick: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        priority: {
+            type: "number"
+        },
+        section: {
+            type: "string"
+        },
+        selected: {
+            type: "boolean"
+        },
+        tooltip: {
+            type: "string"
+        },
+        type: {
+            type: "string"
+        }
+    },
     ContentDialog: {
         element: {
             name: "HTMLElement",
@@ -398,9 +458,6 @@ var RawControlApis = {
             type: "reference",
             typeArguments: []
         },
-        horizontal: {
-            type: "boolean"
-        },
         itemInfo: {
             name: "Function",
             type: "reference",
@@ -439,7 +496,11 @@ var RawControlApis = {
             type: "number"
         },
         loadingState: {
-            type: "string"
+            type: "enum",
+            values: [
+                "complete",
+                "loading"
+            ]
         },
         onContentAnimating: {
             name: "Function",
@@ -576,19 +637,6 @@ var RawControlApis = {
                 "top"
             ]
         },
-        groupInfo: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
-        },
-        horizontal: {
-            type: "boolean"
-        },
-        itemInfo: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
-        },
         numberOfItemsPerItemsBlock: {
             type: "any"
         },
@@ -615,7 +663,7 @@ var RawControlApis = {
             typeArguments: []
         },
         footer: {
-            name: "HTMLDivElement",
+            name: "HTMLElement",
             type: "reference",
             typeArguments: []
         },
@@ -640,7 +688,7 @@ var RawControlApis = {
             type: "any"
         },
         header: {
-            name: "HTMLDivElement",
+            name: "HTMLElement",
             type: "reference",
             typeArguments: []
         },
@@ -683,12 +731,33 @@ var RawControlApis = {
         maxDeferredItemCleanup: {
             type: "number"
         },
+        maxLeadingPages: {
+            type: "number"
+        },
+        maxTrailingPages: {
+            type: "number"
+        },
+        onAccessibilityAnnotationComplete: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
         onContentAnimating: {
             name: "Function",
             type: "reference",
             typeArguments: []
         },
+        onFooterVisibilityChanged: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
         onGroupHeaderInvoked: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onHeaderVisibilityChanged: {
             name: "Function",
             type: "reference",
             typeArguments: []
@@ -907,6 +976,9 @@ var RawControlApis = {
         }
     },
     NavBar: {
+        closedDisplayMode: {
+            type: "string"
+        },
         commands: {
             name: "WinJS.UI.AppBarCommand",
             type: "reference",
@@ -916,6 +988,9 @@ var RawControlApis = {
             name: "HTMLElement",
             type: "reference",
             typeArguments: []
+        },
+        hidden: {
+            type: "boolean"
         },
         onAfterClose: {
             name: "Function",
@@ -964,6 +1039,11 @@ var RawControlApis = {
         location: {
             type: "any"
         },
+        onInvoked: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
         splitButton: {
             type: "boolean"
         },
@@ -974,7 +1054,7 @@ var RawControlApis = {
             type: "any"
         },
         tooltip: {
-            type: "any"
+            type: "string"
         }
     },
     NavBarContainer: {
@@ -1169,11 +1249,6 @@ var RawControlApis = {
             type: "reference",
             typeArguments: []
         },
-        onReceivingFocusOnKeyboardInput: {
-            name: "Function",
-            type: "reference",
-            typeArguments: []
-        },
         onResultSuggestionChosen: {
             name: "Function",
             type: "reference",
@@ -1204,9 +1279,6 @@ var RawControlApis = {
             typeArguments: []
         },
         enableButton: {
-            type: "boolean"
-        },
-        isDeclarativeControlContainer: {
             type: "boolean"
         },
         locked: {
@@ -1305,7 +1377,7 @@ var RawControlApis = {
             typeArguments: []
         },
         tooltip: {
-            type: "any"
+            type: "string"
         }
     },
     SplitViewPaneToggle: {
@@ -2461,10 +2533,6 @@ var ControlApis = updateWithDefaults({
             currentItem: PropHandlers.focusProperty(React.PropTypes.any),
             headerComponent: PropHandlers.propertyWithMount("header"),
             footerComponent: PropHandlers.propertyWithMount("footer"),
-
-            // TODO: Remove these visibility events after fixing https://github.com/winjs/winjs/issues/1105
-            onHeaderVisibilityChanged: PropHandlers.event,
-            onFooterVisibilityChanged: PropHandlers.event
         }
     },
     // TODO: Keyboarding doesn't work in Menu probably because MenuCommands are not direct
