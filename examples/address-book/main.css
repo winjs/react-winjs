@@ -2,10 +2,6 @@
     height: 100%;
 }
 
-.win-navbarcommand-button {
-    background-color: transparent;
-}
-
 /*
  * BackButton
  *  Ensure it's the same size as the SplitViewPaneToggle

@@ -149,24 +149,24 @@ var App = React.createClass({
     render: function () {
         var paneComponent = (
             <div>
-                <ReactWinJS.NavBarCommand
+                <ReactWinJS.SplitView.Command
                     label="People"
                     icon="contact"
-                    onClick={this.handleCommandInvoked.bind(null, ["people"])} />
-                <ReactWinJS.NavBarCommand
+                    onInvoked={this.handleCommandInvoked.bind(null, ["people"])} />
+                <ReactWinJS.SplitView.Command
                     label="What's New"
                     icon="comment"
-                    onClick={this.handleCommandInvoked.bind(null, ["new"])} />
-                <ReactWinJS.NavBarCommand
+                    onInvoked={this.handleCommandInvoked.bind(null, ["new"])} />
+                <ReactWinJS.SplitView.Command
                     label="Groups"
                     icon="people"
-                    onClick={this.handleCommandInvoked.bind(null, ["groups"])} />
+                    onInvoked={this.handleCommandInvoked.bind(null, ["groups"])} />
 
-                <ReactWinJS.NavBarCommand
+                <ReactWinJS.SplitView.Command
                     style={{position: "absolute", bottom: 0, width: "100%"}}
                     label="Settings"
                     icon="settings"
-                    onClick={this.handleCommandInvoked.bind(null, ["settings"])} />
+                    onInvoked={this.handleCommandInvoked.bind(null, ["settings"])} />
             </div>
         );
 
