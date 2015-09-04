@@ -176,6 +176,10 @@ module.exports = function(grunt) {
     // task which puts all of the publication data into the 'dist' folder but
     // doesn't actually send the data to the package managers.
     grunt.registerTask('publish', function (mode) {
+        if (!process.env.GITHUB_ACCESS_TOKEN) {
+            grunt.fail.fatal('The GITHUB_ACCESS_TOKEN environment variable must be set in order to create GitHub releases');
+        }
+        
         if (!mode) {
             grunt.log.writeln('');
             grunt.log.writeln('Will publish version ' + pkg.version + ' of react-winjs to npm, NuGet, etc. Double check that:');
