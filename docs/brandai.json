@@ -1,0 +1,9 @@
+{
+  "name": "react-winjs-brandai",
+  "libraryPath": "../",
+  "dist": "dist",
+  "libraryObjectName": "ReactWinJS",
+  "reactVersion": "0.13.3",
+  "dynamicExtraction": true,
+  "fileOrder": ["base.min.js", "ui.min.js"]
+}
