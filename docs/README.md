@@ -11,6 +11,7 @@ Use gulp to build a distribution folder containing:
 See [webpack.config.json](https://github.com/winjs/react-winjs/blob/master/docs/webpack.config.js) and [gulpfile.json](https://github.com/winjs/react-winjs/blob/master/docs/gulpfile.js) for more info on that.
 
 ```sh
+$ cd react-winjs/docs
 $ npm install
 $ gulp build
 ```
