@@ -1641,7 +1641,7 @@ function mapObject(obj, callback) {
 
 function cloneObject(obj) {
     var result = {};
-    for (k in obj) { result[k] = obj[k]; }
+    for (var k in obj) { result[k] = obj[k]; }
     return result;
 }
 
@@ -1650,7 +1650,7 @@ function merge(/* objs */) {
     for (var i = 0, len = arguments.length; i < len; i++) {
         var obj = arguments[i];
         if (obj) {
-            for (k in obj) { result[k] = obj[k]; }
+            for (var k in obj) { result[k] = obj[k]; }
         }
     }
     return result;
