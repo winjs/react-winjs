@@ -1641,7 +1641,7 @@ function mapObject(obj, callback) {
 
 function cloneObject(obj) {
     var result = {};
-    for (k in obj) { result[k] = obj[k]; }
+    for (var k in obj) { result[k] = obj[k]; }
     return result;
 }
 
@@ -1650,7 +1650,7 @@ function merge(/* objs */) {
     for (var i = 0, len = arguments.length; i < len; i++) {
         var obj = arguments[i];
         if (obj) {
-            for (k in obj) { result[k] = obj[k]; }
+            for (var k in obj) { result[k] = obj[k]; }
         }
     }
     return result;
@@ -1774,7 +1774,7 @@ function diffArraysByKey(old, latest) {
     var edits = [];
 
     // Handle removals
-    for (i = old.length - 1; i >= 0; i--) {
+    for (var i = old.length - 1; i >= 0; i--) {
         var item = old[i];
         if (!latestIndex.hasOwnProperty(item.key)) {
             edits.push({ type: "delete", index: i });
@@ -1783,7 +1783,7 @@ function diffArraysByKey(old, latest) {
     }
 
     // Handle insertions and moves
-    for (i = 0; i < latest.length; i++) {
+    for (var i = 0; i < latest.length; i++) {
         var item = latest[i];
         if (!oldIndex.hasOwnProperty(item.key)) {
             // Insertion
