@@ -1774,7 +1774,7 @@ function diffArraysByKey(old, latest) {
     var edits = [];
 
     // Handle removals
-    for (i = old.length - 1; i >= 0; i--) {
+    for (var i = old.length - 1; i >= 0; i--) {
         var item = old[i];
         if (!latestIndex.hasOwnProperty(item.key)) {
             edits.push({ type: "delete", index: i });
@@ -1783,7 +1783,7 @@ function diffArraysByKey(old, latest) {
     }
 
     // Handle insertions and moves
-    for (i = 0; i < latest.length; i++) {
+    for (var i = 0; i < latest.length; i++) {
         var item = latest[i];
         if (!oldIndex.hasOwnProperty(item.key)) {
             // Insertion
