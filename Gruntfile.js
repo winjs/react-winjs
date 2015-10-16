@@ -77,7 +77,12 @@ module.exports = function(grunt) {
         },
 
         "update-controls-api": {
-            publish: {}
+            publish: {
+                files: [
+                    { src: "typings/winjs.d.ts" },
+                    { src: "typings/MediaElement.d.ts" }
+                ]
+            }
         },
 
         nugetpack: {
