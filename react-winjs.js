@@ -1,4 +1,4 @@
-﻿var React = require('react');
+﻿﻿﻿﻿var React = require('react');
 
 //
 // Implementation Overview
@@ -59,7 +59,8 @@
 //   - type: Returns the React type associated with the component.
 //
 
-// Generated from https://github.com/winjs/winjs-control-apis
+/// DO NOT DELETE COMMENT
+//*** RawControlApis start
 var RawControlApis = {
     AppBar: {
         closedDisplayMode: {
@@ -1283,6 +1284,29 @@ var RawControlApis = {
             type: "number"
         }
     },
+    ScrollViewer: {
+        _scrollingContainer: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        _scrollingIndicatorElement: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        _vuiActive: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        scrollMode: {
+            type: "string"
+        }
+    },
     SearchBox: {
         chooseSuggestionOnEnter: {
             type: "boolean"
@@ -1612,6 +1636,12 @@ var RawControlApis = {
     }
 };
 
+/// DO NOT DELETE COMMENT
+//*** RawControlApis end
+
+
+
+
 var setImmediate;
 var clearImmediate;
 if (window.setImmediate && window.clearImmediate) {
@@ -1835,7 +1865,7 @@ function applyEditsToBindingList(list, edits) {
 function processChildren(componentDisplayName, children, childComponentsMap) {
     var newChildComponents = [];
     var newChildComponentsMap = {};
-    
+
     // A component's *key* represents its identity. If a component in *children* and a
     // component in *childComponentsMap* have the same *key*, then they are assumed to
     // represent the same component.
@@ -2234,7 +2264,7 @@ var PropHandlers = {
                         return winjsChildComponent.winControl;
                     }));
                 }
-                
+
                 winjsComponent.data[propName] = {
                     winjsChildComponents: latest.childComponents,
                     winjsChildComponentsMap: latest.childComponentsMap
@@ -2279,7 +2309,7 @@ function defineControl(options) {
                 handler.preCtorInit(element, options, winjsComponent.data, displayName, propName, props[propName]);
             }
         });
-        winjsComponent.winControl = new winjsControl(element, options);        
+        winjsComponent.winControl = new winjsControl(element, options);
 
         // Process propHandlers that don't implement preCtorInit.
         Object.keys(props).forEach(function (propName) {

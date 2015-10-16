@@ -26,6 +26,7 @@
     "grunt-contrib-compress": "^0.13.0",
     "grunt-contrib-copy": "^0.8.0",
     "grunt-github-releaser": "^0.1.17",
-    "grunt-nuget": "^0.1.4"
+    "grunt-nuget": "^0.1.4",
+    "winjs-control-apis": "git+https://github.com/winjs/winjs-control-apis.git"
   }
 }

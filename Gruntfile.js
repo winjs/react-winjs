@@ -6,10 +6,10 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 
 module.exports = function(grunt) {
-    
+
     var publishRoot = 'dist/';
     var npmPublishRoot = publishRoot + 'npm/';
-    
+
     // All version number information is derived from package.json. This includes the version
     // info used with npm, bower, NuGet, and the GitHub release.
     var pkg = grunt.file.readJSON('package.json');
@@ -19,24 +19,25 @@ module.exports = function(grunt) {
     }
     // package.json version contains <major>.<minor>.<patch>. We just want <major>.<minor>
     var winjsVersion = fullWinjsVersion.split(".").slice(0, 2).join(".");
-    
+
     var currentGitCommitHash = execSync('git rev-parse HEAD').toString().trim();
-    
+
     var bomGlob = "**/*.+(js|css|htm|html)";
-    
+
     // Project configuration.
     grunt.initConfig({
         pkg: pkg,
-        
+
         clean: {
             publish: [publishRoot]
         },
-        
+
         copy: {
             publish: {
                 files: [{
                     expand: true,
                     src: [
+                        'ReactControlApis.js',
                         'react-winjs.js',
                         'LICENSE.txt',
                         'package.json',
@@ -46,7 +47,7 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        
+
         compress: {
             publish: {
                 options: {
@@ -59,7 +60,7 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        
+
         "check-bom": {
             publish: {
                 files: [{
@@ -74,7 +75,11 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        
+
+        "update-controls-api": {
+            publish: {}
+        },
+
         nugetpack: {
             publish: {
                 src: 'React.WinJS.nuspec',
@@ -84,7 +89,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        
+
         // Publishes nuget package
         nugetpush: {
             // Requires NuGet API key to be set. You can do this with:
@@ -93,7 +98,7 @@ module.exports = function(grunt) {
                 src: publishRoot + '*.nupkg',
             }
         },
-        
+
         // Publishes GitHub release and bower package (bower consumes GitHub tags/releases)
         'github-release': {
             // Requires this environment variable to be set: GITHUB_ACCESS_TOKEN
@@ -120,9 +125,9 @@ module.exports = function(grunt) {
             }
         }
     });
-    
+
     grunt.loadTasks('tasks/');
-    
+
     var plugins = [
         'grunt-contrib-clean',
         'grunt-contrib-compress',
@@ -133,12 +138,12 @@ module.exports = function(grunt) {
     plugins.forEach(function (plugin) {
         grunt.loadNpmTasks(plugin);
     });
-    
+
     // Publishes npm package
     grunt.registerTask('npm-release', function (mode) {
         var done = this.async();
         var cmd = 'npm publish ' + npmPublishRoot;
-        
+
         exec(cmd, function (err, stdout) {
             if (err) {
                 grunt.fatal('npm publish failed using command: ' + cmd);
@@ -146,27 +151,30 @@ module.exports = function(grunt) {
             done();
         });
     });
-    
+
     // Sets up all of the state necessary to do a publish but doesn't actually publish
     // to any of the package managers.
     grunt.registerTask('prepare-publish', [
         'clean:publish',
+        'update-controls-api:publish',
         'copy:publish',
         'compress:publish',
         'nugetpack:publish',
-        'check-bom:publish',
+        'check-bom:publish'
     ]);
-    
+
     grunt.registerTask('finished-publish', function (mode) {
         grunt.log.writeln('');
         grunt.log.writeln('Publish complete. Hand tweak the GitHub release description if necessary (https://github.com/winjs/react-winjs/releases)');
         grunt.log.writeln('');
     });
-    
+
+    grunt.registerTask('default', ['prepare-publish'])
+
     //
     // Public tasks designed to be run from the command line
     //
-    
+
     // Populates the 'dist' folder and then uses it to:
     //  - Create a GitHub release
     //  - Publish to npm
@@ -179,7 +187,7 @@ module.exports = function(grunt) {
         if (!process.env.GITHUB_ACCESS_TOKEN) {
             grunt.fail.fatal('The GITHUB_ACCESS_TOKEN environment variable must be set in order to create GitHub releases');
         }
-        
+
         if (!mode) {
             grunt.log.writeln('');
             grunt.log.writeln('Will publish version ' + pkg.version + ' of react-winjs to npm, NuGet, etc. Double check that:');
@@ -197,5 +205,5 @@ module.exports = function(grunt) {
                 'finished-publish',
             ]);
         }
-    });  
+    });
 };
