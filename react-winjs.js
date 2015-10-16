@@ -942,6 +942,227 @@ var RawControlApis = {
             ]
         }
     },
+    MediaElementAdapter: {
+        isLive: {
+            type: "boolean"
+        },
+        isPauseAllowed: {
+            type: "boolean"
+        },
+        isPlayAllowed: {
+            type: "boolean"
+        },
+        isSeekAllowed: {
+            type: "boolean"
+        },
+        liveTime: {
+            type: "number"
+        },
+        mediaElement: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        }
+    },
+    MediaPlayer: {
+        castButtonEnabled: {
+            type: "boolean"
+        },
+        castButtonVisible: {
+            type: "boolean"
+        },
+        chapterSkipBackButtonEnabled: {
+            type: "boolean"
+        },
+        chapterSkipBackButtonVisible: {
+            type: "boolean"
+        },
+        chapterSkipForwardButtonEnabled: {
+            type: "boolean"
+        },
+        chapterSkipForwardButtonVisible: {
+            type: "boolean"
+        },
+        compact: {
+            type: "boolean"
+        },
+        element: {
+            name: "HTMLElement",
+            type: "reference",
+            typeArguments: []
+        },
+        endTime: {
+            type: "boolean"
+        },
+        fastForwardButtonEnabled: {
+            type: "boolean"
+        },
+        fastForwardButtonVisible: {
+            type: "boolean"
+        },
+        fullscreenButtonEnabled: {
+            type: "boolean"
+        },
+        fullscreenButtonVisible: {
+            type: "boolean"
+        },
+        goToLiveButtonEnabled: {
+            type: "boolean"
+        },
+        goToLiveButtonVisible: {
+            type: "boolean"
+        },
+        isControlsVisible: {
+            type: "boolean"
+        },
+        isFullScreen: {
+            type: "boolean"
+        },
+        isThumbnailEnabled: {
+            type: "boolean"
+        },
+        layout: {
+            type: "string"
+        },
+        markers: {
+            type: "any"
+        },
+        mediaElementAdapter: {
+            type: "any"
+        },
+        nextTrackButtonEnabled: {
+            type: "boolean"
+        },
+        nextTrackButtonVisible: {
+            type: "boolean"
+        },
+        onAfterHideControls: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onAfterShowControls: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeHideControls: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onBeforeShowControls: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onMarkerReached: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onMediaCommandExecuted: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onTargetRateChange: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onTargetTimeUpdate: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        onThumbnailRequest: {
+            name: "Function",
+            type: "reference",
+            typeArguments: []
+        },
+        playFromBeginningButtonEnabled: {
+            type: "boolean"
+        },
+        playFromBeginningButtonVisible: {
+            type: "boolean"
+        },
+        playPauseButtonEnabled: {
+            type: "boolean"
+        },
+        playPauseButtonVisible: {
+            type: "boolean"
+        },
+        playbackRateButtonEnabled: {
+            type: "boolean"
+        },
+        playbackRateButtonVisible: {
+            type: "boolean"
+        },
+        previousTrackButtonEnabled: {
+            type: "boolean"
+        },
+        previousTrackButtonVisible: {
+            type: "boolean"
+        },
+        rewindButtonEnabled: {
+            type: "boolean"
+        },
+        rewindButtonVisible: {
+            type: "boolean"
+        },
+        seekBarVisible: {
+            type: "boolean"
+        },
+        seekingEnabled: {
+            type: "boolean"
+        },
+        startTime: {
+            type: "number"
+        },
+        stopButtonEnabled: {
+            type: "boolean"
+        },
+        stopButtonVisible: {
+            type: "boolean"
+        },
+        targetCurrentTime: {
+            type: "number"
+        },
+        targetPlaybackRate: {
+            type: "number"
+        },
+        thumbnailImage: {
+            type: "string"
+        },
+        timeFormatter: {
+            type: "any"
+        },
+        timeSkipBackButtonEnabled: {
+            type: "boolean"
+        },
+        timeSkipBackButtonVisible: {
+            type: "boolean"
+        },
+        timeSkipForwardButtonEnabled: {
+            type: "boolean"
+        },
+        timeSkipForwardButtonVisible: {
+            type: "boolean"
+        },
+        volumeButtonEnabled: {
+            type: "boolean"
+        },
+        volumeButtonVisible: {
+            type: "boolean"
+        },
+        zoomButtonEnabled: {
+            type: "boolean"
+        },
+        zoomButtonVisible: {
+            type: "boolean"
+        }
+    },
     Menu: {
         alignment: {
             type: "string"
