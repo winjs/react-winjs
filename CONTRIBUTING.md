@@ -35,7 +35,7 @@ To make propert updates to the project the development requires a bit of setup.
 - If on a Mac (to run the `Nuget.exe`)
   - [Mono](http://www.mono-project.com/download/) `brew install mono`
 
-## Bring down necessary tools
+##
 
 1. Create a folder to host multiple repositories (let's call the folder `winjs`)
 2. Inside of the `winjs` root folder pull down the following projects
@@ -44,4 +44,8 @@ To make propert updates to the project the development requires a bit of setup.
   - `git clone https://github.com/winjs/winjs-control-apis.git`
 3. Follow each's projects setup (usually `npm install`) etc...
 4. In the `winjs` proper project check out the version you want (ex: `v4.4.0`) and run a build.
-5.
+5. The build should create a `winjs.d.ts` file in `/winjs/typings/winjs/winjs.d.ts`. Copy this to `/react-winjs/typings/winjs.d.ts`
+6. Make sure the Grunt task `update-controls-api` has the necessary `.d.ts` files configured.
+7. Run `grunt update-controls-api` in this project (`winjs-react`).
+  - The above grunt task should have updated `react-winjs.js` with any updates to the necessary api. Validate that the updates are correct/proper.
+8. Based on the updates above, update examples of new controls or other changes...
