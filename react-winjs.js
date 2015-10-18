@@ -1,4 +1,6 @@
-﻿var React = require('react');
+var React = require('react');
+var ReactDOM = require('react-dom');
+
 
 //
 // Implementation Overview
@@ -39,9 +41,9 @@
 //
 // What made this challenging to solve is that there are some features that aren't achievable in
 // a straight forward way through the React APIs. To solve this, you want to be able to:
-//   - Render a React component *onto* an existing element. React.render can only render *into* an
+//   - Render a React component *onto* an existing element. ReactDOM.render can only render *into* an
 //     existing element. For example, when creating a HubSection you want to be able to control
-//     attributes of the win-hub-section element such as its *class* and *style*. With React.render,
+//     attributes of the win-hub-section element such as its *class* and *style*. With ReactDOM.render,
 //     you'd only be able to render into the win-hub-section element so the React component wouldn't
 //     be able to control any attributes of the win-hub-section element.
 //   - Hold onto a rendered component and inspect its *type* and *key* prop later. This information
@@ -1835,7 +1837,7 @@ function applyEditsToBindingList(list, edits) {
 function processChildren(componentDisplayName, children, childComponentsMap) {
     var newChildComponents = [];
     var newChildComponentsMap = {};
-    
+
     // A component's *key* represents its identity. If a component in *children* and a
     // component in *childComponentsMap* have the same *key*, then they are assumed to
     // represent the same component.
@@ -2112,7 +2114,7 @@ var PropHandlers = {
             preCtorInit: function propertyWithMount_preCtorInit(element, options, data, displayName, propName, value) {
                 if (value) {
                     data[propName] = document.createElement("div");
-                    React.render(value, data[propName]);
+                    ReactDOM.render(value, data[propName]);
                     options[winControlProperty] = data[propName];
                 }
             },
@@ -2124,18 +2126,18 @@ var PropHandlers = {
                         element = document.createElement("div");
                         winjsComponent.data[propName] = element;
                     }
-                    React.render(newValue, element);
+                    ReactDOM.render(newValue, element);
                     if (winControl[winControlProperty] !== element) {
                         winControl[winControlProperty] = element;
                     }
                 } else if (oldValue) {
-                    element && React.unmountComponentAtNode(element);
+                    element && ReactDOM.unmountComponentAtNode(element);
                     winControl[winControlProperty] = null;
                 }
             },
             dispose: function propertyWithMount_dispose(winjsComponent, propName) {
                 var element = winjsComponent.data[propName];
-                element && React.unmountComponentAtNode(element);
+                element && ReactDOM.unmountComponentAtNode(element);
             }
         };
     },
@@ -2166,13 +2168,13 @@ var PropHandlers = {
                         if (newValue) {
                             var newElement = getMountPoint(winjsComponent);
                             if (oldElement && oldElement !== newElement) {
-                                React.unmountComponentAtNode(oldElement);
+                                ReactDOM.unmountComponentAtNode(oldElement);
                             }
 
-                            React.render(newValue, newElement);
+                            ReactDOM.render(newValue, newElement);
                             winjsComponent.data[propName].element = newElement;
                         } else if (oldValue) {
-                            oldElement && React.unmountComponentAtNode(oldElement);
+                            oldElement && ReactDOM.unmountComponentAtNode(oldElement);
                             winjsComponent.data[propName].element = null;
                         }
                     }
@@ -2195,7 +2197,7 @@ var PropHandlers = {
             dispose: function mountTo_dispose(winjsComponent, propName) {
                 var data = winjsComponent.data[propName] || {};
                 var element = data.element;
-                element && React.unmountComponentAtNode(element);
+                element && ReactDOM.unmountComponentAtNode(element);
             }
         };
     },
@@ -2234,7 +2236,7 @@ var PropHandlers = {
                         return winjsChildComponent.winControl;
                     }));
                 }
-                
+
                 winjsComponent.data[propName] = {
                     winjsChildComponents: latest.childComponents,
                     winjsChildComponentsMap: latest.childComponentsMap
@@ -2279,7 +2281,7 @@ function defineControl(options) {
                 handler.preCtorInit(element, options, winjsComponent.data, displayName, propName, props[propName]);
             }
         });
-        winjsComponent.winControl = new winjsControl(element, options);        
+        winjsComponent.winControl = new winjsControl(element, options);
 
         // Process propHandlers that don't implement preCtorInit.
         Object.keys(props).forEach(function (propName) {
@@ -2335,7 +2337,7 @@ function defineControl(options) {
         // will run when WinJSChildComponent renders the component to a string via
         // renderRootlessComponent.
         componentDidMount: function () {
-            initWinJSComponent(this, React.findDOMNode(this), this.props);
+            initWinJSComponent(this, ReactDOM.findDOMNode(this), this.props);
         },
         componentWillUnmount: function () {
             disposeWinJSComponent(this);
@@ -2351,7 +2353,7 @@ function defineControl(options) {
 
 var hostEl = document.createElement("div");
 function renderRootlessComponent(component) {
-    var html = React.renderToStaticMarkup(component);
+    var html = ReactDOM.renderToStaticMarkup(component);
     hostEl.innerHTML = html;
     var element = hostEl.firstElementChild;
     hostEl.removeChild(element);
@@ -2362,7 +2364,7 @@ function renderRootlessComponent(component) {
 // TODO: Because we're not going thru React's lifecycle, we're missing out on
 // validation of propTypes.
 // TODO: ref doesn't work on WinJSChildComponents. The reason is that during updates, we
-// don't call React.render. Because of this, refs would go stale and only reflect the
+// don't call ReactDOM.render. Because of this, refs would go stale and only reflect the
 // state of the component after its first render. Consequently, we clone the component
 // during its first render so it never shows up in refs. This should make it clearer
 // that refs don't work than generating stale refs.
@@ -2508,7 +2510,7 @@ var CommandSpecs = {
                         };
                     }
                     var oldWinControl = data.flyoutComponent && data.flyoutComponent.winControl;
-                    var instance = React.render(newValue, data.flyoutHost);
+                    var instance = ReactDOM.render(newValue, data.flyoutHost);
                     if (oldWinControl !== instance.winControl) {
                         winjsComponent.winControl.flyout = instance.winControl;
                     }
@@ -2517,7 +2519,7 @@ var CommandSpecs = {
                 dispose: function FlyoutCommand_flyoutComponent_dispose(winjsComponent, propName) {
                     var data = winjsComponent.data[propName];
                     if (data && data.flyoutHost) {
-                        React.unmountComponentAtNode(data.flyoutHost);
+                        ReactDOM.unmountComponentAtNode(data.flyoutHost);
                         deparent(data.flyoutHost);
                     }
                 }
@@ -2620,7 +2622,7 @@ var ControlApis = updateWithDefaults({
                 // multiple components whereas the other technique restricts it to one.
                 update: function (winjsComponent, propName, oldValue, newValue) {
                     // TODO: dispose
-                    React.render(React.DOM.div(null, newValue), winjsComponent.winControl.element);
+                    ReactDOM.render(React.DOM.div(null, newValue), winjsComponent.winControl.element);
                 }
             }
         }
@@ -2823,9 +2825,9 @@ ReactWinJS.reactRenderer = function reactRenderer(componentFunction) {
     var renderItem = function renderItem(item) {
         var element = document.createElement("div");
         element.className = "win-react-renderer-host";
-        React.render(componentFunctionBound(item), element);
+        ReactDOM.render(componentFunctionBound(item), element);
         WinJS.Utilities.markDisposable(element, function () {
-            React.unmountComponentAtNode(element);
+            ReactDOM.unmountComponentAtNode(element);
         });
         return element;
     };

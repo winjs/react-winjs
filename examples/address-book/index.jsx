@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var ReactWinJS = require('react-winjs');
 var PeoplePage = require('./PeoplePage.jsx');
 var OtherPage = require('./OtherPage.jsx');
@@ -65,7 +66,7 @@ var App = React.createClass({
     handleResize: function () {
         var prevMode = this.state.mode;
         var nextMode = getMode();
-            
+
         if (prevMode !== nextMode) {
             this.setState({ mode: nextMode });
         }
@@ -196,4 +197,4 @@ var App = React.createClass({
     }
 });
 
-React.render(<App />, document.getElementById("app"));
+ReactDOM.render(<App />, document.getElementById("app"));
