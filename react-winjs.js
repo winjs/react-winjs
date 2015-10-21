@@ -1,6 +1,6 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-
+var ReactDOMServer = require('react-dom/server')
 
 //
 // Implementation Overview
@@ -2353,7 +2353,7 @@ function defineControl(options) {
 
 var hostEl = document.createElement("div");
 function renderRootlessComponent(component) {
-    var html = ReactDOM.renderToStaticMarkup(component);
+    var html = ReactDOMServer.renderToStaticMarkup(component);
     hostEl.innerHTML = html;
     var element = hostEl.firstElementChild;
     hostEl.removeChild(element);
