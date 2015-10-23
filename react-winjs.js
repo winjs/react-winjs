@@ -2079,15 +2079,17 @@ var PropHandlers = {
             if (oldValue !== newValue) {
                 oldValue = oldValue || {};
                 newValue = newValue || {};
-                var elementStyle = winjsComponent.winControl.element.style;
-                for (var cssProperty in oldValue) {
-                    if (!newValue.hasOwnProperty(cssProperty)) {
-                        elementStyle[cssProperty] = "";
+                if(winjsComponent.winControl && winjsComponent.winControl.element) {
+                    var elementStyle = winjsComponent.winControl.element.style;
+                    for (var cssProperty in oldValue) {
+                        if (!newValue.hasOwnProperty(cssProperty)) {
+                            elementStyle[cssProperty] = "";
+                        }
                     }
-                }
-                for (var cssProperty in newValue) {
-                    if (oldValue[cssProperty] !== newValue[cssProperty]) {
-                        elementStyle[cssProperty] = resolveStyleValue(cssProperty, newValue[cssProperty]);
+                    for (var cssProperty in newValue) {
+                        if (oldValue[cssProperty] !== newValue[cssProperty]) {
+                            elementStyle[cssProperty] = resolveStyleValue(cssProperty, newValue[cssProperty]);
+                        }
                     }
                 }
             }
