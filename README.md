@@ -30,6 +30,7 @@ Then require `react-winjs` and use it:
 
 ```jsx
 var React = require('react');
+var ReactDOM = require('react-dom');
 var ReactWinJS = require('react-winjs');
 
 var App = React.createClass({
@@ -38,7 +39,7 @@ var App = React.createClass({
   }
 });
 
-React.render(<App />, document.getElementById("app"));
+ReactDOM.render(<App />, document.getElementById("app"));
 ```
 
 See the [documentation](https://github.com/winjs/react-winjs/wiki/Documentation) and [examples](https://github.com/winjs/react-winjs/tree/master/examples) for more details.
