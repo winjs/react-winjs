@@ -16,6 +16,11 @@
     "url": "https://github.com/winjs/react-winjs"
   },
   "license": "MIT",
+  "peerDependencies": {
+    "react": "0.14.x",
+    "react-dom": "0.14.x",
+    "winjs": "4.4.x"  
+  },
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.6.0",
