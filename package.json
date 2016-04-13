@@ -17,8 +17,8 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "react": "0.14.x",
-    "react-dom": "0.14.x",
+    "react": "15.0.x",
+    "react-dom": "15.0.x",
     "winjs": "4.4.x"  
   },
   "devDependencies": {

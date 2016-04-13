@@ -42,7 +42,7 @@ $ brandai deploy
   "libraryPath": "../",
   "dist": "dist",
   "libraryObjectName": "ReactWinJS",
-  "reactVersion": "0.14.0",
+  "reactVersion": "15.0.1",
   "dynamicExtraction": true,
   "fileOrder": ["base.min.js", "ui.min.js"]
 }
