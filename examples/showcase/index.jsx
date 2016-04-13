@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var ReactWinJS = require('react-winjs');
 
 // title is:
@@ -95,4 +96,4 @@ var App = React.createClass({
     }
 });
 
-React.render(<App />, document.getElementById("app"));
+ReactDOM.render(<App />, document.getElementById("app"));
