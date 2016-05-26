@@ -1,4 +1,4 @@
-var React = require('react');
+﻿var React = require('react');
 var ReactDOM = require('react-dom');
 var ReactDOMServer = require('react-dom/server');
 var WinJS = require("winjs");
