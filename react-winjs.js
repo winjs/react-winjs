@@ -1962,7 +1962,7 @@ var PropHandlers = {
                 if (oldValue !== newValue) {
                     var asyncToken = winjsComponent.data[propName];
                     asyncToken && clearImmediate(asyncToken);
-                    asyncToken = setImmediate(function () {
+                    asyncToken = setImmediate.call(undefined, function () {
                         winjsComponent.data[propName] = null;
                         winjsComponent.winControl[propName] = newValue;
                     });
