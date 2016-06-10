@@ -144,23 +144,22 @@ var App = React.createClass({
         WinJS.Navigation.removeEventListener("navigated", this.handleNavigated);
         this.fetcher.stop();
     },
+    componentDidUpdate: function () {
+        WinJS.UI.Animation.enterPage(React.findDOMNode(this.refs.animate)).done();
+    },
     render: function () {
         var nav = this.state.nav;
-        if (nav.location === "/movie") {
-            return (
-                <DetailPage
-                    movie={nav.state.movie} />
-            );
-        } else {
-            return (
-                <SearchPage
-                    movies={this.state.movies}
-                    queryText={this.state.queryText}
-                    hasMore={this.state.hasMore}
-                    onFetchFirstPage={this.handleFetchFirstPage}
-                    onFetchNextPage={this.handleFetchNextPage} />
-            );
-        }
+        return (
+            <div ref="animate" className="animate">
+                { (nav.location === "/movie") 
+                    ? <DetailPage movie={nav.state.movie} /> 
+                    : <SearchPage movies={this.state.movies}
+                                  queryText={this.state.queryText}
+                                  hasMore={this.state.hasMore}
+                                  onFetchFirstPage={this.handleFetchFirstPage}
+                                  onFetchNextPage={this.handleFetchNextPage} /> }
+            </div>
+        );
     }
 });
 
