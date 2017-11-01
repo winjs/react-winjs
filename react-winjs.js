@@ -6,6 +6,7 @@ import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
 // var WinJS = require("winjs");
 import WinJS from 'winjs';
+import createReactClass from 'create-react-class';
 
 //
 // Implementation Overview
@@ -2327,7 +2328,7 @@ function defineControl(options) {
         })
     }
 
-    return React.createClass({
+    return createReactClass({
         displayName: displayName,
         statics: {
             initWinJSComponent: initWinJSComponent,
