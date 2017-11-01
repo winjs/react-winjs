@@ -1,5 +1,7 @@
 # react-winjs
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/flyve-mdm/react-winjs.svg)](https://greenkeeper.io/)
+
 A React wrapper around WinJS's controls. Implemented using the technique described on [this WinJS wiki page](https://github.com/winjs/winjs/wiki/Using-WinJS-with-React).
 
   - [Documentation](https://github.com/winjs/react-winjs/wiki/Documentation)
