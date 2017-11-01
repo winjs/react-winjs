@@ -17,9 +17,9 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "react": "16.0.0",
-    "react-dom": "16.0.0",
-    "winjs": "4.4.3"  
+    "react": "16.0.x",
+    "react-dom": "16.0.x",
+    "winjs": "4.4.3"
   },
   "devDependencies": {
     "grunt": "^1.0.1",

@@ -1,6 +1,9 @@
-var gulp = require("gulp");
-var gutil = require("gulp-util");
-var webpack = require("webpack");
+// var gulp = require("gulp");
+import gulp from "gulp";
+// var gutil = require("gulp-util");
+import gutil from "gulp-util";
+// var webpack = require("webpack");
+import webpack from "webpack";
 
 gulp.task("build", ["build:webpack", "build:winjs"]);
 

@@ -2,27 +2,29 @@
 
 "use strict";
 
-var exec = require('child_process').exec;
-var execSync = require('child_process').execSync;
+// var exec = require('child_process').exec;
+import { exec } from 'child_process';
+// var { execSync } = require('child_process').execSync;
+import { execSync } from 'child_process';
 
 module.exports = function(grunt) {
     
-    var publishRoot = 'dist/';
-    var npmPublishRoot = publishRoot + 'npm/';
+    let publishRoot = 'dist/';
+    let npmPublishRoot = publishRoot + 'npm/';
     
     // All version number information is derived from package.json. This includes the version
     // info used with npm, bower, NuGet, and the GitHub release.
-    var pkg = grunt.file.readJSON('package.json');
-    var fullWinjsVersion = pkg.peerDependencies.winjs;
+    let pkg = grunt.file.readJSON('package.json');
+    let fullWinjsVersion = pkg.peerDependencies.winjs;
     if (!fullWinjsVersion) {
         grunt.fail.fatal('Unable to determine WinJS version required by react-winjs');
     }
     // package.json version contains <major>.<minor>.<patch>. We just want <major>.<minor>
-    var winjsVersion = fullWinjsVersion.split(".").slice(0, 2).join(".");
+    let winjsVersion = fullWinjsVersion.split(".").slice(0, 2).join(".");
     
-    var currentGitCommitHash = execSync('git rev-parse HEAD').toString().trim();
+    let currentGitCommitHash = execSync('git rev-parse HEAD').toString().trim();
     
-    var bomGlob = "**/*.+(js|css|htm|html)";
+    let bomGlob = "**/*.+(js|css|htm|html)";
     
     // Project configuration.
     grunt.initConfig({
@@ -123,7 +125,7 @@ module.exports = function(grunt) {
     
     grunt.loadTasks('tasks/');
     
-    var plugins = [
+    let plugins = [
         'grunt-contrib-clean',
         'grunt-contrib-compress',
         'grunt-contrib-copy',
@@ -136,8 +138,8 @@ module.exports = function(grunt) {
     
     // Publishes npm package
     grunt.registerTask('npm-release', function (mode) {
-        var done = this.async();
-        var cmd = 'npm publish ' + npmPublishRoot;
+        let done = this.async();
+        let cmd = 'npm publish ' + npmPublishRoot;
         
         exec(cmd, function (err, stdout) {
             if (err) {

@@ -10,7 +10,14 @@
   "author": "",
   "license": "",
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
     "jsx-loader": "^0.13.2",
-    "webpack": "^1.9.4"
+    "webpack": "2"
+  },
+  "dependencies": {
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "winjs": "^4.4.3"
   }
 }

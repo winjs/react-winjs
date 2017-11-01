@@ -1,1 +1,1 @@
-module.exports = require('../react-winjs.js');
+export default require('../react-winjs.js');
