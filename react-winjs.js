@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
+import PropTypes from 'prop-types';
 import WinJS from 'winjs';
 
 //
@@ -1724,24 +1725,24 @@ function getIn(object, path) {
 // Given a type from RawControlApis returns a React propType.
 function typeToPropType(typeInfo) {
     if (typeInfo.type === "string") {
-        return React.PropTypes.string;
+        return PropTypes.string;
     } else if (typeInfo.type === "boolean") {
-        return React.PropTypes.bool;
+        return PropTypes.bool;
     } else if (typeInfo.type === "number") {
-        return React.PropTypes.number;
+        return PropTypes.number;
     } else if (typeInfo.type === "enum") {
-        return React.PropTypes.oneOf(typeInfo.values);
+        return PropTypes.oneOf(typeInfo.values);
     } else if (typeInfo.type === "any") {
-        return React.PropTypes.any;
+        return PropTypes.any;
     } else if (typeInfo.type === "reference") {
         if (typeInfo.name === "Function") {
-            return React.PropTypes.func;
+            return PropTypes.func;
         } else if (typeInfo.name === "Array") {
             let itemPropType = typeToPropType(typeInfo.typeArguments[0]);
-            return itemPropType ? React.PropTypes.arrayOf(itemPropType) : React.PropTypes.array;
+            return itemPropType ? PropTypes.arrayOf(itemPropType) : PropTypes.array;
         } else if (getIn(window, typeInfo.name)) {
             let instance = getIn(window, typeInfo.name);
-            return React.PropTypes.instanceOf(instance);
+            return PropTypes.instanceOf(instance);
         }
     } else {
         console.warn("react-winjs typeToPropType: unable to find propType for type: " + JSON.stringify(typeInfo, null, 2));
@@ -2008,7 +2009,7 @@ let PropHandlers = {
 
     // Maps to an event on the winControl.
     event: {
-        propType: React.PropTypes.func,
+        propType: PropTypes.func,
         // Can't set options in preCtorInit for events. The problem is WinJS control options
         // use a different code path to hook up events than the event property setters.
         // Consequently, setting an event property will not automatically unhook the event
@@ -2023,7 +2024,7 @@ let PropHandlers = {
 
     // Maps to an event on the winControl's element.
     domEvent: {
-        propType: React.PropTypes.func,
+        propType: PropTypes.func,
         preCtorInit: function domEvent_preCtorInit(element, options, data, displayName, propName, value) {
             element[propName.toLowerCase()] = value;
         },
@@ -2038,7 +2039,7 @@ let PropHandlers = {
     //  but don't clobber whatever CSS classes the underlying control may have added
     //  (e.g. don't clobber win-listview).
     winControlClassName: {
-        propType: React.PropTypes.string,
+        propType: PropTypes.string,
         preCtorInit: function winControlClassName_preCtorInit(element, options, data, displayName, propName, value) {
             if (value) {
                 element.className = value;
@@ -2068,7 +2069,7 @@ let PropHandlers = {
     //  Enable the addition and removal of inline styles on the root of the winControl
     //  but don't clobber whatever inline styles the underlying control may have added.
     winControlStyle: {
-        propType: React.PropTypes.object,
+        propType: PropTypes.object,
         preCtorInit: function winControlStyle_preCtorInit(element, options, data, displayName, propName, value) {
             let elementStyle = element.style;
             value = value || {};
@@ -2113,7 +2114,7 @@ let PropHandlers = {
     // element to the *winControlProperty* property of the winControl.
     propertyWithMount: function PropHandlers_propertyWithMount(winControlProperty) {
         return {
-            propType: React.PropTypes.element,
+            propType: PropTypes.element,
             preCtorInit: function propertyWithMount_preCtorInit(element, options, data, displayName, propName, value) {
                 if (value) {
                     data[propName] = document.createElement("div");
@@ -2149,7 +2150,7 @@ let PropHandlers = {
     // Mounts a React component on whatever element gets returned by getMountPoint.
     mountTo: function PropHandlers_mountTo(getMountPoint) {
         return {
-            propType: React.PropTypes.element,
+            propType: PropTypes.element,
             // Can't use preCtorInit because the mount point may not exist until the
             // constructor has run.
             update: function mountTo_update(winjsComponent, propName, oldValue, newValue) {
@@ -2397,9 +2398,9 @@ let defaultPropHandlers = {
 
     // TODO: Instead of special casing these, support DOM attributes
     // more generically.
-    id: PropHandlers.domProperty(React.PropTypes.string),
-    "aria-controls": PropHandlers.domAttribute(React.PropTypes.any),
-    "aria-expanded": PropHandlers.domAttribute(React.PropTypes.any)
+    id: PropHandlers.domProperty(PropTypes.string),
+    "aria-controls": PropHandlers.domAttribute(PropTypes.any),
+    "aria-expanded": PropHandlers.domAttribute(PropTypes.any)
 };
 
 // Control-specific prop handlers derived from RawControlApis
@@ -2500,7 +2501,7 @@ let CommandSpecs = {
         propHandlers: {
             type: typeWarnPropHandler,
             flyoutComponent: {
-                propType: React.PropTypes.element,
+                propType: PropTypes.element,
                 update: function FlyoutCommand_flyoutComponent_update(winjsComponent, propName, oldValue, newValue) {
                     let data = winjsComponent.data[propName];
                     if (!data) {
@@ -2534,7 +2535,7 @@ let CommandSpecs = {
 let ControlApis = updateWithDefaults({
     AppBar: {
         propHandlers: {
-            opened: PropHandlers.focusProperty(React.PropTypes.bool),
+            opened: PropHandlers.focusProperty(PropTypes.bool),
             children: PropHandlers.syncChildrenWithBindingList("data")
         }
     },
@@ -2559,7 +2560,7 @@ let ControlApis = updateWithDefaults({
     // CellSpanningLayout: Not a component so just use off of WinJS.UI?
     ContentDialog: {
         propHandlers: {
-            hidden: PropHandlers.focusProperty(React.PropTypes.bool),
+            hidden: PropHandlers.focusProperty(PropTypes.bool),
             children: PropHandlers.mountTo(function (winjsComponent) {
                 return winjsComponent.winControl.element.querySelector(".win-contentdialog-content");
             })
@@ -2579,7 +2580,7 @@ let ControlApis = updateWithDefaults({
             return React.DOM.div(null, React.DOM.div({ className: "win-react-flyout-mount-point" }));
         },
         propHandlers: {
-            hidden: PropHandlers.focusProperty(React.PropTypes.bool),
+            hidden: PropHandlers.focusProperty(PropTypes.bool),
             children: PropHandlers.mountTo(function (winjsComponent) {
                 return winjsComponent.winControl.element.querySelector(".win-react-flyout-mount-point");
             })
@@ -2609,7 +2610,7 @@ let ControlApis = updateWithDefaults({
     // ListLayout: Not a component so just use off of WinJS.UI?
     ListView: {
         propHandlers: {
-            currentItem: PropHandlers.focusProperty(React.PropTypes.any),
+            currentItem: PropHandlers.focusProperty(PropTypes.any),
             headerComponent: PropHandlers.propertyWithMount("header"),
             footerComponent: PropHandlers.propertyWithMount("footer"),
         }
@@ -2618,7 +2619,7 @@ let ControlApis = updateWithDefaults({
     // children of the Menu.
     Menu: {
         propHandlers: {
-            hidden: PropHandlers.focusProperty(React.PropTypes.bool),
+            hidden: PropHandlers.focusProperty(PropTypes.bool),
             children: {
                 // children propHandler looks like this rather than using mountTo on
                 // winControl.element because this enables props.children to have
@@ -2661,7 +2662,7 @@ let ControlApis = updateWithDefaults({
     SemanticZoom: {
         propHandlers: {
             zoomedInComponent: {
-                propType: React.PropTypes.element,
+                propType: PropTypes.element,
                 preCtorInit: function zoomedInComponent_preCtorInit(element, options, data, displayName, propName, value) {
                     let child = new WinJSChildComponent(value);
                     // Zoomed in component should be the first child.
@@ -2682,7 +2683,7 @@ let ControlApis = updateWithDefaults({
                 }
             },
             zoomedOutComponent: {
-                propType: React.PropTypes.element,
+                propType: PropTypes.element,
                 preCtorInit: function zoomedOutComponent_preCtorInit(element, options, data, displayName, propName, value) {
                     let child = new WinJSChildComponent(value);
                     // Zoomed out component should be the second child.
@@ -2706,7 +2707,7 @@ let ControlApis = updateWithDefaults({
     },
     SplitView: {
         propHandlers: {
-            paneOpened: PropHandlers.focusProperty(React.PropTypes.bool),
+            paneOpened: PropHandlers.focusProperty(PropTypes.bool),
             paneComponent: PropHandlers.mountTo(function (winjsComponent) {
                 return winjsComponent.winControl.paneElement;
             }),
@@ -2728,7 +2729,7 @@ let ControlApis = updateWithDefaults({
             //  - Sets SplitViewPaneToggle's aria-expanded attribute to match paneOpened
             //  - Fires SplitViewPaneToggle's "invoked" event when aria-expanded is mutated
             paneOpened: {
-                propType: React.PropTypes.bool,
+                propType: PropTypes.bool,
                 update: function paneOpened_update(winjsComponent, propName, oldValue, newValue) {
                     let data = winjsComponent.data[propName];
                     if (!data) {
@@ -2782,7 +2783,7 @@ let ControlApis = updateWithDefaults({
     ToggleSwitch: {},
     ToolBar: {
         propHandlers: {
-            opened: PropHandlers.focusProperty(React.PropTypes.bool),
+            opened: PropHandlers.focusProperty(PropTypes.bool),
             children: PropHandlers.syncChildrenWithBindingList("data")
         }
     },
