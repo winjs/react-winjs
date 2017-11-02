@@ -1,12 +1,7 @@
-﻿// var React = require('react');
-import React from 'react';
-// var ReactDOM = require('react-dom');
+﻿import React from 'react';
 import ReactDOM from 'react-dom';
-// var ReactDOMServer = require('react-dom/server');
 import ReactDOMServer from 'react-dom/server';
-// var WinJS = require("winjs");
 import WinJS from 'winjs';
-import createReactClass from 'create-react-class';
 
 //
 // Implementation Overview
