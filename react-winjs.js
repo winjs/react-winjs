@@ -1,8 +1,8 @@
-﻿import React from 'react';
-import ReactDOM from 'react-dom';
-import ReactDOMServer from 'react-dom/server';
-import PropTypes from 'prop-types';
-import WinJS from 'winjs';
+﻿import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
+import PropTypes from 'prop-types'
+import ReactDOMServer from 'react-dom/server'
+import WinJS from 'winjs'
 
 //
 // Implementation Overview
@@ -64,7 +64,7 @@ import WinJS from 'winjs';
 //
 
 // Generated from https://github.com/winjs/winjs-control-apis
-let RawControlApis = {
+var RawControlApis = {
     AppBar: {
         closedDisplayMode: {
             type: "enum",
@@ -1616,8 +1616,8 @@ let RawControlApis = {
     }
 };
 
-let setImmediate;
-let clearImmediate;
+var setImmediate;
+var clearImmediate;
 if (window.setImmediate && window.clearImmediate) {
     setImmediate = window.setImmediate;
     clearImmediate = window.clearImmediate;
@@ -1633,9 +1633,9 @@ function isEvent(propName) {
 }
 
 function mapObject(obj, callback) {
-    let result = {};
+    var result = {};
     Object.keys(obj).forEach(function (key) {
-        let value = callback(key, obj[key]);
+        var value = callback(key, obj[key]);
         if (value !== undefined) {
             result[key] = value;
         }
@@ -1644,17 +1644,17 @@ function mapObject(obj, callback) {
 }
 
 function cloneObject(obj) {
-    let result = {};
-    for (let k in obj) { result[k] = obj[k]; }
+    var result = {};
+    for (var k in obj) { result[k] = obj[k]; }
     return result;
 }
 
 function merge(/* objs */) {
-    let result = {};
-    for (let i = 0, len = arguments.length; i < len; i++) {
-        let obj = arguments[i];
+    var result = {};
+    for (var i = 0, len = arguments.length; i < len; i++) {
+        var obj = arguments[i];
         if (obj) {
-            for (let k in obj) { result[k] = obj[k]; }
+            for (var k in obj) { result[k] = obj[k]; }
         }
     }
     return result;
@@ -1670,7 +1670,7 @@ function arraysShallowEqual(a, b) {
     } else if (a.length !== b.length) {
         return false;
     } else {
-        for (let i = 0, len = a.length; i < len; i++) {
+        for (var i = 0, len = a.length; i < len; i++) {
             if (a[i] !== b[i]) {
                 return false;
             }
@@ -1680,22 +1680,22 @@ function arraysShallowEqual(a, b) {
 }
 
 function nestedSet(obj, path, value) {
-    let parts = path.split(".");
-    let allButLast = parts.slice(0, parts.length - 1);
-    let last = parts[parts.length - 1];
-    let finalObj = allButLast.reduce(function (current, key) {
+    var parts = path.split(".");
+    var allButLast = parts.slice(0, parts.length - 1);
+    var last = parts[parts.length - 1];
+    var finalObj = allButLast.reduce(function (current, key) {
         return current[key];
     }, obj);
     finalObj[last] = value;
 }
 
 function deparent(element) {
-    let parent = element.parentNode;
+    var parent = element.parentNode;
     parent && parent.removeChild(element);
 }
 
 function fireEvent(element, eventName) {
-    let eventObject = document.createEvent("CustomEvent");
+    var eventObject = document.createEvent("CustomEvent");
     eventObject.initCustomEvent(
         eventName,
         true,  // bubbles
@@ -1706,7 +1706,7 @@ function fireEvent(element, eventName) {
 }
 
 function makeClassSet(className) {
-    let classSet = {};
+    var classSet = {};
     className && className.split(" ").forEach(function (aClass) {
         if (aClass) {
             classSet[aClass] = true;
@@ -1716,7 +1716,7 @@ function makeClassSet(className) {
 }
 
 function getIn(object, path) {
-    let parts = path.split(".");
+    var parts = path.split(".");
     return parts.reduce(function (current, name) {
         return current && current[name];
     }, object);
@@ -1738,10 +1738,10 @@ function typeToPropType(typeInfo) {
         if (typeInfo.name === "Function") {
             return PropTypes.func;
         } else if (typeInfo.name === "Array") {
-            let itemPropType = typeToPropType(typeInfo.typeArguments[0]);
+            var itemPropType = typeToPropType(typeInfo.typeArguments[0]);
             return itemPropType ? PropTypes.arrayOf(itemPropType) : PropTypes.array;
         } else if (getIn(window, typeInfo.name)) {
-            let instance = getIn(window, typeInfo.name);
+            var instance = getIn(window, typeInfo.name);
             return PropTypes.instanceOf(instance);
         }
     } else {
@@ -1757,14 +1757,14 @@ function typeToPropType(typeInfo) {
 //   - Should we just sync an array with a binding list instead of computing
 //     edits based on 2 arrays and then applying them to a binding list?
 function buildIndex(array) {
-    let index = {};
+    var index = {};
     array.forEach(function (item, i) {
         index[item.key] = i;
     });
     return index;
 }
 function indexOfKey(array, key) {
-    for (let i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
         if (array[i].key === key) {
             return i;
         }
@@ -1773,13 +1773,13 @@ function indexOfKey(array, key) {
 }
 function diffArraysByKey(old, latest) {
     old = old.slice(0);
-    let oldIndex = buildIndex(old);
-    let latestIndex = buildIndex(latest);
-    let edits = [];
+    var oldIndex = buildIndex(old);
+    var latestIndex = buildIndex(latest);
+    var edits = [];
 
     // Handle removals
-    for (let i = old.length - 1; i >= 0; i--) {
-        let item = old[i];
+    for (var i = old.length - 1; i >= 0; i--) {
+        var item = old[i];
         if (!latestIndex.hasOwnProperty(item.key)) {
             edits.push({ type: "delete", index: i });
             old.splice(i, 1);
@@ -1787,8 +1787,8 @@ function diffArraysByKey(old, latest) {
     }
 
     // Handle insertions and moves
-    for (let i = 0; i < latest.length; i++) {
-        let item = latest[i];
+    for (var i = 0; i < latest.length; i++) {
+        var item = latest[i];
         if (!oldIndex.hasOwnProperty(item.key)) {
             // Insertion
             edits.push({ type: "insert", index: i, value: item });
@@ -1798,7 +1798,7 @@ function diffArraysByKey(old, latest) {
             //edits.push({ type: "move", from: oldIndex[item.key], to: i });
             //old.splice(oldIndex[item.key], 1);
 
-            let fromIndex = indexOfKey(old, item.key);
+            var fromIndex = indexOfKey(old, item.key);
             edits.push({ type: "move", from: fromIndex, to: i });
             old.splice(fromIndex, 1);
             old.splice(i, 0, item);
@@ -1837,8 +1837,8 @@ function applyEditsToBindingList(list, edits) {
 // WinJSChildComponents from *childComponentsMap* when possible. Disposes members of
 // *childComponentsMap* if they are no longer needed.
 function processChildren(componentDisplayName, children, childComponentsMap) {
-    let newChildComponents = [];
-    let newChildComponentsMap = {};
+    var newChildComponents = [];
+    var newChildComponentsMap = {};
 
     // A component's *key* represents its identity. If a component in *children* and a
     // component in *childComponentsMap* have the same *key*, then they are assumed to
@@ -1860,7 +1860,7 @@ function processChildren(componentDisplayName, children, childComponentsMap) {
                     "when inside of a " + componentDisplayName + " component"
                 );
             } else {
-                let winjsChildComponent = childComponentsMap[component.key];
+                var winjsChildComponent = childComponentsMap[component.key];
                 if (winjsChildComponent) {
                     if (winjsChildComponent.type === component.type) {
                         winjsChildComponent.update(component);
@@ -1898,7 +1898,7 @@ function prefixedProperty(prefix, property) {
     return prefix + property[0].toUpperCase() + property.substr(1);
 }
 
-let isUnitlessProperty = {
+var isUnitlessProperty = {
     flex: true,
     flexGrow: true,
     flexPositive: true,
@@ -1914,7 +1914,7 @@ let isUnitlessProperty = {
     zIndex: true,
     zoom: true
 };
-let vendorPrefixes = ["Moz", "ms", "Webkit"];
+var vendorPrefixes = ["Moz", "ms", "Webkit"];
 Object.keys(isUnitlessProperty).forEach(function (property) {
     vendorPrefixes.forEach(function (prefix) {
         isUnitlessProperty[prefixedProperty(prefix, property)] = true;
@@ -1934,7 +1934,7 @@ function resolveStyleValue(cssProperty, value) {
     }
 }
 
-let PropHandlers = {
+var PropHandlers = {
     // Maps to a property on the winControl.
     property: function (propType) {
         return {
@@ -1961,7 +1961,7 @@ let PropHandlers = {
             },
             update: function focusProperty_update(winjsComponent, propName, oldValue, newValue) {
                 if (oldValue !== newValue) {
-                    let asyncToken = winjsComponent.data[propName];
+                    var asyncToken = winjsComponent.data[propName];
                     asyncToken && clearImmediate(asyncToken);
                     asyncToken = setImmediate(function () {
                         winjsComponent.data[propName] = null;
@@ -1970,7 +1970,7 @@ let PropHandlers = {
                 }
             },
             dispose: function focusProperty_dispose(winjsComponent, propName) {
-                let asyncToken = winjsComponent.data[propName];
+                var asyncToken = winjsComponent.data[propName];
                 asyncToken && clearImmediate(asyncToken);
             }
         };
@@ -2048,15 +2048,15 @@ let PropHandlers = {
         },
         update: function winControlClassName_update(winjsComponent, propName, oldValue, newValue) {
             if (oldValue !== newValue) {
-                let oldClassSet = winjsComponent.data[propName] || {};
-                let newClassSet = makeClassSet(newValue);
-                let elementClassList = winjsComponent.winControl.element.classList;
-                for (let className in oldClassSet) {
+                var oldClassSet = winjsComponent.data[propName] || {};
+                var newClassSet = makeClassSet(newValue);
+                var elementClassList = winjsComponent.winControl.element.classList;
+                for (var className in oldClassSet) {
                     if (!newClassSet[className]) {
                         elementClassList.remove(className);
                     }
                 }
-                for (let className in newClassSet) {
+                for (var className in newClassSet) {
                     if (!oldClassSet[className]) {
                         elementClassList.add(className);
                     }
@@ -2071,9 +2071,9 @@ let PropHandlers = {
     winControlStyle: {
         propType: PropTypes.object,
         preCtorInit: function winControlStyle_preCtorInit(element, options, data, displayName, propName, value) {
-            let elementStyle = element.style;
+            var elementStyle = element.style;
             value = value || {};
-            for (let cssProperty in value) {
+            for (var cssProperty in value) {
                 elementStyle[cssProperty] = resolveStyleValue(cssProperty, value[cssProperty]);
             }
         },
@@ -2081,14 +2081,14 @@ let PropHandlers = {
             if (oldValue !== newValue) {
                 oldValue = oldValue || {};
                 newValue = newValue || {};
-                if(winjsComponent.winControl && winjsComponent.winControl.element) {
-                    let elementStyle = winjsComponent.winControl.element.style;
-                    for (let cssProperty in oldValue) {
+                if (winjsComponent.winControl && winjsComponent.winControl.element) {
+                    var elementStyle = winjsComponent.winControl.element.style;
+                    for (var cssProperty in oldValue) {
                         if (!newValue.hasOwnProperty(cssProperty)) {
                             elementStyle[cssProperty] = "";
                         }
                     }
-                    for (let cssProperty in newValue) {
+                    for (var cssProperty in newValue) {
                         if (oldValue[cssProperty] !== newValue[cssProperty]) {
                             elementStyle[cssProperty] = resolveStyleValue(cssProperty, newValue[cssProperty]);
                         }
@@ -2123,8 +2123,8 @@ let PropHandlers = {
                 }
             },
             update: function propertyWithMount_update(winjsComponent, propName, oldValue, newValue) {
-                let winControl = winjsComponent.winControl;
-                let element = winjsComponent.data[propName];
+                var winControl = winjsComponent.winControl;
+                var element = winjsComponent.data[propName];
                 if (newValue) {
                     if (!element) {
                         element = document.createElement("div");
@@ -2140,7 +2140,7 @@ let PropHandlers = {
                 }
             },
             dispose: function propertyWithMount_dispose(winjsComponent, propName) {
-                let element = winjsComponent.data[propName];
+                var element = winjsComponent.data[propName];
                 element && ReactDOM.unmountComponentAtNode(element);
             }
         };
@@ -2154,8 +2154,8 @@ let PropHandlers = {
             // Can't use preCtorInit because the mount point may not exist until the
             // constructor has run.
             update: function mountTo_update(winjsComponent, propName, oldValue, newValue) {
-                let data = winjsComponent.data[propName] || {};
-                let version = (data.version || 0) + 1;
+                var data = winjsComponent.data[propName] || {};
+                var version = (data.version || 0) + 1;
                 winjsComponent.data[propName] = {
                     // *mountComponent* may run asynchronously and we may queue it multiple
                     // times before it runs. *version* allows us to ensure only the latest
@@ -2165,12 +2165,12 @@ let PropHandlers = {
                     element: data.element
                 };
 
-                let mountComponent = function () {
+                var mountComponent = function () {
                     if (version === winjsComponent.data[propName].version) {
-                        let oldElement = winjsComponent.data[propName].element;
+                        var oldElement = winjsComponent.data[propName].element;
 
                         if (newValue) {
-                            let newElement = getMountPoint(winjsComponent);
+                            var newElement = getMountPoint(winjsComponent);
                             if (oldElement && oldElement !== newElement) {
                                 ReactDOM.unmountComponentAtNode(oldElement);
                             }
@@ -2190,8 +2190,8 @@ let PropHandlers = {
                 // of HubSections/PivotItems (e.g. load off screen items asynchronously in
                 // batches). Additionally, doing processing thru this hook guarantees that
                 // the processing won't run until the control is in the DOM.
-                let winControl = winjsComponent.winControl;
-                let queueProcessing = winControl.constructor.isDeclarativeControlContainer;
+                var winControl = winjsComponent.winControl;
+                var queueProcessing = winControl.constructor.isDeclarativeControlContainer;
                 if (queueProcessing && typeof queueProcessing === "function") {
                     queueProcessing(winControl, mountComponent);
                 } else {
@@ -2199,8 +2199,8 @@ let PropHandlers = {
                 }
             },
             dispose: function mountTo_dispose(winjsComponent, propName) {
-                let data = winjsComponent.data[propName] || {};
-                let element = data.element;
+                var data = winjsComponent.data[propName] || {};
+                var element = data.element;
                 element && ReactDOM.unmountComponentAtNode(element);
             }
         };
@@ -2211,7 +2211,7 @@ let PropHandlers = {
     syncChildrenWithBindingList: function PropHandlers_syncChildrenWithBindingList(bindingListName) {
         return {
             preCtorInit: function syncChildrenWithBindingList_preCtorInit(element, options, data, displayName, propName, value) {
-                let latest = processChildren(displayName, value, {});
+                var latest = processChildren(displayName, value, {});
                 data[propName] = {
                     winjsChildComponents: latest.childComponents,
                     winjsChildComponentsMap: latest.childComponentsMap
@@ -2224,12 +2224,12 @@ let PropHandlers = {
                 );
             },
             update: function syncChildrenWithBindingList_update(winjsComponent, propName, oldValue, newValue) {
-                let data = winjsComponent.data[propName] || {};
-                let oldChildComponents = data.winjsChildComponents || [];
-                let oldChildComponentsMap = data.winjsChildComponentsMap || {};
-                let latest = processChildren(winjsComponent.displayName, newValue, oldChildComponentsMap);
+                var data = winjsComponent.data[propName] || {};
+                var oldChildComponents = data.winjsChildComponents || [];
+                var oldChildComponentsMap = data.winjsChildComponentsMap || {};
+                var latest = processChildren(winjsComponent.displayName, newValue, oldChildComponentsMap);
 
-                let bindingList = winjsComponent.winControl[bindingListName];
+                var bindingList = winjsComponent.winControl[bindingListName];
                 if (bindingList) {
                     applyEditsToBindingList(
                         bindingList,
@@ -2247,8 +2247,8 @@ let PropHandlers = {
                 };
             },
             dispose: function syncChildrenWithBindingList_dispose(winjsComponent, propName) {
-                let data = winjsComponent.data[propName] || {};
-                let childComponents = data.winjsChildComponents || [];
+                var data = winjsComponent.data[propName] || {};
+                var childComponents = data.winjsChildComponents || [];
                 childComponents.forEach(function (winjsChildComponent) {
                     winjsChildComponent.dispose();
                 });
@@ -2259,16 +2259,16 @@ let PropHandlers = {
 
 function defineControl(options) {
     // Required
-    let winjsControl = options.winjsControl;
+    var winjsControl = options.winjsControl;
 
     // Optional
-    let winControlOptions = options.winControlOptions || {};
-    let preCtorInit = options.preCtorInit || function () { };
-    let propHandlers = options.propHandlers || {};
-    let render = options.render || function (component) {
-        return React.DOM.div();
+    var winControlOptions = options.winControlOptions || {};
+    var preCtorInit = options.preCtorInit || function () { };
+    var propHandlers = options.propHandlers || {};
+    var render = options.render || function (component) {
+        return React.createElement('div');
     };
-    let displayName = options.displayName;
+    var displayName = options.displayName;
 
     function initWinJSComponent(winjsComponent, element, props) {
         winjsComponent.data = {};
@@ -2277,10 +2277,10 @@ function defineControl(options) {
 
         // Give propHandlers that implement preCtorInit the opportunity to run before
         // instantiating the winControl.
-        let options = cloneObject(winControlOptions);
+        var options = cloneObject(winControlOptions);
         preCtorInit(element, options, winjsComponent.data, displayName);
         Object.keys(props).forEach(function (propName) {
-            let handler = propHandlers[propName];
+            var handler = propHandlers[propName];
             if (handler && handler.preCtorInit) {
                 handler.preCtorInit(element, options, winjsComponent.data, displayName, propName, props[propName]);
             }
@@ -2289,7 +2289,7 @@ function defineControl(options) {
 
         // Process propHandlers that don't implement preCtorInit.
         Object.keys(props).forEach(function (propName) {
-            let handler = propHandlers[propName];
+            var handler = propHandlers[propName];
             if (handler && !handler.preCtorInit) {
                 handler.update(winjsComponent, propName, undefined, props[propName]);
             }
@@ -2299,7 +2299,7 @@ function defineControl(options) {
     function updateWinJSComponent(winjsComponent, prevProps, nextProps) {
         // Handle props that were added or changed
         Object.keys(nextProps).forEach(function (propName) {
-            let handler = propHandlers[propName];
+            var handler = propHandlers[propName];
             if (handler) {
                 handler.update(winjsComponent, propName, prevProps[propName], nextProps[propName]);
             }
@@ -2308,7 +2308,7 @@ function defineControl(options) {
         // Handle props that were removed
         Object.keys(prevProps).forEach(function (propName) {
             if (!nextProps.hasOwnProperty(propName)) {
-                let handler = propHandlers[propName];
+                var handler = propHandlers[propName];
                 if (handler) {
                     handler.update(winjsComponent, propName, prevProps[propName], undefined);
                 }
@@ -2319,47 +2319,73 @@ function defineControl(options) {
     function disposeWinJSComponent(winjsComponent) {
         winjsComponent.winControl.dispose && winjsComponent.winControl.dispose();
         Object.keys(propHandlers).forEach(function (propName) {
-            let handler = propHandlers[propName];
+            var handler = propHandlers[propName];
             handler.dispose && handler.dispose(winjsComponent, propName);
         })
     }
 
-    return createReactClass({
-        displayName: displayName,
-        statics: {
-            initWinJSComponent: initWinJSComponent,
-            updateWinJSComponent: updateWinJSComponent,
-            disposeWinJSComponent: disposeWinJSComponent
-        },
-        propTypes: mapObject(propHandlers, function (propName, propHandler) {
-            return propHandler.propType;
-        }),
-        shouldComponentUpdate: function () {
-            return false;
-        },
+
+    return class ControlComponent extends Component {
+
+        shouldComponentUpdate() {
+            return false
+        }
         // If choosing to implement componentWillMount, be aware that componentWillMount
         // will run when WinJSChildComponent renders the component to a string via
         // renderRootlessComponent.
-        componentDidMount: function () {
-            initWinJSComponent(this, ReactDOM.findDOMNode(this), this.props);
-        },
-        componentWillUnmount: function () {
-            disposeWinJSComponent(this);
-        },
-        componentWillReceiveProps: function (nextProps) {
-            updateWinJSComponent(this, this.props, nextProps);
-        },
-        render: function() {
+        componentDidMount() {
+            initWinJSComponent(this, ReactDOM.findDOMNode(this), this.props)
+        }
+
+        componentWillUnmount() {
+            disposeWinJSComponent(this)
+        }
+
+        componentWillReceiveProps(nextProps) {
+            updateWinJSComponent(this, this.props, nextProps)
+        }
+
+        render() {
             return render(this);
         }
-    });
+    }
+
+    // return React.createClass({
+    //     displayName: displayName,
+    //     statics: {
+    //         initWinJSComponent: initWinJSComponent,
+    //         updateWinJSComponent: updateWinJSComponent,
+    //         disposeWinJSComponent: disposeWinJSComponent
+    //     },
+    //     propTypes: mapObject(propHandlers, function (propName, propHandler) {
+    //         return propHandler.propType;
+    //     }),
+    //     shouldComponentUpdate: function () {
+    //         return false;
+    //     },
+    //     // If choosing to implement componentWillMount, be aware that componentWillMount
+    //     // will run when WinJSChildComponent renders the component to a string via
+    //     // renderRootlessComponent.
+    //     componentDidMount: function () {
+    //         initWinJSComponent(this, ReactDOM.findDOMNode(this), this.props);
+    //     },
+    //     componentWillUnmount: function () {
+    //         disposeWinJSComponent(this);
+    //     },
+    //     componentWillReceiveProps: function (nextProps) {
+    //         updateWinJSComponent(this, this.props, nextProps);
+    //     },
+    //     render: function() {
+    //         return render(this);
+    //     }
+    // });
 }
 
-let hostEl = document.createElement("div");
+var hostEl = document.createElement("div");
 function renderRootlessComponent(component) {
-    let html = ReactDOMServer.renderToStaticMarkup(component);
+    var html = ReactDOMServer.renderToStaticMarkup(component);
     hostEl.innerHTML = html;
-    let element = hostEl.firstElementChild;
+    var element = hostEl.firstElementChild;
     hostEl.removeChild(element);
     return element;
 }
@@ -2374,8 +2400,8 @@ function renderRootlessComponent(component) {
 // that refs don't work than generating stale refs.
 function WinJSChildComponent(component) { // implements IWinJSChildComponent
     // Clone the component so a ref isn't generated.
-    let clonedComponent = React.cloneElement(component, { ref: null });
-    let element = renderRootlessComponent(clonedComponent);
+    var clonedComponent = React.cloneElement(component, { ref: null });
+    var element = renderRootlessComponent(clonedComponent);
     component.type.initWinJSComponent(this, element, component.props);
     this.key = component.key;
     this.type = component.type;
@@ -2392,7 +2418,7 @@ WinJSChildComponent.prototype.dispose = function () {
 
 
 // Prop handlers that are common to every WinJS control.
-let defaultPropHandlers = {
+var defaultPropHandlers = {
     className: PropHandlers.winControlClassName,
     style: PropHandlers.winControlStyle,
 
@@ -2404,19 +2430,19 @@ let defaultPropHandlers = {
 };
 
 // Control-specific prop handlers derived from RawControlApis
-let DefaultControlPropHandlers = (function processRawApis() {
-    let keepProperty = function keepProperty(propertyName) {
+var DefaultControlPropHandlers = (function processRawApis() {
+    var keepProperty = function keepProperty(propertyName) {
         return !endsWith(propertyName.toLowerCase(), "element");
     };
 
     return mapObject(RawControlApis, function (controlName, controlApis) {
-        let propHandlers = {};
+        var propHandlers = {};
         Object.keys(controlApis).forEach(function (propName) {
             if (isEvent(propName)) {
                 propHandlers[propName] = PropHandlers.event;
             } else if (keepProperty(propName)) {
-                let typeInfo = controlApis[propName];
-                let propType = typeToPropType(typeInfo);
+                var typeInfo = controlApis[propName];
+                var propType = typeToPropType(typeInfo);
                 propHandlers[propName] = PropHandlers.property(propType);
             }
         });
@@ -2436,8 +2462,8 @@ let DefaultControlPropHandlers = (function processRawApis() {
 // that name.
 function updateWithDefaults(controlApis) {
     Object.keys(controlApis).forEach(function (controlName) {
-        let spec = controlApis[controlName];
-        let winjsControlName = spec.underlyingControlName || controlName;
+        var spec = controlApis[controlName];
+        var winjsControlName = spec.underlyingControlName || controlName;
         spec.winjsControl = spec.winjsControl || WinJS.UI[winjsControlName];
         spec.displayName = spec.displayName || winjsControlName;
         spec.propHandlers = merge(
@@ -2449,9 +2475,9 @@ function updateWithDefaults(controlApis) {
     return controlApis;
 }
 
-let typeWarnPropHandler = PropHandlers.warn("Invalid prop 'type'. Instead, the command type is" +
+var typeWarnPropHandler = PropHandlers.warn("Invalid prop 'type'. Instead, the command type is" +
     " determined by the component: Button, Toggle, Separator, ContentCommand, FlyoutCommand.");
-let CommandSpecs = {
+var CommandSpecs = {
     Button: {
         underlyingControlName: "AppBarCommand",
         winControlOptions: { type: "button" },
@@ -2503,9 +2529,9 @@ let CommandSpecs = {
             flyoutComponent: {
                 propType: PropTypes.element,
                 update: function FlyoutCommand_flyoutComponent_update(winjsComponent, propName, oldValue, newValue) {
-                    let data = winjsComponent.data[propName];
+                    var data = winjsComponent.data[propName];
                     if (!data) {
-                        let flyoutHost = document.createElement("div");
+                        var flyoutHost = document.createElement("div");
                         flyoutHost.className = "win-react-flyout-host";
                         document.body.appendChild(flyoutHost);
                         winjsComponent.data[propName] = data = {
@@ -2513,15 +2539,15 @@ let CommandSpecs = {
                             flyoutComponent: null
                         };
                     }
-                    let oldWinControl = data.flyoutComponent && data.flyoutComponent.winControl;
-                    let instance = ReactDOM.render(newValue, data.flyoutHost);
+                    var oldWinControl = data.flyoutComponent && data.flyoutComponent.winControl;
+                    var instance = ReactDOM.render(newValue, data.flyoutHost);
                     if (oldWinControl !== instance.winControl) {
                         winjsComponent.winControl.flyout = instance.winControl;
                     }
                     winjsComponent.data[propName].flyoutComponent = instance;
                 },
                 dispose: function FlyoutCommand_flyoutComponent_dispose(winjsComponent, propName) {
-                    let data = winjsComponent.data[propName];
+                    var data = winjsComponent.data[propName];
                     if (data && data.flyoutHost) {
                         ReactDOM.unmountComponentAtNode(data.flyoutHost);
                         deparent(data.flyoutHost);
@@ -2532,7 +2558,7 @@ let CommandSpecs = {
     }
 };
 
-let ControlApis = updateWithDefaults({
+var ControlApis = updateWithDefaults({
     AppBar: {
         propHandlers: {
             opened: PropHandlers.focusProperty(PropTypes.bool),
@@ -2664,13 +2690,13 @@ let ControlApis = updateWithDefaults({
             zoomedInComponent: {
                 propType: PropTypes.element,
                 preCtorInit: function zoomedInComponent_preCtorInit(element, options, data, displayName, propName, value) {
-                    let child = new WinJSChildComponent(value);
+                    var child = new WinJSChildComponent(value);
                     // Zoomed in component should be the first child.
                     element.insertBefore(child.winControl.element, element.firstElementChild);
                     data[propName] = child;
                 },
                 update: function zoomedInComponent_update(winjsComponent, propName, oldValue, newValue) {
-                    let child = winjsComponent.data[propName];
+                    var child = winjsComponent.data[propName];
                     if (child.type === newValue.type) {
                         child.update(newValue);
                     } else {
@@ -2678,20 +2704,20 @@ let ControlApis = updateWithDefaults({
                     }
                 },
                 dispose: function zoomedInComponent_dispose(winjsComponent, propName) {
-                    let child = winjsComponent.data[propName];
+                    var child = winjsComponent.data[propName];
                     child && child.dispose();
                 }
             },
             zoomedOutComponent: {
                 propType: PropTypes.element,
                 preCtorInit: function zoomedOutComponent_preCtorInit(element, options, data, displayName, propName, value) {
-                    let child = new WinJSChildComponent(value);
+                    var child = new WinJSChildComponent(value);
                     // Zoomed out component should be the second child.
                     element.appendChild(child.winControl.element);
                     data[propName] = child;
                 },
                 update: function zoomedOutComponent_update(winjsComponent, propName, oldValue, newValue) {
-                    let child = winjsComponent.data[propName];
+                    var child = winjsComponent.data[propName];
                     if (child.type === newValue.type) {
                         child.update(newValue);
                     } else {
@@ -2699,7 +2725,7 @@ let ControlApis = updateWithDefaults({
                     }
                 },
                 dispose: function zoomedOutComponent_dispose(winjsComponent, propName) {
-                    let child = winjsComponent.data[propName];
+                    var child = winjsComponent.data[propName];
                     child && child.dispose();
                 }
             }
@@ -2731,14 +2757,14 @@ let ControlApis = updateWithDefaults({
             paneOpened: {
                 propType: PropTypes.bool,
                 update: function paneOpened_update(winjsComponent, propName, oldValue, newValue) {
-                    let data = winjsComponent.data[propName];
+                    var data = winjsComponent.data[propName];
                     if (!data) {
                         data = {
                             // WinJS.UI.SplitViewPaneToggle depends on WinJS.Utilities._MutationObserver so it
                             // is safe to use it here.
                             ariaExpandedMutationObserver: new WinJS.Utilities._MutationObserver(function () {
-                                let element = winjsComponent.element;
-                                let ariaExpanded = (element.getAttribute("aria-expanded") === "true");
+                                var element = winjsComponent.element;
+                                var ariaExpanded = (element.getAttribute("aria-expanded") === "true");
                                 if (ariaExpanded !== winjsComponent.data[propName].value) {
                                     fireEvent(element, "invoked"); // Fire WinJS.UI.SplitViewPaneToggle's invoked event
                                 }
@@ -2771,7 +2797,7 @@ let ControlApis = updateWithDefaults({
                     data.value = newValue;
                 },
                 dispose: function paneOpened_dispose(winjsComponent, propName) {
-                    let data = winjsComponent.data[propName];
+                    var data = winjsComponent.data[propName];
                     if (data && data.observing) {
                         data.ariaExpandedMutationObserver.disconnect();
                     }
@@ -2806,7 +2832,7 @@ let ControlApis = updateWithDefaults({
 // Publish
 //
 
-let ReactWinJS = {};
+var ReactWinJS = {};
 
 // Controls
 //
@@ -2825,9 +2851,9 @@ Object.keys(ControlApis).sort().forEach(function (controlName) {
 // with WinJS controls. Useful for describing FlipView
 // and ListView item templates as React components.
 ReactWinJS.reactRenderer = function reactRenderer(componentFunction) {
-    let componentFunctionBound;
-    let renderItem = function renderItem(item) {
-        let element = document.createElement("div");
+    var componentFunctionBound;
+    var renderItem = function renderItem(item) {
+        var element = document.createElement("div");
         element.className = "win-react-renderer-host";
         ReactDOM.render(componentFunctionBound(item), element);
         WinJS.Utilities.markDisposable(element, function () {
