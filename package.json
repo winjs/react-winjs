@@ -5,7 +5,7 @@
   "main": "react-winjs.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel react-winjs.js --out-file react-winjs.min.js"
+    "build": "babel react-winjs.js | node_modules/uglify-js/bin/uglifyjs  > react-winjs.min.js"
   },
   "keywords": [
     "winjs",
@@ -34,6 +34,7 @@
     "grunt-contrib-compress": "^1.4.3",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-github-releaser": "^0.1.18",
-    "grunt-nuget": "^0.3.0"
+    "grunt-nuget": "^0.3.0",
+    "uglify-js": "^3.1.7"
   }
 }
