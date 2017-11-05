@@ -2331,22 +2331,6 @@ function defineControl(options) {
             super(props)
         }
 
-        constructor(props) {
-            super(props)
-        }
-
-        static displayName = displayName
-
-        static statics = {
-            initWinJSComponent: initWinJSComponent,
-            updateWinJSComponent: updateWinJSComponent,
-            disposeWinJSComponent: disposeWinJSComponent
-        }
-
-        static propTypes = mapObject(propHandlers, function (propName, propHandler) {
-            return propHandler.propType;
-        })
-
         shouldComponentUpdate() {
             return false
         }
