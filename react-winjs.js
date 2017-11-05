@@ -2402,6 +2402,7 @@ function WinJSChildComponent(component) { // implements IWinJSChildComponent
     // Clone the component so a ref isn't generated.
     var clonedComponent = React.cloneElement(component, { ref: null });
     var element = renderRootlessComponent(clonedComponent);
+    console.log(component.type)
     component.type.initWinJSComponent(this, element, component.props);
     this.key = component.key;
     this.type = component.type;
@@ -2482,7 +2483,7 @@ var CommandSpecs = {
         underlyingControlName: "AppBarCommand",
         winControlOptions: { type: "button" },
         render: function (component) {
-            return React.DOM.button();
+            return React.createElement('button');
         },
         propHandlers: {
             type: typeWarnPropHandler,
@@ -2492,7 +2493,7 @@ var CommandSpecs = {
         underlyingControlName: "AppBarCommand",
         winControlOptions: { type: "toggle" },
         render: function (component) {
-            return React.DOM.button();
+            return React.createElement('button');
         },
         propHandlers: {
             type: typeWarnPropHandler
@@ -2502,7 +2503,7 @@ var CommandSpecs = {
         underlyingControlName: "AppBarCommand",
         winControlOptions: { type: "separator" },
         render: function (component) {
-            return React.DOM.hr();
+            return React.createElement('hr');
         },
         propHandlers: {
             type: typeWarnPropHandler
@@ -2522,7 +2523,7 @@ var CommandSpecs = {
         underlyingControlName: "AppBarCommand",
         winControlOptions: { type: "flyout" },
         render: function (component) {
-            return React.DOM.button();
+            return React.createElement('button');
         },
         propHandlers: {
             type: typeWarnPropHandler,
@@ -2580,7 +2581,7 @@ var ControlApis = updateWithDefaults({
             });
         },
         render: function (component) {
-            return React.DOM.button();
+            return React.createElement('button');
         }
     },
     // CellSpanningLayout: Not a component so just use off of WinJS.UI?
@@ -2747,7 +2748,7 @@ var ControlApis = updateWithDefaults({
     },
     SplitViewPaneToggle: {
         render: function (component) {
-            return React.DOM.button();
+            return React.createElement('button');
         },
         propHandlers: {
             // paneOpened provides a React-friendly interface for making the SplitViewPaneToggle accessible.
@@ -2882,3 +2883,4 @@ ReactWinJS.PropHandlers = PropHandlers;
 ReactWinJS.defaultPropHandlers = defaultPropHandlers;
 
 export default ReactWinJS;
+x
