@@ -2604,7 +2604,8 @@ var ControlApis = updateWithDefaults({
         // app content. The React component renders into this div so it doesn't
         // destroy any control content.
         render: function (component) {
-            return React.DOM.div(null, React.DOM.div({ className: "win-react-flyout-mount-point" }));
+            return React.createElement('div', null, 
+                React.createElement('div', { className: "win-react-flyout-mount-point" }))
         },
         propHandlers: {
             hidden: PropHandlers.focusProperty(PropTypes.bool),
@@ -2653,7 +2654,7 @@ var ControlApis = updateWithDefaults({
                 // multiple components whereas the other technique restricts it to one.
                 update: function (winjsComponent, propName, oldValue, newValue) {
                     // TODO: dispose
-                    ReactDOM.render(React.DOM.div(null, newValue), winjsComponent.winControl.element);
+                    ReactDOM.render(React.createElement('div',null, newValue), winjsComponent.winControl.element);
                 }
             }
         }
