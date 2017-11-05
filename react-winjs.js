@@ -2325,7 +2325,11 @@ function defineControl(options) {
     }
 
 
-    return class ControlComponent extends Component {
+    class TypeComponent extends Component {
+
+        constructor(props) {
+            super(props)
+        }
 
         constructor(props) {
             super(props)
@@ -2366,35 +2370,15 @@ function defineControl(options) {
         }
     }
 
-    // return React.createClass({
-    //     displayName: displayName,
-    //     statics: {
-    //         initWinJSComponent: initWinJSComponent,
-    //         updateWinJSComponent: updateWinJSComponent,
-    //         disposeWinJSComponent: disposeWinJSComponent
-    //     },
-    //     propTypes: mapObject(propHandlers, function (propName, propHandler) {
-    //         return propHandler.propType;
-    //     }),
-    //     shouldComponentUpdate: function () {
-    //         return false;
-    //     },
-    //     // If choosing to implement componentWillMount, be aware that componentWillMount
-    //     // will run when WinJSChildComponent renders the component to a string via
-    //     // renderRootlessComponent.
-    //     componentDidMount: function () {
-    //         initWinJSComponent(this, ReactDOM.findDOMNode(this), this.props);
-    //     },
-    //     componentWillUnmount: function () {
-    //         disposeWinJSComponent(this);
-    //     },
-    //     componentWillReceiveProps: function (nextProps) {
-    //         updateWinJSComponent(this, this.props, nextProps);
-    //     },
-    //     render: function() {
-    //         return render(this);
-    //     }
-    // });
+    TypeComponent.displayName = displayName
+    TypeComponent.initWinJSComponent = initWinJSComponent
+    TypeComponent.updateWinJSComponent = updateWinJSComponent
+    TypeComponent.disposeWinJSComponent = disposeWinJSComponent
+    TypeComponent.propTypes = mapObject(propHandlers, function (propName, propHandler) {
+        return propHandler.propType;
+    })
+
+    return TypeComponent
 }
 
 var hostEl = document.createElement("div");
@@ -2418,7 +2402,6 @@ function WinJSChildComponent(component) { // implements IWinJSChildComponent
     // Clone the component so a ref isn't generated.
     var clonedComponent = React.cloneElement(component, { ref: null });
     var element = renderRootlessComponent(clonedComponent);
-    console.log(component.type)
     component.type.initWinJSComponent(this, element, component.props);
     this.key = component.key;
     this.type = component.type;
