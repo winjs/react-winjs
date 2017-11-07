@@ -12,7 +12,7 @@ install:
 before_script:
   - git checkout $TRAVIS_BRANCH
 script:
-  - 
+  - yarn test
 # after_success:
 #   - "./ci/deploy.sh"
 # after_script:
