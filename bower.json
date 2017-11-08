@@ -21,5 +21,6 @@
     "package.json",
     "*.nuspec",
     "Gruntfile.js"
-  ]
+  ],
+  "version": "2.5.3"
 }

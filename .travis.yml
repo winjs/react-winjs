@@ -1,3 +1,4 @@
+sudo: required
 language: node_js
 node_js:
   - "node"
@@ -9,6 +10,7 @@ cache:
 #   - "./ci/before_install.sh"
 install:
   - yarn install
+  - sudo apt-get install jq
 before_script:
   - git checkout $TRAVIS_BRANCH
 script:

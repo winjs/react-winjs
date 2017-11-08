@@ -1,11 +1,13 @@
 {
   "name": "react-winjs",
-  "version": "2.5.0",
+  "version": "2.5.3",
   "description": "React wrapper around WinJS's controls",
   "main": "react-winjs.min.js",
   "scripts": {
     "test": "eslint react-winjs.js",
-    "build": "babel react-winjs.js | node_modules/uglify-js/bin/uglifyjs  > react-winjs.min.js"
+    "build": "babel react-winjs.js | node_modules/uglify-js/bin/uglifyjs  > react-winjs.min.js",
+    "deploy": "./ci/scripts/deploy.sh",
+    "release": "standard-version -m 'ci(release): generate CHANGELOG.md for version %s'"
   },
   "keywords": [
     "winjs",
@@ -40,6 +42,7 @@
     "grunt-contrib-copy": "^1.0.0",
     "grunt-github-releaser": "^0.1.18",
     "grunt-nuget": "^0.3.0",
+    "standard-version": "^4.2.0",
     "uglify-js": "^3.1.7"
   }
 }
