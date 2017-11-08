@@ -6,8 +6,6 @@ cache:
   yarn: true
   directories:
     - "node_modules"
-# before_install:
-#   - "./ci/before_install.sh"
 install:
   - yarn install
   - sudo apt-get install jq
@@ -15,19 +13,5 @@ before_script:
   - git checkout $TRAVIS_BRANCH
 script:
   - yarn test
-# after_success:
-#   - "./ci/deploy.sh"
-# after_script:
-#   - "./ci/after_script.sh"
-before_deploy:
-  - "./ci/scripts/git_config.sh"
-deploy:
-  skip_cleanup: true
-  - provider: script
-    script: "./ci/scripts/deploy_develop.sh"
-    on:
-      branch: develop
-  - provider: script
-    script: "./ci/scripts/deploy_master.sh"
-    on:
-      branch: master
+after_success:
+  - "./ci/deploy.sh"
