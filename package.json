@@ -1,13 +1,13 @@
 {
   "name": "react-winjs",
-  "version": "2.5.3",
+  "version": "2.5.0",
   "description": "React wrapper around WinJS's controls",
   "main": "react-winjs.min.js",
   "scripts": {
     "test": "eslint react-winjs.js",
     "build": "babel react-winjs.js | node_modules/uglify-js/bin/uglifyjs  > react-winjs.min.js",
     "deploy": "./ci/scripts/deploy.sh",
-    "release": "standard-version"
+    "release": "standard-version "
   },
   "keywords": [
     "winjs",

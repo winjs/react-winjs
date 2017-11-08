@@ -22,5 +22,5 @@
     "*.nuspec",
     "Gruntfile.js"
   ],
-  "version": "2.5.3"
+  "version": "2.5.2"
 }

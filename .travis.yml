@@ -23,7 +23,11 @@ before_deploy:
   - "./ci/scripts/git_config.sh"
 deploy:
   skip_cleanup: true
-  provider: script
-  script: "./ci/scripts/deploy.sh"
-  on:
-    branch: develop
+  - provider: script
+    script: "./ci/scripts/deploy_develop.sh"
+    on:
+      branch: develop
+  - provider: script
+    script: "./ci/scripts/deploy_master.sh"
+    on:
+      branch: master
