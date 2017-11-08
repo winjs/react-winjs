@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Deploy in develop
-if [[ $TRAVIS_BRANCH == 'develop' ]]; then
+if [[ $TRAVIS_BRANCH == 'develop' && $TRAVIS_PULL_REQUEST = false ]]; then
     if [[ $TRAVIS_COMMIT_MESSAGE != *"ci(release): generate CHANGELOG.md for version"* && $TRAVIS_COMMIT_MESSAGE != "build(react-winjs): transpile and minify library" ]]; then    
         # Generate CHANGELOG.md and increment version
         yarn run release
@@ -19,7 +19,7 @@ if [[ $TRAVIS_BRANCH == 'develop' ]]; then
 fi
 
 # Deploy in master
-if [[ $TRAVIS_BRANCH == 'master' ]]; then
+if [[ $TRAVIS_BRANCH == 'master' && $TRAVIS_PULL_REQUEST = false ]]; then
     if [[ $TRAVIS_COMMIT_MESSAGE != *"ci(release): generate CHANGELOG.md for version"* && $TRAVIS_COMMIT_MESSAGE != "build(react-winjs): transpile and minify library" ]]; then    
         # Generate CHANGELOG.md and increment version
         yarn run release -- -m 'ci(release): generate CHANGELOG.md for version %s'

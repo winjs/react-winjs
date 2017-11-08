@@ -10,7 +10,7 @@ install:
   - yarn install
   - sudo apt-get install jq
 before_script:
-  - git checkout $TRAVIS_BRANCH
+  - if [ $TRAVIS_PULL_REQUEST = false ]; then git checkout $TRAVIS_BRANCH fi
 script:
   - yarn test
 after_success:
