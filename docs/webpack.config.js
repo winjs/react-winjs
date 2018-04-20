@@ -1,4 +1,4 @@
-var path = require('path');
+import path from 'path';
 /*
  Export react-winjs as a library object (a ReactWinJS var).
  */

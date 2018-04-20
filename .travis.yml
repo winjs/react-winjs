@@ -1,0 +1,17 @@
+sudo: required
+language: node_js
+node_js:
+  - "node"
+cache:
+  yarn: true
+  directories:
+    - "node_modules"
+install:
+  - yarn install
+  - sudo apt-get install jq
+before_script:
+  - if [ $TRAVIS_PULL_REQUEST = false ]; then git checkout $TRAVIS_BRANCH fi
+script:
+  - yarn test
+after_success:
+  - "./ci/deploy.sh"
