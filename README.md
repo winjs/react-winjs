@@ -3,7 +3,7 @@
 A React wrapper around WinJS's controls. Implemented using the technique described on [this WinJS wiki page](https://github.com/winjs/winjs/wiki/Using-WinJS-with-React).
 
   - [Documentation](https://github.com/winjs/react-winjs/wiki/Documentation)
-  - [Live Component Library](https://brand.ai/styleguide/WinJS)
+
 
 Live demos:
   - [Showcase](http://winjs.github.io/react-winjs/examples/showcase/index.html) ([source](https://github.com/winjs/react-winjs/tree/master/examples/showcase)): shows an example usage of each component.
